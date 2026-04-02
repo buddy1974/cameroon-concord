@@ -151,8 +151,8 @@ export default async function ArticlePage({ params }: Props) {
             )}
 
             {/* Ad — above fold */}
-            <div className="ad-container mb-6">
-              <p className="ad-label">Advertisement</p>
+            <div className="ad-unit mb-6">
+              <p className="ad-unit-label">Advertisement</p>
               <ins
                 className="adsbygoogle"
                 style={{ display: 'block' }}
@@ -164,7 +164,7 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             {/* Article body */}
-            <div className="article-body" id="article-content">
+            <div className="prose" id="article-content">
               {article.body ? (
                 <div dangerouslySetInnerHTML={{ __html: article.body }} />
               ) : (
@@ -173,8 +173,8 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             {/* Ad — after body */}
-            <div className="ad-container my-8">
-              <p className="ad-label">Advertisement</p>
+            <div className="ad-unit my-8">
+              <p className="ad-unit-label">Advertisement</p>
               <ins
                 className="adsbygoogle"
                 style={{ display: 'block' }}
@@ -256,8 +256,8 @@ export default async function ArticlePage({ params }: Props) {
           <aside className="space-y-8">
 
             {/* Sticky ad */}
-            <div className="ad-container sticky top-24">
-              <p className="ad-label">Advertisement</p>
+            <div className="ad-unit sticky top-24">
+              <p className="ad-unit-label">Advertisement</p>
               <ins
                 className="adsbygoogle"
                 style={{ display: 'block' }}

@@ -6,47 +6,34 @@ import { Search, Menu, X } from 'lucide-react'
 import { NAV_CATEGORIES } from '@/lib/constants'
 
 export function Header() {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    const fn = () => setScrolled(window.scrollY > 30)
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
   }, [])
-
-  useEffect(() => { setMenuOpen(false) }, [pathname])
+  useEffect(() => { setOpen(false) }, [pathname])
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${
-      scrolled
-        ? 'bg-[#080808]/98 backdrop-blur-xl shadow-[0_1px_0_rgba(255,255,255,0.04)]'
-        : 'bg-[#080808]'
-    }`}>
-      {/* Top identity bar */}
+    <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'bg-[#080808]/96 backdrop-blur-lg shadow-[0_1px_0_#1E1E1E]' : 'bg-[#080808]'}`}>
+
+      {/* Logo + actions */}
       <div className="border-b border-[#1E1E1E]">
-        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-          <Link href="/" className="flex items-center gap-0 group">
-            <span className="text-[1.4rem] font-black tracking-[-0.04em] text-white uppercase">
-              Cameroon
-            </span>
-            <span className="text-[1.4rem] font-black tracking-[-0.04em] text-[#C8102E] uppercase">
-              Concord
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 flex items-center justify-between h-[52px]">
+          <Link href="/" className="flex items-center">
+            <span className="text-[1.35rem] font-black tracking-[-0.04em] uppercase text-white leading-none">
+              Cameroon<span className="text-[#C8102E]">Concord</span>
             </span>
           </Link>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href="/search"
-              className="w-9 h-9 flex items-center justify-center text-[#555] hover:text-white transition-colors rounded-lg hover:bg-[#1A1A1A]">
-              <Search size={17} />
+          <div className="flex items-center gap-1">
+            <Link href="/search" className="w-9 h-9 grid place-items-center text-[#555] hover:text-white hover:bg-[#181818] rounded-lg transition-colors">
+              <Search size={16} strokeWidth={2.5} />
             </Link>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="lg:hidden w-9 h-9 flex items-center justify-center text-[#555] hover:text-white transition-colors rounded-lg hover:bg-[#1A1A1A]"
-              aria-label="Menu">
-              {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            <button onClick={() => setOpen(!open)} className="lg:hidden w-9 h-9 grid place-items-center text-[#555] hover:text-white hover:bg-[#181818] rounded-lg transition-colors">
+              {open ? <X size={17} /> : <Menu size={17} />}
             </button>
           </div>
         </div>
@@ -54,42 +41,33 @@ export function Header() {
 
       {/* Desktop nav */}
       <nav className="hidden lg:block border-b border-[#1E1E1E]">
-        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {NAV_CATEGORIES.map(cat => {
-              const active = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`)
-              return (
-                <Link
-                  key={cat.slug}
-                  href={`/${cat.slug}`}
-                  className={`relative px-4 py-3 text-[0.7rem] font-bold uppercase tracking-[0.1em] whitespace-nowrap transition-colors ${
-                    active
-                      ? 'text-[#C8102E] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#C8102E] after:content-[""]'
-                      : 'text-[#666] hover:text-white'
-                  }`}>
-                  {cat.name}
-                </Link>
-              )
-            })}
-          </div>
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 flex items-center gap-0">
+          {NAV_CATEGORIES.map(cat => {
+            const active = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`)
+            return (
+              <Link key={cat.slug} href={`/${cat.slug}`}
+                className={`relative px-4 py-2.5 text-[0.68rem] font-bold uppercase tracking-[0.08em] whitespace-nowrap transition-all duration-150 ${active ? 'text-[#C8102E]' : 'text-[#666] hover:text-[#EEE]'}`}>
+                {active && <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#C8102E] rounded-t" />}
+                {cat.name}
+              </Link>
+            )
+          })}
         </div>
       </nav>
 
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[57px] bg-[#080808] z-50 overflow-y-auto">
-          <nav className="p-4 grid grid-cols-2 gap-2">
+      {/* Mobile nav */}
+      {open && (
+        <nav className="lg:hidden fixed inset-x-0 top-[calc(52px+37px)] bottom-0 bg-[#080808] z-50 overflow-y-auto p-4">
+          <div className="grid grid-cols-2 gap-2">
             {NAV_CATEGORIES.map(cat => (
-              <Link
-                key={cat.slug}
-                href={`/${cat.slug}`}
-                className="flex items-center gap-2 px-4 py-3 bg-[#111111] rounded-xl text-sm font-semibold text-[#999] hover:text-white hover:bg-[#1A1A1A] transition-all border border-[#1E1E1E]">
-                <span className="w-2 h-2 rounded-full bg-[#C8102E] flex-shrink-0" />
+              <Link key={cat.slug} href={`/${cat.slug}`}
+                className="flex items-center gap-2.5 px-4 py-3 bg-[#101010] border border-[#1E1E1E] rounded-xl text-sm font-semibold text-[#999] hover:text-white hover:border-[#C8102E] transition-all">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C8102E] flex-shrink-0" />
                 {cat.name}
               </Link>
             ))}
-          </nav>
-        </div>
+          </div>
+        </nav>
       )}
     </header>
   )

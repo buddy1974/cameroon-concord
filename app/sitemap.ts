@@ -5,10 +5,11 @@ import { getLatestArticles, getAllCategories } from '@/lib/db/queries'
 import { SITE_URL } from '@/lib/constants'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articles, categories] = await Promise.all([
-    getLatestArticles(1000),
-    getAllCategories(),
-  ])
+  let articles: Awaited<ReturnType<typeof getLatestArticles>> = []
+  let categories: Awaited<ReturnType<typeof getAllCategories>> = []
+  try {
+    ;[articles, categories] = await Promise.all([getLatestArticles(1000), getAllCategories()])
+  } catch { /* DB unavailable at build time */ }
 
   const articleUrls: MetadataRoute.Sitemap = articles.map(a => ({
     url:             `${SITE_URL}/${a.category.slug}/${a.slug}`,

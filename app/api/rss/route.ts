@@ -3,8 +3,13 @@ export const revalidate = 3600
 import { getLatestArticles } from '@/lib/db/queries'
 import { SITE_NAME, SITE_URL } from '@/lib/constants'
 
+const EMPTY_RSS = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Cameroon Concord</title></channel></rss>`
+
 export async function GET() {
-  const articles = await getLatestArticles(50)
+  let articles: Awaited<ReturnType<typeof getLatestArticles>> = []
+  try { articles = await getLatestArticles(50) } catch {
+    return new Response(EMPTY_RSS, { headers: { 'Content-Type': 'application/xml; charset=utf-8' } })
+  }
 
   const items = articles
     .filter(a => a.publishedAt)

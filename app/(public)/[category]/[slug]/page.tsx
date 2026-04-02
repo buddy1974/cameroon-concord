@@ -3,10 +3,11 @@ import { notFound }      from 'next/navigation'
 import Image             from 'next/image'
 import Link              from 'next/link'
 import { Eye, Clock, Calendar } from 'lucide-react'
-import { ArticleCard }    from '@/components/article/ArticleCard'
-import { JsonLd }         from '@/components/seo/JsonLd'
-import { CommentSection } from '@/components/article/CommentSection'
-import { HitTracker }     from '@/components/article/HitTracker'
+import { ArticleCard }      from '@/components/article/ArticleCard'
+import { JsonLd }           from '@/components/seo/JsonLd'
+import { CommentSection }   from '@/components/article/CommentSection'
+import { HitTracker }       from '@/components/article/HitTracker'
+import { ReadingProgress }  from '@/components/article/ReadingProgress'
 import {
   getArticleBySlug,
   getRelatedArticles,
@@ -57,8 +58,9 @@ export default async function ArticlePage({ params }: Props) {
       <JsonLd data={newsSchema} />
       <JsonLd data={breadcrumb} />
       <HitTracker articleId={article.id} />
+      <ReadingProgress />
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
           {/* MAIN ARTICLE */}
@@ -92,7 +94,7 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-3">
+            <h1 className="text-2xl md:text-4xl font-black text-[#F5A623] leading-[1.1] tracking-[-0.03em] mb-3">
               {article.title}
             </h1>
             {article.subtitle && (

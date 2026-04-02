@@ -3,6 +3,11 @@ import { articles, categories, authors, articleHits } from '@/lib/db/schema'
 import { eq, desc, and, sql } from 'drizzle-orm'
 import type { ArticleWithRelations } from '@/lib/types'
 
+function cleanImg(url: string | null | undefined): string | null {
+  if (!url) return null
+  return url.split('#')[0].trim() || null
+}
+
 export async function getArticleBySlug(
   categorySlug: string,
   articleSlug: string
@@ -77,7 +82,7 @@ export async function getArticlesByCategory(
 
   return {
     articles: rows.map(r => ({
-      ...r.article,
+      ...r.article, featuredImage: cleanImg(r.article.featuredImage),
       category: r.category,
       author:   r.author ?? null,
       tags:     [],
@@ -105,7 +110,7 @@ export async function getLatestArticles(limit = 20, offset = 0): Promise<Article
     .offset(offset)
 
   return rows.map(r => ({
-    ...r.article,
+    ...r.article, featuredImage: cleanImg(r.article.featuredImage),
     category: r.category,
     author:   r.author ?? null,
     tags:     [],
@@ -138,13 +143,13 @@ export async function getFeaturedArticles(limit = 3): Promise<ArticleWithRelatio
     const extra = await getLatestArticles(limit - rows.length)
     const ids = new Set(rows.map(r => r.article.id))
     return [
-      ...rows.map(r => ({ ...r.article, category: r.category, author: r.author ?? null, tags: [], hits: r.hits ?? 0 })),
+      ...rows.map(r => ({ ...r.article, featuredImage: cleanImg(r.article.featuredImage), category: r.category, author: r.author ?? null, tags: [], hits: r.hits ?? 0 })),
       ...extra.filter(a => !ids.has(a.id)),
     ]
   }
 
   return rows.map(r => ({
-    ...r.article,
+    ...r.article, featuredImage: cleanImg(r.article.featuredImage),
     category: r.category,
     author:   r.author ?? null,
     tags:     [],
@@ -174,7 +179,7 @@ export async function getBreakingNews(limit = 5): Promise<ArticleWithRelations[]
     .limit(limit)
 
   return rows.map(r => ({
-    ...r.article,
+    ...r.article, featuredImage: cleanImg(r.article.featuredImage),
     category: r.category,
     author:   r.author ?? null,
     tags:     [],
@@ -199,7 +204,7 @@ export async function getMostRead(limit = 5): Promise<ArticleWithRelations[]> {
     .limit(limit)
 
   return rows.map(r => ({
-    ...r.article,
+    ...r.article, featuredImage: cleanImg(r.article.featuredImage),
     category: r.category,
     author:   r.author ?? null,
     tags:     [],
@@ -234,7 +239,7 @@ export async function getRelatedArticles(
     .limit(limit)
 
   return rows.map(r => ({
-    ...r.article,
+    ...r.article, featuredImage: cleanImg(r.article.featuredImage),
     category: r.category,
     author:   r.author ?? null,
     tags:     [],
@@ -270,7 +275,7 @@ export async function searchArticles(
     .offset(offset)
 
   return rows.map(r => ({
-    ...r.article,
+    ...r.article, featuredImage: cleanImg(r.article.featuredImage),
     category: r.category,
     author:   r.author ?? null,
     tags:     [],

@@ -34,26 +34,34 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <JsonLd data={breadcrumb} />
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-8">
 
         {/* Category header */}
-        <div className="border-b border-[#2A2A2A] pb-6 mb-8">
-          <nav className="text-xs text-[#6B7280] mb-3">
+        <div className="border-b border-[#1E1E1E] pb-8 mb-8">
+          <nav className="text-[0.65rem] text-[#444] mb-4 flex items-center gap-1.5">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span className="mx-2">›</span>
-            <span className="text-white">{category.name}</span>
+            <span className="text-[#2A2A2A]">›</span>
+            <span className="text-[#C8102E] font-semibold">{category.name}</span>
           </nav>
-          <h1 className="text-3xl font-black text-white">{category.name}</h1>
-          {category.description && (
-            <p
-              className="text-[#6B7280] mt-2 max-w-2xl text-sm"
-              dangerouslySetInnerHTML={{ __html: category.description || '' }}
-            />
-          )}
-          <p className="text-xs text-[#4B5563] mt-2">{total.toLocaleString()} articles</p>
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-black text-white tracking-[-0.03em]">{category.name}</h1>
+              {category.description && (
+                <p
+                  className="text-[0.8rem] text-[#555] mt-2 max-w-2xl leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: category.description || '' }}
+                />
+              )}
+            </div>
+            <span className="text-[0.65rem] text-[#333] font-semibold whitespace-nowrap">
+              {total.toLocaleString()} articles
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Article grid */}
           <div className="lg:col-span-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {articles.map(a => (
@@ -63,7 +71,7 @@ export default async function CategoryPage({ params }: Props) {
           </div>
 
           <aside>
-            <div className="ad-container sticky top-24">
+            <div className="ad-wrap sticky top-24">
               <p className="ad-label">Advertisement</p>
               <ins
                 className="adsbygoogle"
@@ -75,6 +83,7 @@ export default async function CategoryPage({ params }: Props) {
               />
             </div>
           </aside>
+
         </div>
       </div>
     </>

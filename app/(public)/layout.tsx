@@ -9,7 +9,7 @@ export default async function PublicLayout({ children }: { children: React.React
     <>
       <BreakingBanner articles={breaking} />
       <Header />
-      <main className="min-h-screen">
+      <main className="min-h-screen w-full">
         {children}
       </main>
       <Footer />

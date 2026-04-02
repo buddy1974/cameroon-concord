@@ -14,7 +14,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   const rows = await db
     .select()
     .from(categories)
-    .where(eq(categories.slug, slug))
+    .where(eq(categories.slug, slug.toLowerCase().trim()))
     .limit(1)
   return rows[0] ?? null
 }

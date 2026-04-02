@@ -45,7 +45,10 @@ export default async function CategoryPage({ params }: Props) {
           </nav>
           <h1 className="text-3xl font-black text-white">{category.name}</h1>
           {category.description && (
-            <p className="text-[#6B7280] mt-2 max-w-2xl text-sm">{category.description}</p>
+            <p
+              className="text-[#6B7280] mt-2 max-w-2xl text-sm"
+              dangerouslySetInnerHTML={{ __html: category.description || '' }}
+            />
           )}
           <p className="text-xs text-[#4B5563] mt-2">{total.toLocaleString()} articles</p>
         </div>

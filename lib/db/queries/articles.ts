@@ -21,7 +21,7 @@ export async function getArticleBySlug(
     .where(
       and(
         eq(articles.slug,   articleSlug),
-        eq(categories.slug, categorySlug),
+        eq(categories.slug, categorySlug.toLowerCase().trim()),
         eq(articles.status, 'published'),
       )
     )
@@ -57,7 +57,7 @@ export async function getArticlesByCategory(
     .leftJoin(articleHits, eq(articleHits.articleId, articles.id))
     .where(
       and(
-        eq(categories.slug, categorySlug),
+        eq(categories.slug, categorySlug.toLowerCase().trim()),
         eq(articles.status, 'published'),
       )
     )
@@ -71,7 +71,7 @@ export async function getArticlesByCategory(
     .innerJoin(categories, eq(articles.categoryId, categories.id))
     .where(
       and(
-        eq(categories.slug, categorySlug),
+        eq(categories.slug, categorySlug.toLowerCase().trim()),
         eq(articles.status, 'published'),
       )
     )

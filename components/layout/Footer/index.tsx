@@ -82,9 +82,6 @@ export function Footer() {
           <p className="text-xs text-[#4B5563]">
             © {year} {SITE_NAME}. All Rights Reserved.
           </p>
-          <p className="text-xs text-[#4B5563]">
-            Built with Next.js · Hosted on Vercel
-          </p>
         </div>
       </div>
     </footer>

@@ -55,7 +55,7 @@ export function Header() {
       {/* Desktop nav */}
       <nav className="hidden lg:block border-b border-[#1E1E1E]">
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="flex items-center gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {NAV_CATEGORIES.map(cat => {
               const active = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`)
               return (

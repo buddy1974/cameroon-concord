@@ -1,8 +1,8 @@
+export const dynamic = 'force-dynamic'
+
 import { MetadataRoute } from 'next'
 import { getLatestArticles, getAllCategories } from '@/lib/db/queries'
 import { SITE_URL } from '@/lib/constants'
-
-export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [articles, categories] = await Promise.all([

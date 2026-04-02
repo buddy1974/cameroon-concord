@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import type { Metadata } from 'next'
 import { notFound }      from 'next/navigation'
 import Image             from 'next/image'
@@ -164,10 +166,13 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             {/* Article body */}
-            <div
-              className="article-body"
-              dangerouslySetInnerHTML={{ __html: article.body }}
-            />
+            <div className="article-body" id="article-content">
+              {article.body ? (
+                <div dangerouslySetInnerHTML={{ __html: article.body }} />
+              ) : (
+                <p className="text-[#666]">Content unavailable.</p>
+              )}
+            </div>
 
             {/* Ad — after body */}
             <div className="ad-container my-8">

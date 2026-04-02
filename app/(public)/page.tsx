@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArticleCard }   from '@/components/article/ArticleCard'
@@ -11,8 +13,6 @@ import {
 } from '@/lib/db/queries'
 import { buildSiteMetadata }       from '@/lib/seo/metadata'
 import { buildOrganizationSchema } from '@/lib/seo/schema'
-
-export const revalidate = 60
 
 export const metadata: Metadata = buildSiteMetadata()
 

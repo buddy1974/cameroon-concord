@@ -1,7 +1,7 @@
+export const dynamic = 'force-dynamic'
+
 import { getLatestArticles } from '@/lib/db/queries'
 import { SITE_NAME, SITE_URL } from '@/lib/constants'
-
-export const revalidate = 3600
 
 export async function GET() {
   const articles = await getLatestArticles(50)

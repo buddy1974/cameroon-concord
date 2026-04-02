@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/loneb/Documents/ai-software-dev/projects/cameroon.concord/**)",
+      "Bash(node -e ':*)"
+    ]
+  }
+}

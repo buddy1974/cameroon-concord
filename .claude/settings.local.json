@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(mv /c/Users/loneb/Documents/ai-software-dev/projects/cameroon.concord/social-automation /c/Users/loneb/Documents/ai-software-dev/projects/social-automation-temp)",
+      "Bash(rm /c/Users/loneb/Documents/ai-software-dev/projects/cameroon.concord/index.html /c/Users/loneb/Documents/ai-software-dev/projects/cameroon.concord/style.css /c/Users/loneb/Documents/ai-software-dev/projects/cameroon.concord/README.md)",
+      "Bash(npm install:*)",
+      "Bash(ls:*)",
+      "Bash(node:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(npm list:*)"
+    ]
+  }
+}

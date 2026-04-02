@@ -1,0 +1,246 @@
+{
+  "name": "Concord — Telegram Poller",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "notes": "SEED REQUIRED before first run: INSERT INTO social_rotation (platform, category, daily_limit) VALUES ('telegram', 'offset_0', 999);",
+  "nodes": [
+    {
+      "id": "cc-tp-0001",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "cc-tp-0002",
+      "name": "Get Last Offset",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [250, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT category AS offset_value FROM social_rotation WHERE platform = 'telegram' AND category LIKE 'offset_%' LIMIT 1;"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
+          "name": "Concord Neon DB"
+        }
+      }
+    },
+    {
+      "id": "cc-tp-0003",
+      "name": "Build Telegram URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "parameters": {
+        "jsCode": "const rows = $input.all();\nconst TELEGRAM_BOT_TOKEN = 'REPLACE_WITH_BOT_TOKEN';\n\nlet offsetValue = 0;\nif (rows.length > 0 && rows[0].json.offset_value) {\n  const raw = rows[0].json.offset_value;\n  const match = raw.toString().match(/(\\d+)/);\n  offsetValue = match ? parseInt(match[1]) : 0;\n}\n\nconst url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${offsetValue}&limit=20`;\n\nreturn [{ json: { url, current_offset: offsetValue } }];"
+      }
+    },
+    {
+      "id": "cc-tp-0004",
+      "name": "getUpdates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 300],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "cc-tp-0005",
+      "name": "Extract Messages + Build Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 300],
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\nconst input = $input.first().json;\nconst updates = input.result || [];\n\nif (!updates.length) {\n  return [{ json: { rows: [], max_update_id: null, count: 0 } }];\n}\n\nconst rows = [];\nlet maxUpdateId = 0;\n\nfor (const update of updates) {\n  const updateId = update.update_id;\n  if (updateId > maxUpdateId) maxUpdateId = updateId;\n\n  const msg = update.message || update.channel_post;\n  if (!msg) continue;\n\n  const text = msg.text || msg.caption || '';\n  if (!text || text.length < 20) continue;\n\n  let imageUrl = null;\n  if (msg.photo && msg.photo.length > 0) {\n    const largest = msg.photo[msg.photo.length - 1];\n    imageUrl = `tg_file:${largest.file_id}`;\n  }\n\n  const hashInput = (text.substring(0, 100)).toLowerCase().replace(/\\s+/g, '');\n  const content_hash = crypto.createHash('sha256').update(hashInput).digest('hex');\n\n  rows.push({\n    source_name: 'telegram',\n    source_url: null,\n    content_hash,\n    raw_title: text.substring(0, 200),\n    raw_body: text.substring(0, 5000),\n    raw_image_url: imageUrl,\n    language: 'en',\n    status: 'pending'\n  });\n}\n\nreturn [{ json: { rows, max_update_id: maxUpdateId, count: rows.length } }];"
+      }
+    },
+    {
+      "id": "cc-tp-0006",
+      "name": "IF: New Messages?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1250, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-001",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "cc-tp-0007",
+      "name": "Split Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 150],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const input = $input.first().json;\nconst rows = input.rows || [];\nreturn rows.map(r => ({ json: r }));"
+      }
+    },
+    {
+      "id": "cc-tp-0008",
+      "name": "Insert to Neon DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1750, 150],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ingested_content (source_name, source_url, content_hash, raw_title, raw_body, raw_image_url, language, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (content_hash) DO NOTHING",
+        "options": {
+          "queryBatching": "independently",
+          "queryParams": "={{ [$json.source_name, $json.source_url, $json.content_hash, $json.raw_title, $json.raw_body, $json.raw_image_url, $json.language, $json.status] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
+          "name": "Concord Neon DB"
+        }
+      }
+    },
+    {
+      "id": "cc-tp-0009",
+      "name": "Collect + Prepare Offset",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 150],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const maxUpdateId = $('Extract Messages + Build Rows').first().json.max_update_id;\nconst count = $('Extract Messages + Build Rows').first().json.count;\nreturn [{ json: { max_update_id: maxUpdateId, new_offset: maxUpdateId + 1, inserted_count: count } }];"
+      }
+    },
+    {
+      "id": "cc-tp-0010",
+      "name": "Update Offset",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2250, 150],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE social_rotation SET category = CONCAT('offset_', $1::text), updated_at = NOW() WHERE platform = 'telegram' AND category LIKE 'offset_%';",
+        "options": {
+          "queryBatching": "independently",
+          "queryParams": "={{ [$json.new_offset] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
+          "name": "Concord Neon DB"
+        }
+      }
+    },
+    {
+      "id": "cc-tp-0011",
+      "name": "Log Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2500, 150],
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    message: 'Telegram poll complete',\n    inserted: $input.first().json.inserted_count,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      }
+    },
+    {
+      "id": "cc-tp-0012",
+      "name": "Nothing New",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 450],
+      "parameters": {
+        "jsCode": "return [{ json: { message: 'No new Telegram messages', timestamp: new Date().toISOString() } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [{ "node": "Get Last Offset", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Last Offset": {
+      "main": [
+        [{ "node": "Build Telegram URL", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Telegram URL": {
+      "main": [
+        [{ "node": "getUpdates", "type": "main", "index": 0 }]
+      ]
+    },
+    "getUpdates": {
+      "main": [
+        [{ "node": "Extract Messages + Build Rows", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Messages + Build Rows": {
+      "main": [
+        [{ "node": "IF: New Messages?", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF: New Messages?": {
+      "main": [
+        [{ "node": "Split Rows", "type": "main", "index": 0 }],
+        [{ "node": "Nothing New", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Rows": {
+      "main": [
+        [{ "node": "Insert to Neon DB", "type": "main", "index": 0 }]
+      ]
+    },
+    "Insert to Neon DB": {
+      "main": [
+        [{ "node": "Collect + Prepare Offset", "type": "main", "index": 0 }]
+      ]
+    },
+    "Collect + Prepare Offset": {
+      "main": [
+        [{ "node": "Update Offset", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Offset": {
+      "main": [
+        [{ "node": "Log Summary", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}

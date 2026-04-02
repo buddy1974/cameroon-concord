@@ -1,0 +1,41 @@
+import {
+  mysqlTable, int, varchar, text, longtext,
+  boolean, datetime, mysqlEnum, index,
+} from 'drizzle-orm/mysql-core'
+import { sql } from 'drizzle-orm'
+
+export const articles = mysqlTable('articles', {
+  id:            int('id', { unsigned: true }).autoincrement().primaryKey(),
+  legacyId:      int('legacy_id', { unsigned: true }),
+  slug:          varchar('slug', { length: 240 }).notNull().unique(),
+  title:         varchar('title', { length: 320 }).notNull(),
+  subtitle:      varchar('subtitle', { length: 320 }),
+  body:          longtext('body').notNull(),
+  excerpt:       text('excerpt'),
+  categoryId:    int('category_id', { unsigned: true }).notNull(),
+  authorId:      int('author_id', { unsigned: true }),
+  featuredImage: varchar('featured_image', { length: 512 }),
+  imageCaption:  varchar('image_caption', { length: 512 }),
+  imageAlt:      varchar('image_alt', { length: 255 }),
+  status:        mysqlEnum('status', ['draft','scheduled','published','archived']).default('draft'),
+  isBreaking:    boolean('is_breaking').default(false),
+  isFeatured:    boolean('is_featured').default(false),
+  publishedAt:   datetime('published_at'),
+  scheduledAt:   datetime('scheduled_at'),
+  createdAt:     datetime('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt:     datetime('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  metaTitle:     varchar('meta_title', { length: 160 }),
+  metaDesc:      varchar('meta_desc', { length: 320 }),
+  canonicalUrl:  varchar('canonical_url', { length: 512 }),
+  legacyUrl:     varchar('legacy_url', { length: 512 }),
+  legacyHits:    int('legacy_hits', { unsigned: true }).default(0),
+  aiGenerated:   boolean('ai_generated').default(false),
+  aiReviewed:    boolean('ai_reviewed').default(false),
+  lang:          varchar('lang', { length: 2 }).default('en'),
+}, (t) => ({
+  categoryIdx:  index('idx_category').on(t.categoryId),
+  statusPubIdx: index('idx_status_pub').on(t.status, t.publishedAt),
+  legacyIdx:    index('idx_legacy').on(t.legacyId),
+  breakingIdx:  index('idx_breaking').on(t.isBreaking, t.publishedAt),
+  slugIdx:      index('idx_slug').on(t.slug),
+}))

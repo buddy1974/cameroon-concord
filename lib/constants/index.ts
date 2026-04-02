@@ -14,11 +14,11 @@ export const CATEGORIES = [
   { slug: 'southern-cameroons', name: 'S. Cameroons', color: '#F5A623' },
   { slug: 'health',             name: 'Health',       color: '#007A3D' },
   { slug: 'business',           name: 'Business',     color: '#F5A623' },
-  { slug: 'sports',             name: 'Sports',       color: '#C8102E' },
+  { slug: 'sportsnews',         name: 'Sports',       color: '#C8102E' },
   { slug: 'lifestyle',          name: 'Lifestyle',    color: '#007A3D' },
-  { slug: 'religion',           name: 'Religion',     color: '#F5A623' },
   { slug: 'editorial',          name: 'Editorial',    color: '#C8102E' },
-  { slug: 'biya',               name: 'Biya',         color: '#8B0000' },
+  { slug: 'inside-cpdm',        name: 'Biya',         color: '#8B0000' },
+  { slug: 'localnews',          name: 'Local News',   color: '#007A3D' },
 ] as const
 
 export const NAV_CATEGORIES = CATEGORIES.slice(0, 8)

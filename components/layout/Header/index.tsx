@@ -41,12 +41,12 @@ export function Header() {
 
       {/* Desktop nav */}
       <nav className="hidden lg:block border-b border-[#1E1E1E]">
-        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 flex items-center gap-0">
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 flex items-center gap-2">
           {NAV_CATEGORIES.map(cat => {
             const active = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`)
             return (
               <Link key={cat.slug} href={`/${cat.slug}`}
-                className={`relative px-4 py-2.5 text-[0.68rem] font-bold uppercase tracking-[0.08em] whitespace-nowrap transition-all duration-150 ${active ? 'text-[#C8102E]' : 'text-[#666] hover:text-[#EEE]'}`}>
+                className={`relative px-3 py-2.5 text-[0.68rem] font-bold uppercase tracking-[0.08em] whitespace-nowrap transition-all duration-150 border-r border-[#1E1E1E] last:border-0 ${active ? 'text-[#C8102E]' : 'text-[#666] hover:text-[#EEE]'}`}>
                 {active && <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#C8102E] rounded-t" />}
                 {cat.name}
               </Link>

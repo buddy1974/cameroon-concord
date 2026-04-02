@@ -7,10 +7,10 @@ import {
   getLatestArticles,
   getMostRead,
   getArticlesByCategory,
+  getAllCategories,
 } from '@/lib/db/queries'
 import { buildSiteMetadata }       from '@/lib/seo/metadata'
 import { buildOrganizationSchema } from '@/lib/seo/schema'
-import { CATEGORIES }              from '@/lib/constants'
 
 export const revalidate = 60
 
@@ -23,11 +23,17 @@ export default async function HomePage() {
     getMostRead(5),
   ])
 
+  const allCats = await getAllCategories()
+  const targetSlugs = ['politics', 'society', 'sports', 'southern-cameroons', 'health', 'business']
+  const availableSlugs = targetSlugs.filter(s =>
+    allCats.some(c => c.slug.toLowerCase() === s.toLowerCase())
+  )
+
   const categoryRows = await Promise.all(
-    ['politics', 'society', 'sports', 'southern-cameroons'].map(async slug => {
-      const { articles } = await getArticlesByCategory(slug, 1, 4)
-      const cat = CATEGORIES.find(c => c.slug === slug)
-      return { slug, name: cat?.name || slug, articles }
+    availableSlugs.map(async slug => {
+      const cat = allCats.find(c => c.slug.toLowerCase() === slug.toLowerCase())
+      const { articles: catArticles } = await getArticlesByCategory(cat!.slug, 1, 4)
+      return { slug: cat!.slug, name: cat!.name, articles: catArticles }
     })
   )
 

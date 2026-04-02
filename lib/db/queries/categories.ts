@@ -11,12 +11,21 @@ export async function getAllCategories(): Promise<Category[]> {
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  const normalized = slug.toLowerCase().trim()
   const rows = await db
     .select()
     .from(categories)
-    .where(eq(categories.slug, slug.toLowerCase().trim()))
+    .where(eq(categories.slug, normalized))
     .limit(1)
-  return rows[0] ?? null
+  if (rows[0]) return rows[0]
+
+  // Fallback: fetch all and fuzzy-match (handles slug encoding differences)
+  const all = await db.select().from(categories)
+  const match = all.find(c =>
+    c.slug.toLowerCase() === normalized ||
+    c.slug.toLowerCase().replace(/[^a-z0-9]/g, '-') === normalized
+  )
+  return match ?? null
 }
 
 export async function getTopLevelCategories(): Promise<Category[]> {

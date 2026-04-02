@@ -20,8 +20,7 @@ export async function getArticleBySlug(
     .leftJoin(articleHits, eq(articleHits.articleId, articles.id))
     .where(
       and(
-        eq(articles.slug,   articleSlug),
-        eq(categories.slug, categorySlug.toLowerCase().trim()),
+        eq(articles.slug,   articleSlug.toLowerCase().trim()),
         eq(articles.status, 'published'),
       )
     )

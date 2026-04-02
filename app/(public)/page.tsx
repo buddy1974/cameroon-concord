@@ -17,25 +17,39 @@ import { buildOrganizationSchema } from '@/lib/seo/schema'
 export const metadata: Metadata = buildSiteMetadata()
 
 export default async function HomePage() {
-  const [featured, latest, mostRead] = await Promise.all([
-    getFeaturedArticles(5),
-    getLatestArticles(12),
-    getMostRead(5),
-  ])
+  let featured:     Awaited<ReturnType<typeof getFeaturedArticles>>    = []
+  let latest:       Awaited<ReturnType<typeof getLatestArticles>>      = []
+  let mostRead:     Awaited<ReturnType<typeof getMostRead>>            = []
+  let allCats:      Awaited<ReturnType<typeof getAllCategories>>        = []
 
-  const allCats = await getAllCategories()
-  const targetSlugs = ['politics', 'society', 'sports', 'southern-cameroons', 'health', 'business']
+  try {
+    ;[featured, latest, mostRead, allCats] = await Promise.all([
+      getFeaturedArticles(5),
+      getLatestArticles(12),
+      getMostRead(5),
+      getAllCategories(),
+    ])
+  } catch (err) {
+    console.error('DB error on homepage:', err)
+  }
+
+  const targetSlugs = ['politics', 'society', 'sportsnews', 'southern-cameroons', 'health', 'business']
   const availableSlugs = targetSlugs.filter(s =>
     allCats.some(c => c.slug.toLowerCase() === s.toLowerCase())
   )
 
-  const categoryRows = await Promise.all(
-    availableSlugs.map(async slug => {
-      const cat = allCats.find(c => c.slug.toLowerCase() === slug.toLowerCase())
-      const { articles: catArticles } = await getArticlesByCategory(cat!.slug, 1, 4)
-      return { slug: cat!.slug, name: cat!.name, articles: catArticles }
-    })
-  )
+  let categoryRows: { slug: string; name: string; articles: Awaited<ReturnType<typeof getLatestArticles>> }[] = []
+  try {
+    categoryRows = await Promise.all(
+      availableSlugs.map(async slug => {
+        const cat = allCats.find(c => c.slug.toLowerCase() === slug.toLowerCase())
+        const { articles: catArticles } = await getArticlesByCategory(cat!.slug, 1, 4)
+        return { slug: cat!.slug, name: cat!.name, articles: catArticles }
+      })
+    )
+  } catch (err) {
+    console.error('DB error on category rows:', err)
+  }
 
   const hero      = featured[0]
   const secondary = featured.slice(1, 3)

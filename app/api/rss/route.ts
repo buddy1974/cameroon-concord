@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 import { getLatestArticles } from '@/lib/db/queries'
 import { SITE_NAME, SITE_URL } from '@/lib/constants'

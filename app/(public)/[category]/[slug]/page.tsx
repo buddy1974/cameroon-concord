@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 import type { Metadata } from 'next'
 import { notFound }      from 'next/navigation'
@@ -19,8 +19,6 @@ import { buildArticleMetadata }              from '@/lib/seo/metadata'
 import { buildNewsArticleSchema, buildBreadcrumbSchema } from '@/lib/seo/schema'
 import { formatDate, readingTime, formatHitCount, depthScore } from '@/lib/utils'
 import { SITE_URL } from '@/lib/constants'
-
-export const revalidate = 3600
 
 interface Props { params: Promise<{ category: string; slug: string }> }
 

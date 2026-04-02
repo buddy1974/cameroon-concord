@@ -5,7 +5,9 @@ import type { ArticleWithRelations } from '@/lib/types'
 
 function cleanImg(url: string | null | undefined): string | null {
   if (!url) return null
-  return url.split('#')[0].trim() || null
+  const clean = url.split('#')[0].trim()
+  if (!clean || !clean.startsWith('http')) return null
+  return clean
 }
 
 export async function getArticleBySlug(
@@ -34,6 +36,7 @@ export async function getArticleBySlug(
   if (!rows[0]) return null
   return {
     ...rows[0].article,
+    featuredImage: cleanImg(rows[0].article.featuredImage),
     category: rows[0].category,
     author:   rows[0].author ?? null,
     tags:     [],

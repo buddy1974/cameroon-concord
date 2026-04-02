@@ -47,7 +47,7 @@ export function ArticleCard({ article, variant = 'default', priority = false }: 
 
   if (variant === 'hero') {
     return (
-      <Link href={href} className="relative block w-full overflow-hidden rounded-2xl group aspect-[21/9] bg-[#111]">
+      <Link href={href} className="relative block w-full overflow-hidden rounded-2xl group aspect-[4/3] md:aspect-[21/9] bg-[#111]">
         {image && (
           <Image src={image} alt={article.imageAlt || article.title} fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"

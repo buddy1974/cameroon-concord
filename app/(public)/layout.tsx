@@ -11,7 +11,9 @@ export default async function PublicLayout({ children }: { children: React.React
       <BreakingBanner articles={breaking} />
       <Header />
       <main className="min-h-screen w-full">
-        {children}
+        <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '0 24px' }}>
+          {children}
+        </div>
       </main>
       <Footer />
     </>

@@ -52,9 +52,8 @@ export default async function HomePage() {
       <JsonLd data={buildOrganizationSchema()} />
 
       <div style={{
-        maxWidth: '1380px',
-        margin: '0 auto',
-        padding: '24px',
+        paddingTop: '24px',
+        paddingBottom: '48px',
         display: 'flex',
         flexDirection: 'column',
         gap: '40px'

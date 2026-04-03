@@ -41,7 +41,7 @@ export function Header() {
 
       {/* Desktop nav */}
       <nav className="hidden lg:block border-b border-[#1E1E1E]">
-        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 flex items-center gap-2">
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 flex items-center justify-center gap-2">
           {NAV_CATEGORIES.map(cat => {
             const active = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`)
             return (

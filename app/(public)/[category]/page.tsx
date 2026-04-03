@@ -42,10 +42,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <>
       <JsonLd data={breadcrumb} />
-      <div className="max-w-[1380px] mx-auto px-4 sm:px-6 py-8">
+
+      {/* Global container provides max-width — just add vertical padding */}
+      <div style={{ paddingTop: '32px', paddingBottom: '48px' }}>
 
         {/* Category header */}
-        <div className="mb-8 pb-6 border-b border-[#1E1E1E]">
+        <div style={{ marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid #1E1E1E' }}>
           <nav className="text-[0.65rem] text-[#444] mb-3 flex items-center gap-1.5">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
             <span>›</span>
@@ -59,19 +61,23 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         </div>
 
-        {/* Grid */}
-        <div className="mb-10">
-          {articles[0] && (
-            <div className="mb-5">
-              <ArticleCard article={articles[0]} variant="featured" priority />
-            </div>
-          )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {articles.slice(1).map(a => <ArticleCard key={a.id} article={a} />)}
+        {/* Uniform 3-column article grid */}
+        {articles.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '24px',
+            marginBottom: '40px'
+          }}>
+            {articles.map(a => (
+              <ArticleCard key={a.id} article={a} />
+            ))}
           </div>
-        </div>
+        ) : (
+          <p className="text-[#555] text-sm py-16 text-center">No articles found in this category.</p>
+        )}
 
-        {/* PAGINATION */}
+        {/* Pagination */}
         {totalPages > 1 && (
           <nav className="flex items-center justify-center gap-2 py-8">
             {page > 1 && (

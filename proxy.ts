@@ -8,10 +8,11 @@ const MAINTENANCE_MODE     = process.env.MAINTENANCE_MODE === 'true'
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Always allow: API routes, static assets, maintenance pages, legacy image paths
+  // Always allow: API routes, static assets, admin routes, maintenance pages, legacy image paths
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
+    pathname.startsWith('/admin') ||
     pathname.startsWith('/icons/') ||
     pathname.startsWith('/images/') ||
     pathname.startsWith('/media/') ||
@@ -22,8 +23,8 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Admin protection
-  if (pathname.startsWith('/admin')) {
+  // Admin protection (layout.tsx handles auth — kept here for belt-and-suspenders, login page excluded)
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     const token = req.cookies.get('admin_token')?.value
     if (!token) return NextResponse.redirect(new URL('/admin/login', req.url))
     const payload = await verifyToken(token)

@@ -1,6 +1,6 @@
 import { db } from '@/lib/db/client'
 import { articles, categories, authors, articleHits } from '@/lib/db/schema'
-import { eq, desc, and, sql } from 'drizzle-orm'
+import { eq, desc, and, or, like, sql } from 'drizzle-orm'
 import type { ArticleWithRelations } from '@/lib/types'
 
 function cleanImg(url: string | null | undefined): string | null {
@@ -269,8 +269,11 @@ export async function searchArticles(
     .where(
       and(
         eq(articles.status, 'published'),
-        sql`MATCH(${articles.title}, ${articles.body}, ${articles.excerpt})
-            AGAINST(${query} IN BOOLEAN MODE)`,
+        or(
+          like(articles.title,   `%${query}%`),
+          like(articles.excerpt, `%${query}%`),
+          like(articles.body,    `%${query}%`),
+        ),
       )
     )
     .orderBy(desc(articles.publishedAt))

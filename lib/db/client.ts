@@ -13,14 +13,13 @@ const pool = globalForDb.pool ?? mysql.createPool({
   password:           process.env.DB_PASSWORD!,
   database:           process.env.DB_NAME!,
   waitForConnections: true,
-  connectionLimit:    5,
-  queueLimit:         0,
+  connectionLimit:    2,
+  queueLimit:         10,
+  connectTimeout:     10000,
   ssl:                { rejectUnauthorized: false },
 })
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForDb.pool = pool
-}
+globalForDb.pool = pool
 
 export const db = drizzle(pool, { schema, mode: 'default' })
 export type DB = typeof db

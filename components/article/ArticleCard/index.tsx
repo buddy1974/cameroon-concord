@@ -24,26 +24,143 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
   /* ── HERO ── */
   if (variant === 'hero') {
     return (
-      <Link href={href} className="relative block w-full rounded-2xl overflow-hidden group" style={{ aspectRatio: '21/9', minHeight: '320px', background: '#101010' }}>
-        {src && <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading={priority ? 'eager' : 'lazy'} onError={e => { e.currentTarget.style.display = 'none' }} />}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-          <div className="flex items-center gap-2 mb-3">
-            {article.isBreaking && <span className="cat-pill" style={{ background: '#F5A623', color: '#000' }}>⚡ Breaking</span>}
-            <span className="cat-pill">{article.category.name}</span>
-          </div>
-          <h2 className="text-2xl md:text-[2.2rem] lg:text-[2.6rem] font-black text-white leading-[1.1] tracking-[-0.02em] group-hover:text-[#F5A623] transition-colors max-w-4xl">
-            {article.title}
-          </h2>
-          {article.excerpt && (
-            <p className="hidden md:block text-[#999] text-sm mt-3 max-w-2xl line-clamp-2">
-              {truncate(article.excerpt, 160)}
-            </p>
+      <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            aspectRatio: '21 / 9',
+            minHeight: '320px',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            background: '#111'
+          }}
+        >
+          {/* IMAGE LAYER */}
+          <img
+            src={src || ''}
+            alt={article.title}
+            loading={priority ? 'eager' : 'lazy'}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: src ? 'block' : 'none'
+            }}
+            onError={e => { e.currentTarget.style.display = 'none' }}
+          />
+
+          {/* FALLBACK BACKGROUND — visible when no image */}
+          {!src && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(135deg, #1a1a1a, #0d0d0d)'
+            }} />
           )}
-          <div className="flex items-center gap-4 mt-3 text-xs text-[#888]">
-            <span>{formatRelative(article.publishedAt!)}</span>
-            <span className="flex items-center gap-1"><Clock size={11} />{mins}m</span>
-            {article.hits > 100 && <span className="flex items-center gap-1 text-[#F5A623]"><Eye size={11} />{formatHitCount(article.hits)}</span>}
+
+          {/* GRADIENT OVERLAY */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0.35), transparent)'
+            }}
+          />
+
+          {/* CONTENT LAYER */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '32px 40px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}
+          >
+            {/* BADGES */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {article.isBreaking && (
+                <span style={{
+                  background: '#F5A623',
+                  color: '#000',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '4px 8px',
+                  borderRadius: '4px'
+                }}>
+                  ⚡ Breaking
+                </span>
+              )}
+              <span style={{
+                background: '#C8102E',
+                color: '#fff',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '4px 8px',
+                borderRadius: '4px'
+              }}>
+                {article.category.name.toUpperCase()}
+              </span>
+            </div>
+
+            {/* TITLE */}
+            <h2 style={{
+              fontSize: 'clamp(1.4rem, 3vw, 2.5rem)',
+              fontWeight: 900,
+              lineHeight: 1.15,
+              color: '#fff',
+              margin: 0,
+              maxWidth: '860px',
+              letterSpacing: '-0.02em'
+            }}>
+              {article.title}
+            </h2>
+
+            {/* EXCERPT */}
+            {article.excerpt && (
+              <p style={{
+                fontSize: '14px',
+                color: '#bbb',
+                margin: 0,
+                maxWidth: '640px',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}>
+                {truncate(article.excerpt, 160)}
+              </p>
+            )}
+
+            {/* META */}
+            <div style={{
+              fontSize: '12px',
+              color: '#888',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              marginTop: '2px'
+            }}>
+              <span>{formatRelative(article.publishedAt!)}</span>
+              <span>•</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={11} />{mins}m read
+              </span>
+              {article.hits > 100 && (
+                <>
+                  <span>•</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#F5A623' }}>
+                    <Eye size={11} />{formatHitCount(article.hits)}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </Link>
@@ -53,7 +170,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
   /* ── FEATURED ── */
   if (variant === 'featured') {
     return (
-      <Link href={href} className="relative block rounded-xl overflow-hidden group card img-zoom" style={{ aspectRatio: '4/3', background: '#101010' }}>
+      <Link href={href} className="relative block rounded-xl overflow-hidden group card img-zoom h-full" style={{ background: '#101010' }}>
         {src && <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -139,44 +256,104 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
 
   /* ── DEFAULT CARD ── */
   return (
-    <Link href={href} className="flex flex-col rounded-xl overflow-hidden bg-[#101010] border border-[#1E1E1E] group card h-full">
-      <div className="relative overflow-hidden img-zoom" style={{ aspectRatio: '16/9', background: '#181818' }}>
-        {src
-          ? <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-          : <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, #120608 0%, #0A0A14 100%)' }}>
-              <span className="text-[#C8102E]/20 text-6xl font-black leading-none select-none">{article.category.name.charAt(0)}</span>
-              <span className="text-[#2A2A2A] text-[0.55rem] uppercase tracking-[0.2em] font-bold">{article.category.name}</span>
-            </div>
-        }
-        <div className="absolute top-2.5 left-2.5">
-          <span className="cat-pill">{article.category.name}</span>
-        </div>
-        {article.isBreaking && (
-          <div className="absolute top-2.5 right-2.5">
-            <span className="cat-pill" style={{ background: '#F5A623', color: '#000' }}>⚡</span>
+    <Link href={href} className="group" style={{ display: 'block', textDecoration: 'none', height: '100%' }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        background: '#111',
+        border: '1px solid #1E1E1E'
+      }}>
+
+        {/* IMAGE */}
+        <div style={{
+          position: 'relative',
+          aspectRatio: '16/9',
+          background: '#181818',
+          flexShrink: 0,
+          overflow: 'hidden'
+        }}>
+          {src
+            ? <img
+                src={src}
+                alt={article.title}
+                loading="lazy"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={e => { e.currentTarget.style.display = 'none' }}
+              />
+            : <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(135deg, #120608 0%, #0A0A14 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <span style={{ color: 'rgba(200,16,46,0.15)', fontSize: '3.5rem', fontWeight: 900, lineHeight: 1, userSelect: 'none' }}>
+                  {article.category.name.charAt(0)}
+                </span>
+              </div>
+          }
+          <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
+            <span className="cat-pill">{article.category.name}</span>
           </div>
-        )}
-      </div>
-      <div className="p-3.5 flex flex-col flex-1">
-        <h3 className="text-[0.88rem] font-bold text-[#EEE] group-hover:text-[#F5A623] transition-colors leading-snug line-clamp-3 flex-1">
-          {article.title}
-        </h3>
-        {article.excerpt && (
-          <p className="text-[0.72rem] text-[#888] mt-2 line-clamp-2 leading-relaxed">
-            {truncate(article.excerpt, 90)}
-          </p>
-        )}
-        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#1A1A1A]">
-          <span className="text-[0.62rem] text-[#888]">{formatRelative(article.publishedAt!)}</span>
-          <div className="flex items-center gap-2 text-[0.62rem] text-[#777]">
-            <span className="flex items-center gap-0.5"><Clock size={9} />{mins}m</span>
+          {article.isBreaking && (
+            <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+              <span className="cat-pill" style={{ background: '#F5A623', color: '#000' }}>⚡</span>
+            </div>
+          )}
+        </div>
+
+        {/* CONTENT */}
+        <div style={{
+          padding: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          flex: 1
+        }}>
+          <h3
+            className="group-hover:text-[#F5A623] transition-colors"
+            style={{
+              fontSize: '15px',
+              fontWeight: 700,
+              color: '#EEE',
+              lineHeight: 1.35,
+              margin: 0,
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              flex: 1
+            }}
+          >
+            {article.title}
+          </h3>
+          <div style={{
+            fontSize: '11px',
+            color: '#888',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            marginTop: '4px',
+            paddingTop: '8px',
+            borderTop: '1px solid #1A1A1A'
+          }}>
+            <span>{formatRelative(article.publishedAt!)}</span>
+            <span>·</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <Clock size={9} />{mins}m
+            </span>
             {article.hits > 100 && (
-              <span className="flex items-center gap-0.5 text-[#F5A623] font-semibold">
-                <Eye size={9} />{formatHitCount(article.hits)}
-              </span>
+              <>
+                <span>·</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#F5A623', fontWeight: 600 }}>
+                  <Eye size={9} />{formatHitCount(article.hits)}
+                </span>
+              </>
             )}
           </div>
         </div>
+
       </div>
     </Link>
   )

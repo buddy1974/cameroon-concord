@@ -47,83 +47,109 @@ export default async function HomePage() {
     console.error('Category rows DB error:', err)
   }
 
-  const hero = featured[0]
-  const sub  = featured.slice(1, 4)
-  const rest = featured.slice(4, 7)
-
   return (
     <>
       <JsonLd data={buildOrganizationSchema()} />
 
-      <div className="max-w-[1380px] mx-auto px-4 sm:px-6">
+      <div style={{
+        maxWidth: '1380px',
+        margin: '0 auto',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '40px'
+      }}>
 
-        {/* ── HERO + SUB GRID ── */}
-        {hero && (
-          <section className="pt-6 pb-8">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-start">
-              {/* Big hero */}
-              <div className="lg:col-span-3">
-                <ArticleCard article={hero} variant="hero" priority />
-              </div>
-              {/* Sub stack */}
-              <div className="lg:col-span-2 flex flex-col gap-4">
-                {sub.map(a => <ArticleCard key={a.id} article={a} variant="featured" />)}
-              </div>
+        {/* ── HERO SECTION ── */}
+        {featured[0] && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '2fr 1fr',
+            gap: '24px',
+            alignItems: 'stretch'
+          }}>
+
+            {/* LEFT — DOMINANT STORY */}
+            <ArticleCard article={featured[0]} variant="hero" priority />
+
+            {/* RIGHT — 2 STACKED STORIES, equal height */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              height: '100%'
+            }}>
+              {featured.slice(1, 3).map(a => (
+                <div key={a.id} style={{ flex: 1, minHeight: 0 }}>
+                  <ArticleCard article={a} variant="featured" />
+                </div>
+              ))}
             </div>
-            {/* Tertiary row */}
-            {rest.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-                {rest.map(a => <ArticleCard key={a.id} article={a} variant="featured" />)}
-              </div>
-            )}
-          </section>
+
+          </div>
         )}
 
-        {/* ── LATEST + SIDEBAR ── */}
-        <section className="pb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* ── LATEST NEWS + SIDEBAR ── */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 300px',
+          gap: '32px',
+          alignItems: 'start'
+        }}>
 
-            {/* Latest articles */}
-            <div className="lg:col-span-2">
+          {/* MAIN — 3-column article grid */}
+          <div>
+            <div className="section-head">
+              <span className="section-head-title">Latest News</span>
+              <span className="section-head-line" />
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '24px'
+            }}>
+              {latest.slice(0, 9).map(a => (
+                <ArticleCard key={a.id} article={a} />
+              ))}
+            </div>
+          </div>
+
+          {/* SIDEBAR — Most Read */}
+          <aside>
+            <div className="bg-[#101010] border border-[#1E1E1E] rounded-xl p-5">
               <div className="section-head">
-                <span className="section-head-title">Latest News</span>
+                <span className="section-head-title" style={{ color: '#F5A623' }}>Most Read</span>
                 <span className="section-head-line" />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {latest.map(a => <ArticleCard key={a.id} article={a} />)}
-              </div>
+              {mostRead.map((a, i) => (
+                <ArticleCard key={a.id} article={a} variant="list" index={i} />
+              ))}
             </div>
+          </aside>
 
-            {/* Sidebar */}
-            <aside className="space-y-6">
-              {/* Most Read */}
-              <div className="bg-[#101010] border border-[#1E1E1E] rounded-xl p-5">
-                <div className="section-head">
-                  <span className="section-head-title" style={{ color: '#F5A623' }}>Most Read</span>
-                  <span className="section-head-line" />
-                </div>
-                {mostRead.map((a, i) => (
-                  <ArticleCard key={a.id} article={a} variant="list" index={i} />
-                ))}
-              </div>
-
-            </aside>
-          </div>
-        </section>
+        </div>
 
         {/* ── CATEGORY SECTIONS ── */}
         {categoryRows.map(row => row.articles.length > 0 && (
-          <section key={row.slug} className="pb-12">
+          <section key={row.slug}>
             <div className="section-head">
               <span className="section-head-title">{row.name}</span>
               <span className="section-head-line" />
-              <Link href={`/${row.slug}`}
-                className="text-[0.62rem] font-bold uppercase tracking-wider text-[#C8102E] hover:text-[#F5A623] transition-colors whitespace-nowrap">
+              <Link
+                href={`/${row.slug}`}
+                className="text-[0.62rem] font-bold uppercase tracking-wider text-[#C8102E] hover:text-[#F5A623] transition-colors whitespace-nowrap"
+              >
                 See all →
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {row.articles.map(a => <ArticleCard key={a.id} article={a} />)}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '24px'
+            }}>
+              {row.articles.map(a => (
+                <ArticleCard key={a.id} article={a} />
+              ))}
             </div>
           </section>
         ))}

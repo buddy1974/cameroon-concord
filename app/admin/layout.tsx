@@ -1,9 +1,16 @@
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
 import Link from 'next/link'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const headersList = await headers()
+  const pathname = headersList.get('x-invoke-path') || ''
+
+  if (pathname === '/admin/login') {
+    return <>{children}</>
+  }
+
   const cookieStore = await cookies()
   const token = cookieStore.get('admin_token')?.value
   if (!token) redirect('/admin/login')

@@ -60,11 +60,14 @@ export default async function ArticlePage({ params }: Props) {
       <HitTracker articleId={article.id} />
       <ReadingProgress />
 
-      <div className="w-full max-w-[1380px] mx-auto px-4 sm:px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      {/* Outer wrapper — centred, responsive padding */}
+      <div className="max-w-[1380px] mx-auto px-4 sm:px-6 py-6">
+
+        {/* Two-column grid: fluid article + fixed 340px sidebar, single col on mobile */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-10 items-start">
 
           {/* MAIN ARTICLE */}
-          <article className="lg:col-span-2">
+          <article>
 
             {/* Breadcrumb */}
             <nav className="text-xs text-[#6B7280] mb-4 flex items-center gap-1">
@@ -149,7 +152,7 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             {/* Share bar */}
-            <div className="border-t border-b border-[#2A2A2A] py-4 my-6">
+            <div style={{ borderTop: '1px solid #2A2A2A', borderBottom: '1px solid #2A2A2A', padding: '20px 0', margin: '32px 0' }}>
               <p className="text-xs font-black uppercase tracking-widest text-[#6B7280] mb-3">Share this article</p>
               <div className="flex flex-wrap gap-2">
                 <a
@@ -181,7 +184,7 @@ export default async function ArticlePage({ params }: Props) {
 
             {/* Author card */}
             {article.author && (
-              <div className="bg-[#161616] border border-[#2A2A2A] rounded-xl p-5 mb-8">
+              <div className="bg-[#161616] border border-[#2A2A2A] rounded-xl p-5" style={{ marginBottom: '40px' }}>
                 <p className="text-[10px] font-black uppercase tracking-widest text-[#6B7280] mb-3">About the Author</p>
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#C8102E] flex items-center justify-center text-white font-black text-sm flex-shrink-0">
@@ -199,7 +202,7 @@ export default async function ArticlePage({ params }: Props) {
 
             {/* Related articles */}
             {related.length > 0 && (
-              <section className="mb-8">
+              <section style={{ marginBottom: '40px' }}>
                 <h3 className="text-sm font-black uppercase tracking-widest text-white border-l-2 border-[#C8102E] pl-3 mb-4">
                   Related Articles
                 </h3>

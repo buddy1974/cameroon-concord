@@ -22,10 +22,10 @@ export function Footer() {
       title: 'Special Coverage',
       links: [
         { href: '/anglophone-crisis',  label: 'Anglophone Crisis' },
-        { href: '/inside-cpdm',        label: 'Biya Era' },
-        { href: '/breaking-news',      label: 'Breaking News' },
+        { href: '/tag/paul-biya',      label: 'Biya Era' },
+        { href: '/headlines',          label: 'Breaking News' },
         { href: '/southern-cameroons', label: 'Ambazonia' },
-        { href: '/localnews',          label: 'Local News' },
+        { href: '/society',            label: 'Local News' },
       ],
     },
     {

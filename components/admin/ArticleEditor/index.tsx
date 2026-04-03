@@ -93,6 +93,13 @@ export function ArticleEditor({ categories, article }: Props) {
     setSaving(false)
   }
 
+  const mainSlugs = [
+    'politics', 'society', 'sportsnews', 'southern-cameroons',
+    'health', 'business', 'lifestyle', 'editorial',
+    'headlines', 'inside-cpdm', 'technology', 'religion', 'poetry'
+  ]
+  const filteredCats = categories.filter(c => mainSlugs.includes(c.slug))
+
   const inputStyle: React.CSSProperties = {
     width: '100%', background: '#080808', border: '1px solid #2A2A2A',
     borderRadius: '8px', padding: '10px 12px', color: '#EEE',
@@ -204,7 +211,7 @@ export function ArticleEditor({ categories, article }: Props) {
               onChange={e => setCatId(parseInt(e.target.value))}
               style={{ ...inputStyle, cursor: 'pointer' }}
             >
-              {categories.map(c => (
+              {filteredCats.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>

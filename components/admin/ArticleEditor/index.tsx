@@ -62,7 +62,7 @@ export function ArticleEditor({ categories, article }: Props) {
     setAiLoading(false)
   }
 
-  async function handleSave(publishStatus: string) {
+  async function handleSave(publishStatus: string, exit = false) {
     if (!title.trim()) { setMsg('Title is required'); return }
     if (!slug.trim())  { setMsg('Slug is required'); return }
     if (!body.trim())  { setMsg('Body is required'); return }
@@ -81,8 +81,9 @@ export function ArticleEditor({ categories, article }: Props) {
       )
       const data = await res.json() as { ok?: boolean; id?: number; error?: string }
       if (data.ok) {
-        setMsg(`✓ ${publishStatus === 'published' ? 'Published' : 'Saved as draft'}`)
+        setMsg(`✓ ${publishStatus === 'published' ? 'Published' : 'Saved'}`)
         setStatus(publishStatus as ArticleStatus)
+        if (exit) { router.push('/admin/articles'); return }
         if (!isEdit && data.id) router.push(`/admin/articles/${data.id}/edit`)
       } else {
         setMsg(`✗ ${data.error || 'Save failed'}`)
@@ -91,6 +92,32 @@ export function ArticleEditor({ categories, article }: Props) {
       setMsg('✗ Network error')
     }
     setSaving(false)
+  }
+
+  async function handleUnpublish() {
+    if (!article?.id) return
+    setSaving(true)
+    setMsg('')
+    try {
+      const res  = await fetch(`/api/admin/articles/${article.id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'draft' }),
+      })
+      const data = await res.json() as { ok?: boolean; error?: string }
+      if (data.ok) { setStatus('draft'); setMsg('✓ Unpublished') }
+      else setMsg(`✗ ${data.error || 'Failed'}`)
+    } catch { setMsg('✗ Network error') }
+    setSaving(false)
+  }
+
+  async function handleDelete() {
+    if (!article?.id) return
+    if (!window.confirm('Delete this article? This cannot be undone.')) return
+    setSaving(true)
+    try {
+      await fetch(`/api/admin/articles/${article.id}`, { method: 'DELETE' })
+      router.push('/admin/articles')
+    } catch { setMsg('✗ Delete failed'); setSaving(false) }
   }
 
   const mainSlugs = [
@@ -138,13 +165,38 @@ export function ArticleEditor({ categories, article }: Props) {
           }}>
             {aiLoading ? '⏳ AI...' : '✨ AI Enhance'}
           </button>
-          <button onClick={() => handleSave('draft')} disabled={saving} style={{
+          <button onClick={() => handleSave(status || 'draft')} disabled={saving} style={{
             background: '#1A1A1A', border: '1px solid #2A2A2A', color: '#EEE',
             padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem',
             fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer',
           }}>
-            Save Draft
+            Save
           </button>
+          <button onClick={() => handleSave(status || 'draft', true)} disabled={saving} style={{
+            background: '#1A1A1A', border: '1px solid #2A2A2A', color: '#EEE',
+            padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem',
+            fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer',
+          }}>
+            Save & Exit
+          </button>
+          {isEdit && status === 'published' && (
+            <button onClick={handleUnpublish} disabled={saving} style={{
+              background: 'transparent', border: '1px solid #444', color: '#888',
+              padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem',
+              fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer',
+            }}>
+              Unpublish
+            </button>
+          )}
+          {isEdit && (
+            <button onClick={handleDelete} disabled={saving} style={{
+              background: 'transparent', border: '1px solid #C8102E', color: '#C8102E',
+              padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem',
+              fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer',
+            }}>
+              Delete
+            </button>
+          )}
           <button onClick={() => handleSave('published')} disabled={saving} style={{
             background: '#C8102E', color: '#fff', border: 'none',
             padding: '8px 20px', borderRadius: '8px', fontSize: '0.75rem',

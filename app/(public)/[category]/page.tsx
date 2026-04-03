@@ -60,18 +60,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-          <div className="lg:col-span-2">
-            {articles[0] && (
-              <div className="mb-5">
-                <ArticleCard article={articles[0]} variant="featured" priority />
-              </div>
-            )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {articles.slice(1).map(a => <ArticleCard key={a.id} article={a} />)}
+        <div className="mb-10">
+          {articles[0] && (
+            <div className="mb-5">
+              <ArticleCard article={articles[0]} variant="featured" priority />
             </div>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {articles.slice(1).map(a => <ArticleCard key={a.id} article={a} />)}
           </div>
-          <aside />
         </div>
 
         {/* PAGINATION */}

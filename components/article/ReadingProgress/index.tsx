@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 
 export function ReadingProgress() {
   useEffect(() => {
-    const bar = document.getElementById('reading-progress')
+    const bar = document.getElementById('rpbar')
     if (!bar) return
     const onScroll = () => {
       const doc   = document.documentElement
@@ -14,5 +14,5 @@ export function ReadingProgress() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  return <div id="reading-progress" style={{ width: '0%' }} />
+  return <div id="rpbar" style={{ width: '0%' }} />
 }

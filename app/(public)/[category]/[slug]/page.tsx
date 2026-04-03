@@ -2,7 +2,6 @@ export const revalidate = 3600
 
 import type { Metadata } from 'next'
 import { notFound }      from 'next/navigation'
-import Image             from 'next/image'
 import Link              from 'next/link'
 import { Eye, Clock, Calendar } from 'lucide-react'
 import { ArticleCard }      from '@/components/article/ArticleCard'
@@ -60,7 +59,7 @@ export default async function ArticlePage({ params }: Props) {
       <HitTracker articleId={article.id} />
       <ReadingProgress />
 
-      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
+      <div className="w-full max-w-[1380px] mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
           {/* MAIN ARTICLE */}
@@ -133,13 +132,11 @@ export default async function ArticlePage({ params }: Props) {
             {/* Featured image */}
             {article.featuredImage && (
               <figure className="mb-6">
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#161616]">
-                  <Image
+                <div className="img-zoom w-full rounded-xl overflow-hidden bg-[#161616]">
+                  <img
                     src={article.featuredImage}
                     alt={article.imageAlt || article.title}
-                    fill
-                    className="object-cover"
-                    priority
+                    style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
                 {article.imageCaption && (

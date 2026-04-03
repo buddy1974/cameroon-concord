@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 
@@ -19,10 +20,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const sidebar = (
     <div className="flex flex-col h-full">
       <div className="px-5 py-6 border-b border-[#1A1A1A]">
-        <div className="text-[0.9rem] font-black text-white tracking-tight">
-          Cameroon<span className="text-[#C8102E]">Concord</span>
-        </div>
-        <div className="text-[0.6rem] text-[#333] mt-0.5 uppercase tracking-widest">Admin</div>
+        <Image src="/logo.png" alt="Cameroon Concord" width={140} height={35} />
+        <span style={{ fontSize: '11px', color: '#888', display: 'block', marginTop: '4px' }}>ADMIN</span>
       </div>
 
       <nav className="flex-1 flex flex-col gap-1 p-3">
@@ -73,9 +72,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <button onClick={() => setOpen(true)} className="text-[#555] hover:text-white transition-colors">
             <Menu size={20} />
           </button>
-          <span className="text-[0.85rem] font-black text-white tracking-tight">
-            Cameroon<span className="text-[#C8102E]">Concord</span>
-          </span>
+          <Image src="/logo.png" alt="Cameroon Concord" width={120} height={30} />
           {open && (
             <button onClick={() => setOpen(false)} className="ml-auto text-[#555] hover:text-white transition-colors">
               <X size={20} />

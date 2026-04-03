@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { SITE_NAME, SITE_FB } from '@/lib/constants'
 
 export function Footer() {
@@ -49,11 +50,8 @@ export function Footer() {
 
           {/* Brand column */}
           <div>
-            <Link href="/" style={{ textDecoration: 'none' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.04em', textTransform: 'uppercase', lineHeight: 1 }}>
-                <span style={{ color: '#fff' }}>Cameroon</span>
-                <span style={{ color: '#C8102E' }}>Concord</span>
-              </div>
+            <Link href="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              <Image src="/logo.png" alt="Cameroon Concord" width={160} height={40} />
             </Link>
             <p style={{ color: '#444', fontSize: '0.8rem', marginTop: '12px', lineHeight: 1.7, maxWidth: '240px' }}>
               Independent English-language news covering Cameroon and Southern Cameroons since 2014.
@@ -117,17 +115,24 @@ export function Footer() {
           </p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {[
-              'Paul Biya', 'Anglophone Crisis', 'AFCON', 'Ambazonia',
-              'Douala', 'Yaoundé', 'Southern Cameroons', 'Indomitable Lions',
-              'Cameroon Economy', 'African Politics',
+              { label: 'Paul Biya',          href: '/tag/paul-biya' },
+              { label: 'Anglophone Crisis',  href: '/tag/anglophone-crisis' },
+              { label: 'AFCON',              href: '/tag/afcon' },
+              { label: 'Ambazonia',          href: '/tag/ambazonia' },
+              { label: 'Douala',             href: '/tag/douala' },
+              { label: 'Yaoundé',            href: '/tag/yaounde' },
+              { label: 'Southern Cameroons', href: '/tag/southern-cameroons' },
+              { label: 'Indomitable Lions',  href: '/tag/indomitable-lions' },
+              { label: 'Cameroon Economy',   href: '/tag/cameroon-economy' },
+              { label: 'African Politics',   href: '/tag/african-politics' },
             ].map(tag => (
               <Link
-                key={tag}
-                href={`/search?q=${encodeURIComponent(tag)}`}
+                key={tag.href}
+                href={tag.href}
                 className="hover:text-[#EEE] hover:border-[#333] transition-colors"
                 style={{ background: '#111', border: '1px solid #1E1E1E', color: '#555', padding: '6px 12px', borderRadius: '20px', fontSize: '0.72rem', textDecoration: 'none', whiteSpace: 'nowrap' }}
               >
-                {tag}
+                {tag.label}
               </Link>
             ))}
           </div>

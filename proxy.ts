@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server'
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
+  // Allow everything under these paths through immediately
   if (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
@@ -13,23 +14,25 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith('/fonts/') ||
     pathname === '/maintenance' ||
     pathname === '/favicon.ico' ||
-    pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/) !== null
+    pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|mp4|pdf)$/) !== null
   ) {
     return NextResponse.next()
   }
 
-  if (process.env.MAINTENANCE_MODE === 'true') {
-    const bypass = req.cookies.get('maintenance_bypass')?.value
-    if (bypass !== process.env.MAINTENANCE_PASSWORD) {
-      return NextResponse.redirect(new URL('/maintenance', req.url))
-    }
-  }
-
+  // Old Joomla /en/ redirect
   if (pathname.startsWith('/en/')) {
     return NextResponse.redirect(
       new URL(pathname.replace(/^\/en/, ''), req.url),
       { status: 301 }
     )
+  }
+
+  // Maintenance mode — public pages only
+  if (process.env.MAINTENANCE_MODE === 'true') {
+    const bypass = req.cookies.get('maintenance_bypass')?.value
+    if (bypass !== process.env.MAINTENANCE_PASSWORD) {
+      return NextResponse.redirect(new URL('/maintenance', req.url))
+    }
   }
 
   return NextResponse.next()

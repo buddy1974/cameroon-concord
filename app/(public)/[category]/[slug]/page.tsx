@@ -5,6 +5,7 @@ import { notFound }      from 'next/navigation'
 import Link              from 'next/link'
 import { Eye, Clock, Calendar } from 'lucide-react'
 import { ArticleCard }      from '@/components/article/ArticleCard'
+import AdUnit               from '@/components/ads/AdUnit'
 import { JsonLd }           from '@/components/seo/JsonLd'
 import { CommentSection }   from '@/components/article/CommentSection'
 import { ArticleImage }     from '@/components/article/ArticleImage'
@@ -58,6 +59,7 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* Centered reading column — global container provides 1380px max-width */}
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '32px', paddingBottom: '64px' }}>
+        <div style={{ display: 'flex', gap: '32px', maxWidth: '1060px', width: '100%', alignItems: 'flex-start' }}>
         <div style={{ maxWidth: '720px', width: '100%', display: 'flex', flexDirection: 'column', gap: '0' }}>
 
           {/* Breadcrumb — navigation path only, title is the H1 below */}
@@ -133,11 +135,25 @@ export default async function ArticlePage({ params }: Props) {
             </div>
           )}
 
-          {/* Article body */}
+          {/* Article body — split after 3rd </p> for in-article ad */}
           <div className="prose" id="article-content">
-            {article.body ? (
-              <div dangerouslySetInnerHTML={{ __html: article.body }} />
-            ) : (
+            {article.body ? (() => {
+              const parts = article.body.split('</p>')
+              if (parts.length <= 3) {
+                return <div dangerouslySetInnerHTML={{ __html: article.body }} />
+              }
+              const before = parts.slice(0, 3).join('</p>') + '</p>'
+              const after  = parts.slice(3).join('</p>')
+              return (
+                <>
+                  <div dangerouslySetInnerHTML={{ __html: before }} />
+                  <div className="my-6 min-h-[250px]">
+                    <AdUnit slot="5471720771" format="auto" />
+                  </div>
+                  <div dangerouslySetInnerHTML={{ __html: after }} />
+                </>
+              )
+            })() : (
               <p className="text-[#666]">Content unavailable.</p>
             )}
           </div>
@@ -206,6 +222,15 @@ export default async function ArticlePage({ params }: Props) {
           <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #222' }}>
             <CommentSection articleId={article.id} />
           </div>
+
+        </div>
+
+        {/* Sidebar — desktop only */}
+        <div className="hidden lg:block w-[300px] shrink-0">
+          <div className="sticky top-4 min-h-[250px]">
+            <AdUnit slot="5520370976" format="rectangle" />
+          </div>
+        </div>
 
         </div>
       </div>

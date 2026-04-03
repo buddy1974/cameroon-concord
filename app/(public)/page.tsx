@@ -3,6 +3,7 @@ export const revalidate = 0
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import AdUnit from '@/components/ads/AdUnit'
 import { ArticleCard } from '@/components/article/ArticleCard'
 import { JsonLd } from '@/components/seo/JsonLd'
 import {
@@ -88,6 +89,11 @@ export default async function HomePage() {
 
           </div>
         )}
+
+        {/* ── TOP BANNER AD ── */}
+        <div className="w-full max-w-[728px] mx-auto my-4 min-h-[90px]">
+          <AdUnit slot="9844142257" format="horizontal" />
+        </div>
 
         {/* ── LATEST NEWS + SIDEBAR ── */}
         <div style={{

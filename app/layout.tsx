@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import Script from 'next/script'
 import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema'
 import './globals.css'
@@ -26,6 +27,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0554291063972402"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>

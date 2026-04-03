@@ -20,15 +20,10 @@ export function buildNewsArticleSchema(article: ArticleWithRelations): object {
     'articleSection': article.category.name,
     'keywords':       `${article.category.name}, Cameroon, Africa, news`,
     'inLanguage':     'en',
-    'image': {
-      '@type':  'ImageObject',
-      'url':    image,
-      'width':  1200,
-      'height': 630,
-    },
+    'image': [image],
     'author': {
-      '@type': 'Person',
-      'name':  article.author?.name || 'News Team',
+      '@type': 'Organization',
+      'name':  SITE_NAME,
     },
     'publisher': {
       '@type': 'Organization',

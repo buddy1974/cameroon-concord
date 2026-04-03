@@ -36,7 +36,7 @@ export async function GET() {
         <news:title><![CDATA[${a.title}]]></news:title>
         <news:keywords>${a.category.name}, Cameroon, Africa</news:keywords>
       </news:news>
-      <media:content url="${image}" medium="image" />
+      ${image ? `<media:content url="${image}" medium="image" />` : ''}
     </item>`
     }).join('\n')
 
@@ -44,6 +44,7 @@ export async function GET() {
 <rss version="2.0"
   xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
   xmlns:media="http://search.yahoo.com/mrss/"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
   xmlns:atom="http://www.w3.org/2005/Atom"
 >
   <channel>

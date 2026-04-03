@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /maintenance
+
+User-agent: Googlebot-News
+Allow: /
+
+Sitemap: https://www.cameroon-concord.com/sitemap.xml
+Sitemap: https://www.cameroon-concord.com/api/news-sitemap

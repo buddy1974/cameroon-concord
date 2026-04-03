@@ -51,10 +51,11 @@ export function ArticleEditor({ categories, article }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ title, body, type: 'full' }),
       })
-      const data = await res.json() as { meta_title?: string; meta_desc?: string; excerpt?: string; error?: string }
-      if (data.meta_title) setMetaT(data.meta_title)
-      if (data.meta_desc)  setMetaD(data.meta_desc)
-      if (data.excerpt)    setExcerpt(data.excerpt)
+      const data = await res.json() as { meta_title?: string; meta_desc?: string; excerpt?: string; enhanced_body?: string; error?: string }
+      if (data.meta_title)    setMetaT(data.meta_title)
+      if (data.meta_desc)     setMetaD(data.meta_desc)
+      if (data.excerpt)       setExcerpt(data.excerpt)
+      if (data.enhanced_body) setBody(data.enhanced_body)
       setMsg(data.error ? '✗ AI error' : '✓ AI enhanced')
     } catch {
       setMsg('✗ AI request failed')

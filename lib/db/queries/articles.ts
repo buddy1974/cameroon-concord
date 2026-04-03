@@ -286,6 +286,15 @@ export async function searchArticles(
   }))
 }
 
+export async function getArticleById(id: number) {
+  const rows = await db
+    .select()
+    .from(articles)
+    .where(eq(articles.id, id))
+    .limit(1)
+  return rows[0] ?? null
+}
+
 export async function incrementHit(articleId: number): Promise<void> {
   await db
     .insert(articleHits)

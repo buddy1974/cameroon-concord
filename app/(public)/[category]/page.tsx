@@ -71,15 +71,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               {articles.slice(1).map(a => <ArticleCard key={a.id} article={a} />)}
             </div>
           </div>
-          <aside>
-            <div className="ad-unit sticky top-[90px]">
-              <p className="ad-unit-label">Advertisement</p>
-              <ins className="adsbygoogle" style={{ display: 'block' }}
-                data-ad-client="ca-pub-0554291063972402"
-                data-ad-slot="auto" data-ad-format="auto"
-                data-full-width-responsive="true" />
-            </div>
-          </aside>
+          <aside />
         </div>
 
         {/* PAGINATION */}

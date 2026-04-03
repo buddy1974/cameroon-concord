@@ -150,19 +150,6 @@ export default async function ArticlePage({ params }: Props) {
               </figure>
             )}
 
-            {/* Ad — above fold */}
-            <div className="ad-unit mb-6">
-              <p className="ad-unit-label">Advertisement</p>
-              <ins
-                className="adsbygoogle"
-                style={{ display: 'block' }}
-                data-ad-client="ca-pub-0554291063972402"
-                data-ad-slot="auto"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              />
-            </div>
-
             {/* Article body */}
             <div className="prose" id="article-content">
               {article.body ? (
@@ -170,19 +157,6 @@ export default async function ArticlePage({ params }: Props) {
               ) : (
                 <p className="text-[#666]">Content unavailable.</p>
               )}
-            </div>
-
-            {/* Ad — after body */}
-            <div className="ad-unit my-8">
-              <p className="ad-unit-label">Advertisement</p>
-              <ins
-                className="adsbygoogle"
-                style={{ display: 'block' }}
-                data-ad-client="ca-pub-0554291063972402"
-                data-ad-slot="auto"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              />
             </div>
 
             {/* Share bar */}
@@ -254,19 +228,6 @@ export default async function ArticlePage({ params }: Props) {
 
           {/* SIDEBAR */}
           <aside className="space-y-8">
-
-            {/* Sticky ad */}
-            <div className="ad-unit sticky top-24">
-              <p className="ad-unit-label">Advertisement</p>
-              <ins
-                className="adsbygoogle"
-                style={{ display: 'block' }}
-                data-ad-client="ca-pub-0554291063972402"
-                data-ad-slot="auto"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              />
-            </div>
 
             {/* Most read */}
             <div className="bg-[#161616] border border-[#2A2A2A] rounded-xl p-4">

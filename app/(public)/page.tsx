@@ -107,14 +107,6 @@ export default async function HomePage() {
                 ))}
               </div>
 
-              {/* Ad */}
-              <div className="ad-unit">
-                <p className="ad-unit-label">Advertisement</p>
-                <ins className="adsbygoogle" style={{ display: 'block' }}
-                  data-ad-client="ca-pub-0554291063972402"
-                  data-ad-slot="auto" data-ad-format="auto"
-                  data-full-width-responsive="true" />
-              </div>
             </aside>
           </div>
         </section>
@@ -135,15 +127,6 @@ export default async function HomePage() {
             </div>
           </section>
         ))}
-
-        {/* Bottom ad */}
-        <div className="ad-unit mb-12">
-          <p className="ad-unit-label">Advertisement</p>
-          <ins className="adsbygoogle" style={{ display: 'block' }}
-            data-ad-client="ca-pub-0554291063972402"
-            data-ad-slot="auto" data-ad-format="auto"
-            data-full-width-responsive="true" />
-        </div>
 
       </div>
     </>

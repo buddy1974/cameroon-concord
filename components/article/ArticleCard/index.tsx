@@ -193,7 +193,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
       <Link href={href} className="flex items-start gap-3 group py-2">
         {src && (
           <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-[#181818] img-zoom">
-            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
+            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -215,7 +215,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
       <Link href={href} className="flex gap-3 group card py-3 border-b border-[#1E1E1E] last:border-0">
         {src && (
           <div className="w-24 h-[66px] flex-shrink-0 rounded-lg overflow-hidden bg-[#181818] img-zoom">
-            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
+            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -275,24 +275,25 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
           flexShrink: 0,
           overflow: 'hidden'
         }}>
-          {src
-            ? <img
-                src={src}
-                alt={article.title}
-                loading="lazy"
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={e => { e.currentTarget.style.display = 'none' }}
-              />
-            : <div style={{
-                position: 'absolute', inset: 0,
-                background: 'linear-gradient(135deg, #120608 0%, #0A0A14 100%)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}>
-                <span style={{ color: 'rgba(200,16,46,0.15)', fontSize: '3.5rem', fontWeight: 900, lineHeight: 1, userSelect: 'none' }}>
-                  {article.category.name.charAt(0)}
-                </span>
-              </div>
-          }
+          {/* Fallback always present — img overlays it; reveals on error */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(135deg, #120608 0%, #0A0A14 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <span style={{ color: 'rgba(200,16,46,0.15)', fontSize: '3.5rem', fontWeight: 900, lineHeight: 1, userSelect: 'none' }}>
+              {article.category.name.charAt(0)}
+            </span>
+          </div>
+          {src && (
+            <img
+              src={src}
+              alt={article.title}
+              loading="lazy"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={e => { e.currentTarget.style.display = 'none' }}
+            />
+          )}
           <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
             <span className="cat-pill">{article.category.name}</span>
           </div>

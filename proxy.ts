@@ -8,13 +8,16 @@ const MAINTENANCE_MODE     = process.env.MAINTENANCE_MODE === 'true'
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Always allow: API routes, static assets, maintenance pages
+  // Always allow: API routes, static assets, maintenance pages, legacy image paths
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/icons/') ||
+    pathname.startsWith('/images/') ||
+    pathname.startsWith('/media/') ||
     pathname === '/maintenance' ||
-    pathname === '/maintenance-login'
+    pathname === '/maintenance-login' ||
+    /\.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|otf|css|js)$/i.test(pathname)
   ) {
     return NextResponse.next()
   }

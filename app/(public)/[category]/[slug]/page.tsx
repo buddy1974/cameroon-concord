@@ -7,6 +7,7 @@ import { Eye, Clock, Calendar } from 'lucide-react'
 import { ArticleCard }      from '@/components/article/ArticleCard'
 import { JsonLd }           from '@/components/seo/JsonLd'
 import { CommentSection }   from '@/components/article/CommentSection'
+import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
 import { ReadingProgress }  from '@/components/article/ReadingProgress'
 import {
@@ -131,20 +132,11 @@ export default async function ArticlePage({ params }: Props) {
 
             {/* Featured image */}
             {article.featuredImage && (
-              <figure className="mb-6">
-                <div className="img-zoom w-full rounded-xl overflow-hidden bg-[#161616]">
-                  <img
-                    src={article.featuredImage}
-                    alt={article.imageAlt || article.title}
-                    style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block' }}
-                  />
-                </div>
-                {article.imageCaption && (
-                  <figcaption className="text-xs text-[#6B7280] mt-2 text-center italic">
-                    {article.imageCaption}
-                  </figcaption>
-                )}
-              </figure>
+              <ArticleImage
+                src={article.featuredImage}
+                alt={article.imageAlt || article.title}
+                caption={article.imageCaption}
+              />
             )}
 
             {/* Article body */}

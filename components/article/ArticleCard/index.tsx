@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 import { Clock, Eye } from 'lucide-react'
 import type { ArticleWithRelations } from '@/lib/types'
@@ -24,7 +25,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
   if (variant === 'hero') {
     return (
       <Link href={href} className="relative block w-full rounded-2xl overflow-hidden group" style={{ aspectRatio: '21/9', minHeight: '320px', background: '#101010' }}>
-        {src && <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading={priority ? 'eager' : 'lazy'} />}
+        {src && <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading={priority ? 'eager' : 'lazy'} onError={e => { e.currentTarget.style.display = 'none' }} />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
           <div className="flex items-center gap-2 mb-3">
@@ -53,7 +54,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
   if (variant === 'featured') {
     return (
       <Link href={href} className="relative block rounded-xl overflow-hidden group card img-zoom" style={{ aspectRatio: '4/3', background: '#101010' }}>
-        {src && <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />}
+        {src && <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <span className="cat-pill mb-2 block w-fit">{article.category.name}</span>
@@ -75,7 +76,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
       <Link href={href} className="flex items-start gap-3 group py-2">
         {src && (
           <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-[#181818] img-zoom">
-            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" />
+            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -97,7 +98,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
       <Link href={href} className="flex gap-3 group card py-3 border-b border-[#1E1E1E] last:border-0">
         {src && (
           <div className="w-24 h-[66px] flex-shrink-0 rounded-lg overflow-hidden bg-[#181818] img-zoom">
-            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" />
+            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -129,7 +130,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
         </div>
         {src && (
           <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-[#181818] img-zoom">
-            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" />
+            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
           </div>
         )}
       </Link>
@@ -142,7 +143,10 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
       <div className="relative overflow-hidden img-zoom" style={{ aspectRatio: '16/9', background: '#181818' }}>
         {src
           ? <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-          : <div className="absolute inset-0 flex items-center justify-center text-[#2A2A2A] text-3xl font-black">{article.category.name.charAt(0)}</div>
+          : <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, #120608 0%, #0A0A14 100%)' }}>
+              <span className="text-[#C8102E]/20 text-6xl font-black leading-none select-none">{article.category.name.charAt(0)}</span>
+              <span className="text-[#2A2A2A] text-[0.55rem] uppercase tracking-[0.2em] font-bold">{article.category.name}</span>
+            </div>
         }
         <div className="absolute top-2.5 left-2.5">
           <span className="cat-pill">{article.category.name}</span>

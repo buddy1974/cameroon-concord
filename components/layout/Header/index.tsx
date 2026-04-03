@@ -57,7 +57,7 @@ export function Header() {
 
       {/* Mobile nav */}
       {open && (
-        <nav className="lg:hidden fixed inset-x-0 top-[calc(52px+37px)] bottom-0 bg-[#080808] z-50 overflow-y-auto p-4">
+        <nav className="lg:hidden fixed inset-x-0 top-[89px] bottom-0 bg-[#080808] z-50 overflow-y-auto p-4">
           <div className="grid grid-cols-2 gap-2">
             {NAV_CATEGORIES.map(cat => (
               <Link key={cat.slug} href={`/${cat.slug}`}

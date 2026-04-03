@@ -39,7 +39,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
               {truncate(article.excerpt, 160)}
             </p>
           )}
-          <div className="flex items-center gap-4 mt-3 text-xs text-[#666]">
+          <div className="flex items-center gap-4 mt-3 text-xs text-[#888]">
             <span>{formatRelative(article.publishedAt!)}</span>
             <span className="flex items-center gap-1"><Clock size={11} />{mins}m</span>
             {article.hits > 100 && <span className="flex items-center gap-1 text-[#F5A623]"><Eye size={11} />{formatHitCount(article.hits)}</span>}
@@ -60,7 +60,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
           <h3 className="text-white font-black text-[0.95rem] leading-snug group-hover:text-[#F5A623] transition-colors line-clamp-3">
             {article.title}
           </h3>
-          <div className="flex items-center gap-3 mt-2 text-[0.62rem] text-[#888]">
+          <div className="flex items-center gap-3 mt-2 text-[0.62rem] text-[#999]">
             <span>{formatRelative(article.publishedAt!)}</span>
             {article.hits > 100 && <span className="text-[#F5A623]">{formatHitCount(article.hits)}</span>}
           </div>
@@ -82,7 +82,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
           <h4 className="text-[0.77rem] font-semibold text-[#DDD] group-hover:text-[#F5A623] transition-colors leading-snug line-clamp-2">
             {article.title}
           </h4>
-          <div className="flex items-center gap-2 mt-1 text-[0.62rem] text-[#555]">
+          <div className="flex items-center gap-2 mt-1 text-[0.62rem] text-[#888]">
             <span>{formatRelative(article.publishedAt!)}</span>
             {article.hits > 100 && <span className="text-[#F5A623]">{formatHitCount(article.hits)}</span>}
           </div>
@@ -105,7 +105,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
           <h3 className="text-[0.82rem] font-bold text-[#EEE] group-hover:text-[#F5A623] transition-colors leading-snug line-clamp-2 mt-1">
             {article.title}
           </h3>
-          <span className="text-[0.62rem] text-[#555] mt-1 block">{formatRelative(article.publishedAt!)}</span>
+          <span className="text-[0.62rem] text-[#888] mt-1 block">{formatRelative(article.publishedAt!)}</span>
         </div>
       </Link>
     )
@@ -123,7 +123,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
             {article.title}
           </h4>
           <div className="flex items-center gap-2 mt-1 text-[0.62rem]">
-            <span className="text-[#555]">{formatRelative(article.publishedAt!)}</span>
+            <span className="text-[#888]">{formatRelative(article.publishedAt!)}</span>
             {article.hits > 100 && <span className="text-[#F5A623] font-semibold flex items-center gap-0.5"><Eye size={9} />{formatHitCount(article.hits)}</span>}
           </div>
         </div>
@@ -141,7 +141,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
     <Link href={href} className="flex flex-col rounded-xl overflow-hidden bg-[#101010] border border-[#1E1E1E] group card h-full">
       <div className="relative overflow-hidden img-zoom" style={{ aspectRatio: '16/9', background: '#181818' }}>
         {src
-          ? <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" />
+          ? <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
           : <div className="absolute inset-0 flex items-center justify-center text-[#2A2A2A] text-3xl font-black">{article.category.name.charAt(0)}</div>
         }
         <div className="absolute top-2.5 left-2.5">
@@ -158,13 +158,13 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
           {article.title}
         </h3>
         {article.excerpt && (
-          <p className="text-[0.72rem] text-[#555] mt-2 line-clamp-2 leading-relaxed">
+          <p className="text-[0.72rem] text-[#888] mt-2 line-clamp-2 leading-relaxed">
             {truncate(article.excerpt, 90)}
           </p>
         )}
         <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#1A1A1A]">
-          <span className="text-[0.62rem] text-[#444]">{formatRelative(article.publishedAt!)}</span>
-          <div className="flex items-center gap-2 text-[0.62rem] text-[#444]">
+          <span className="text-[0.62rem] text-[#888]">{formatRelative(article.publishedAt!)}</span>
+          <div className="flex items-center gap-2 text-[0.62rem] text-[#777]">
             <span className="flex items-center gap-0.5"><Clock size={9} />{mins}m</span>
             {article.hits > 100 && (
               <span className="flex items-center gap-0.5 text-[#F5A623] font-semibold">

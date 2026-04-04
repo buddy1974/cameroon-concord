@@ -109,7 +109,7 @@ async function main() {
         const raw_title = text.substring(0, 200).split('\n')[0]
         const raw_body = text.substring(0, 5000)
 
-        const query = `INSERT INTO ingested_content (source_name, source_url, content_hash, raw_title, raw_body, raw_image_url, language, status) VALUES (${esc('telegram_' + channel.replace('@', ''))}, ${esc(null)}, ${esc(content_hash)}, ${esc(raw_title)}, ${esc(raw_body)}, NULL, 'fr', 'pending') ON CONFLICT (content_hash) DO NOTHING`
+        const query = `INSERT IGNORE INTO ingested_content (source_name, source_url, content_hash, raw_title, raw_body, raw_image_url, language, status) VALUES (${esc('telegram_' + channel.replace('@', ''))}, ${esc(null)}, ${esc(content_hash)}, ${esc(raw_title)}, ${esc(raw_body)}, NULL, 'fr', 'pending')`
 
         const conn = await pool.getConnection()
         const [result] = await conn.query(query) as any

@@ -78,44 +78,22 @@ export default function InstallBanner() {
         style={{
           width: '100%', maxWidth: '900px', margin: '16px auto',
           cursor: 'pointer', position: 'relative', borderRadius: '12px',
-          overflow: 'hidden',
-          background: 'linear-gradient(135deg, #1a0000 0%, #cc0000 60%, #880000 100%)',
-          minHeight: '160px', display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', padding: '28px 36px',
-          boxShadow: '0 4px 24px rgba(204,0,0,0.5)',
+          overflow: 'hidden', boxShadow: '0 4px 20px rgba(204,0,0,0.3)',
         }}
       >
         <img
           src="/app-install.png"
-          alt=""
-          style={{
-            position: 'absolute', inset: 0,
-            width: '100%', height: '100%',
-            objectFit: 'cover', opacity: 0.2,
-          }}
+          alt="Install Cameroon Concord App"
+          style={{ width: '100%', height: 'auto', display: 'block' }}
           onError={e => (e.target as HTMLImageElement).style.display = 'none'}
         />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ color: '#fff', fontSize: '20px', fontWeight: 800, marginBottom: '6px' }}>
-            📱 Cameroon Concord App
-          </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px' }}>
-            {platform === 'android' && 'Tap to install directly on your Android'}
-            {platform === 'ios'     && 'Tap to add to your iPhone home screen'}
-            {platform === 'desktop' && 'Install as a desktop app for quick access'}
-            {platform === 'unknown' && 'Get the latest Cameroon news on your device'}
-          </div>
-        </div>
-        <button style={{
-          position: 'relative', zIndex: 1,
-          background: '#fff', color: '#cc0000',
-          padding: '12px 22px', borderRadius: '999px',
-          fontWeight: 800, fontSize: '14px',
-          border: 'none', cursor: 'pointer',
-          whiteSpace: 'nowrap', flexShrink: 0,
+        <div style={{
+          position: 'absolute', bottom: '16px', right: '16px',
+          background: '#cc0000', color: '#fff', padding: '10px 20px',
+          borderRadius: '8px', fontWeight: 700, fontSize: '14px',
         }}>
           {buttonLabel}
-        </button>
+        </div>
       </div>
 
       {showIOSModal && (

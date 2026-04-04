@@ -24,7 +24,7 @@
       "typeVersion": 2,
       "position": [250, 300],
       "parameters": {
-        "jsCode": "const FB_PAGE_ID = 'REPLACE_WITH_FB_PAGE_ID';\nconst FB_ACCESS_TOKEN = 'REPLACE_WITH_FB_PAGE_TOKEN';\n\nreturn [{\n  json: {\n    url: `https://graph.facebook.com/v19.0/${FB_PAGE_ID}/posts?fields=id,message,created_time&limit=10&access_token=${FB_ACCESS_TOKEN}`,\n    fb_page_id: FB_PAGE_ID,\n    fb_token: FB_ACCESS_TOKEN\n  }\n}];"
+        "jsCode": "const FB_PAGE_ID = '100153558631163';\nconst FB_ACCESS_TOKEN = 'EAAU8VZA1qReYBRP5wvSpM8cvZB7vLZAZBEomZB6GKYxdq3ZBYlExZCPJHZAc0ie6KOCKU7kIiwVwrMZC1M5YtGWz4EMoQ1QZCEWllatSQjCx9ZCknZAV1ODPN8ET6eD0Dgxxm5I9C6JF9XThTcfyhYIarc05fEnnUcMOltaWg2kPGBbdVuBx52qLDMwN2xMi9RiyIICQ';\n\nreturn [{\n  json: {\n    url: `https://graph.facebook.com/v19.0/${FB_PAGE_ID}/posts?fields=id,message,created_time&limit=10&access_token=${FB_ACCESS_TOKEN}`,\n    fb_page_id: FB_PAGE_ID,\n    fb_token: FB_ACCESS_TOKEN\n  }\n}];"
       }
     },
     {
@@ -160,7 +160,7 @@
       "position": [2500, 150],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const ANTHROPIC_API_KEY = 'REPLACE_WITH_ANTHROPIC_KEY';\nconst comment = $input.first().json;\n\nconst systemPrompt = 'You are a community manager for Cameroon Concord, an independent Anglophone news platform. Reply to reader comments professionally, warmly, and briefly. Rules: Max 2 sentences. Never argue. Never discuss politics. Thank engagement. If the comment is hostile or offensive, reply calmly: \"Thank you for reading Cameroon Concord.\" Return ONLY the reply text. No JSON. No preamble.';\n\nconst userPrompt = `Comment from ${comment.commenter_name}: \"${comment.comment_text}\"\\n\\nWrite a brief, professional reply:`;\n\nconst requestBody = JSON.stringify({\n  model: 'claude-haiku-4-5-20251001',\n  max_tokens: 150,\n  system: systemPrompt,\n  messages: [{ role: 'user', content: userPrompt }]\n});\n\nreturn [{\n  json: {\n    api_key: ANTHROPIC_API_KEY,\n    request_body: requestBody,\n    platform_comment_id: comment.platform_comment_id,\n    commenter_name: comment.commenter_name,\n    comment_text: comment.comment_text\n  }\n}];"
+        "jsCode": "const ANTHROPIC_API_KEY = 'ANTHROPIC_API_KEY_FROM_ENV';\nconst comment = $input.first().json;\n\nconst systemPrompt = 'You are a community manager for Cameroon Concord, an independent Anglophone news platform. Reply to reader comments professionally, warmly, and briefly. Rules: Max 2 sentences. Never argue. Never discuss politics. Thank engagement. If the comment is hostile or offensive, reply calmly: \"Thank you for reading Cameroon Concord.\" Return ONLY the reply text. No JSON. No preamble.';\n\nconst userPrompt = `Comment from ${comment.commenter_name}: \"${comment.comment_text}\"\\n\\nWrite a brief, professional reply:`;\n\nconst requestBody = JSON.stringify({\n  model: 'claude-haiku-4-5-20251001',\n  max_tokens: 150,\n  system: systemPrompt,\n  messages: [{ role: 'user', content: userPrompt }]\n});\n\nreturn [{\n  json: {\n    api_key: ANTHROPIC_API_KEY,\n    request_body: requestBody,\n    platform_comment_id: comment.platform_comment_id,\n    commenter_name: comment.commenter_name,\n    comment_text: comment.comment_text\n  }\n}];"
       }
     },
     {
@@ -212,7 +212,7 @@
       "position": [3250, 150],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const item = $input.first().json;\nconst FB_ACCESS_TOKEN = 'REPLACE_WITH_FB_PAGE_TOKEN';\n\nreturn [{\n  json: {\n    url: `https://graph.facebook.com/v19.0/${item.platform_comment_id}/replies`,\n    request_body: JSON.stringify({\n      message: item.reply_text,\n      access_token: FB_ACCESS_TOKEN\n    }),\n    platform_comment_id: item.platform_comment_id,\n    commenter_name: item.commenter_name,\n    comment_text: item.comment_text,\n    reply_text: item.reply_text\n  }\n}];"
+        "jsCode": "const item = $input.first().json;\nconst FB_ACCESS_TOKEN = 'EAAU8VZA1qReYBRP5wvSpM8cvZB7vLZAZBEomZB6GKYxdq3ZBYlExZCPJHZAc0ie6KOCKU7kIiwVwrMZC1M5YtGWz4EMoQ1QZCEWllatSQjCx9ZCknZAV1ODPN8ET6eD0Dgxxm5I9C6JF9XThTcfyhYIarc05fEnnUcMOltaWg2kPGBbdVuBx52qLDMwN2xMi9RiyIICQ';\n\nreturn [{\n  json: {\n    url: `https://graph.facebook.com/v19.0/${item.platform_comment_id}/replies`,\n    request_body: JSON.stringify({\n      message: item.reply_text,\n      access_token: FB_ACCESS_TOKEN\n    }),\n    platform_comment_id: item.platform_comment_id,\n    commenter_name: item.commenter_name,\n    comment_text: item.comment_text,\n    reply_text: item.reply_text\n  }\n}];"
       }
     },
     {

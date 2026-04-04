@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import Script from 'next/script'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/react'
 import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema'
 import './globals.css'
@@ -35,6 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )

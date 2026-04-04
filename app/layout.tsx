@@ -5,12 +5,32 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/react'
 import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema'
+import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
-export const metadata: Metadata = buildSiteMetadata()
+export const metadata: Metadata = {
+  ...buildSiteMetadata(),
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Cameroon Concord',
+    startupImage: '/icons/apple-touch-icon.png',
+  },
+  icons: {
+    icon: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/icons/icon-192x192.png',
+  },
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -28,6 +48,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify(buildWebSiteSchema()),
           }}
         />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Cameroon Concord" />
+        <meta name="theme-color" content="#cc0000" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <Script
         async
@@ -37,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
+        <ServiceWorkerRegistration />
         <SpeedInsights />
         <Analytics />
       </body>

@@ -22,7 +22,8 @@ Return JSON only: {"excerpt":"..."}`
 
     : `You are a professional news editor for Cameroon Concord, an English-language Cameroonian news publication.
 
-Given the article title and raw body below, return a JSON object with these four fields:
+Given the article title and raw body below, return a JSON object with these five fields:
+- title: enhanced English headline, max 80 characters, punchy and journalistic. If the original title is in French or another language, translate it to English.
 - meta_title: SEO title, max 60 characters
 - meta_desc: SEO description, max 155 characters
 - excerpt: compelling 1-2 sentence summary, max 200 characters
@@ -32,7 +33,7 @@ Title: ${title}
 Body: ${body}
 
 Return ONLY valid JSON. No markdown fences. No explanation.
-{"meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"..."}`
+{"title":"...","meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"..."}`
 
   const message = await claude.messages.create({
     model:      'claude-sonnet-4-6',

@@ -51,7 +51,11 @@ export function ArticleEditor({ categories, article }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ title, body, type: 'full' }),
       })
-      const data = await res.json() as { meta_title?: string; meta_desc?: string; excerpt?: string; enhanced_body?: string; error?: string }
+      const data = await res.json() as { title?: string; meta_title?: string; meta_desc?: string; excerpt?: string; enhanced_body?: string; error?: string }
+      if (data.title) {
+        setTitle(data.title)
+        setSlug(slugify(data.title))
+      }
       if (data.meta_title)    setMetaT(data.meta_title)
       if (data.meta_desc)     setMetaD(data.meta_desc)
       if (data.excerpt)       setExcerpt(data.excerpt)
@@ -198,7 +202,7 @@ export function ArticleEditor({ categories, article }: Props) {
               Delete
             </button>
           )}
-          <button onClick={() => handleSave('published')} disabled={saving} style={{
+          <button onClick={() => handleSave('published', true)} disabled={saving} style={{
             background: '#C8102E', color: '#fff', border: 'none',
             padding: '8px 20px', borderRadius: '8px', fontSize: '0.75rem',
             fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer',

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Category, Article, ArticleStatus } from '@/lib/types'
 
@@ -35,6 +35,28 @@ export function ArticleEditor({ categories, article }: Props) {
   const [saving,    setSaving]    = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [msg,       setMsg]       = useState('')
+
+  // Pre-fill from Quick Publish "Review in Full Editor" flow
+  useEffect(() => {
+    if (isEdit) return
+    const raw = localStorage.getItem('quick_publish_draft')
+    if (!raw) return
+    try {
+      const d = JSON.parse(raw) as {
+        title?: string; slug?: string; body?: string; excerpt?: string
+        categoryId?: number; featuredImage?: string; metaTitle?: string; metaDesc?: string
+      }
+      if (d.title)        setTitle(d.title)
+      if (d.slug)         setSlug(d.slug)
+      if (d.body)         setBody(d.body)
+      if (d.excerpt)      setExcerpt(d.excerpt)
+      if (d.categoryId)   setCatId(d.categoryId)
+      if (d.featuredImage) setImgUrl(d.featuredImage)
+      if (d.metaTitle)    setMetaT(d.metaTitle)
+      if (d.metaDesc)     setMetaD(d.metaDesc)
+      localStorage.removeItem('quick_publish_draft')
+    } catch { /* ignore malformed draft */ }
+  }, [isEdit])
 
   const handleTitleChange = useCallback((val: string) => {
     setTitle(val)

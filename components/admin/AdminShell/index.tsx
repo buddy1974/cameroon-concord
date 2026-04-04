@@ -8,6 +8,7 @@ import { Menu, X } from 'lucide-react'
 const NAV = [
   { href: '/admin',                        label: '📊 Dashboard' },
   { href: '/admin/articles/new',           label: '✏️ New Article' },
+  { href: '/admin/quick-publish',          label: '⚡ Quick Publish' },
   { href: '/admin/articles',               label: '📰 All Articles' },
   { href: '/admin/articles?status=draft',  label: '📝 Drafts' },
   { href: '/admin/categories',             label: '📁 Categories' },

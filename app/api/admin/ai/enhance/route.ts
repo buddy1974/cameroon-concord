@@ -5,10 +5,35 @@ const claude = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
 
 export async function POST(req: NextRequest) {
   const { title, body, type } = await req.json() as {
-    title: string; body: string; type: 'meta' | 'excerpt' | 'full'
+    title: string; body: string; type: 'meta' | 'excerpt' | 'full' | 'quick'
   }
 
-  const prompt = type === 'meta'
+  const prompt = type === 'quick'
+    ? `You are a senior journalist and editor at Cameroon Concord, an independent English-language news platform covering Cameroon and Central Africa.
+
+Given raw text (which may be in French or another language), produce a complete publication-ready article.
+
+Rules:
+- Translate to English if needed
+- Rewrite in CC journalistic style (factual, authoritative, no sensationalism)
+- Assign the most relevant category from this list only: politics, society, sportsnews, southern-cameroons, business, health, headlines, inside-cpdm
+
+Return ONLY valid JSON. No markdown fences. No explanation.
+{
+  "title": "max 80 chars, punchy English headline",
+  "slug": "lowercase-url-slug-from-title",
+  "excerpt": "max 200 chars, compelling 1-2 sentence summary",
+  "enhanced_body": "<p>Full article HTML, min 4 paragraphs. Use only p, h2, h3, ul, li tags. No inline styles.</p>",
+  "category_slug": "one of: politics|society|sportsnews|southern-cameroons|business|health|headlines|inside-cpdm",
+  "meta_title": "max 60 chars SEO title",
+  "meta_desc": "max 155 chars SEO description",
+  "keywords": ["keyword1","keyword2","keyword3","keyword4","keyword5"]
+}
+
+Raw text:
+${body}`
+
+    : type === 'meta'
     ? `Generate SEO meta_title (max 60 chars) and meta_desc (max 155 chars) for this Cameroon news article.
 Title: ${title}
 Body: ${body.slice(0, 500)}
@@ -37,7 +62,7 @@ Return ONLY valid JSON. No markdown fences. No explanation.
 
   const message = await claude.messages.create({
     model:      'claude-sonnet-4-6',
-    max_tokens: 2000,
+    max_tokens: type === 'quick' ? 4000 : 2000,
     messages:   [{ role: 'user', content: prompt }],
   })
 

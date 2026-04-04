@@ -20,6 +20,12 @@ export default function InstallBanner() {
       return
     }
 
+    // Pick up prompt captured before React hydrated
+    if ((window as any).__deferredInstallPrompt) {
+      setDeferredPrompt((window as any).__deferredInstallPrompt)
+    }
+
+    // Also listen for future fires (e.g. slow load)
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e)

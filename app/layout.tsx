@@ -55,6 +55,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#cc0000" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        {/* Capture beforeinstallprompt before React hydrates */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            window.__deferredInstallPrompt = e;
+          });
+        `}} />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AdSenseLoader />

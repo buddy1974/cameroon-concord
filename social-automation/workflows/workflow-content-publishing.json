@@ -120,7 +120,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const ANTHROPIC_API_KEY = 'ANTHROPIC_API_KEY_FROM_ENV';\nconst item = $input.first().json;\nconst rawBody = (item.raw_body || '').substring(0, 3000);\nconst systemPrompt = 'You are a senior journalist and editor at Cameroon Concord, an independent English-language digital news platform covering Cameroon and Central Africa since 2014. Write like Reuters Africa — factual, authoritative, no sensationalism, no tribal framing, always in English.';\nconst userPrompt = 'Rewrite this raw news item as a complete Cameroon Concord article.\\n\\nRAW TITLE: ' + item.raw_title + '\\nRAW BODY: ' + rawBody + '\\nSOURCE: ' + item.source_name + '\\nLANGUAGE: ' + item.language + '\\n\\nCategories: politics(1), society(2), sportsnews(3), southern-cameroons(4), business(5), health(6), headlines(7), inside-cpdm(8)\\n\\nIf relevant to Cameroon/Chad/CAR/Congo/Gabon/Nigeria, respond ONLY with JSON (no markdown):\\n{\"publish\":true,\"title\":\"max 80 chars\",\"slug\":\"url-slug\",\"excerpt\":\"max 200 chars\",\"body\":\"<p>HTML article min 4 paragraphs</p>\",\"category_id\":1,\"category_slug\":\"politics\",\"meta_title\":\"max 60 chars\",\"meta_desc\":\"max 155 chars\",\"reject_reason\":null}\\n\\nIf not relevant:\\n{\"publish\":false,\"reject_reason\":\"reason\"}';\nconst requestBody = JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:systemPrompt,messages:[{role:'user',content:userPrompt}]});\nreturn [{json:{api_key:ANTHROPIC_API_KEY,request_body:requestBody,ingested_id:item.id,raw_image_url:item.raw_image_url,source_url:item.source_url,source_name:item.source_name,raw_title:item.raw_title}}];"
+        "jsCode": "const ANTHROPIC_API_KEY = 'ANTHROPIC_API_KEY_FROM_ENV';\nconst item = $input.item.json;\nconst rawBody = (item.raw_body || '').substring(0, 3000);\nconst systemPrompt = 'You are a senior journalist and editor at Cameroon Concord, an independent English-language digital news platform covering Cameroon and Central Africa since 2014. Write like Reuters Africa — factual, authoritative, no sensationalism, no tribal framing, always in English.';\nconst userPrompt = 'Rewrite this raw news item as a complete Cameroon Concord article.\\n\\nRAW TITLE: ' + item.raw_title + '\\nRAW BODY: ' + rawBody + '\\nSOURCE: ' + item.source_name + '\\nLANGUAGE: ' + item.language + '\\n\\nCategories: politics(1), society(2), sportsnews(3), southern-cameroons(4), business(5), health(6), headlines(7), inside-cpdm(8)\\n\\nIf relevant to Cameroon/Chad/CAR/Congo/Gabon/Nigeria, respond ONLY with JSON (no markdown):\\n{\"publish\":true,\"title\":\"max 80 chars\",\"slug\":\"url-slug\",\"excerpt\":\"max 200 chars\",\"body\":\"<p>HTML article min 4 paragraphs</p>\",\"category_id\":1,\"category_slug\":\"politics\",\"meta_title\":\"max 60 chars\",\"meta_desc\":\"max 155 chars\",\"reject_reason\":null}\\n\\nIf not relevant:\\n{\"publish\":false,\"reject_reason\":\"reason\"}';\nconst requestBody = JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:systemPrompt,messages:[{role:'user',content:userPrompt}]});\nreturn [{json:{api_key:ANTHROPIC_API_KEY,request_body:requestBody,ingested_id:item.id,raw_image_url:item.raw_image_url,source_url:item.source_url,source_name:item.source_name,raw_title:item.raw_title}}];"
       }
     },
     {
@@ -176,7 +176,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const claudeResponse = $input.first().json;\nconst promptData = $('Build Claude Prompt').all()[$itemIndex].json;\nconst content = claudeResponse.content && claudeResponse.content[0] ? claudeResponse.content[0].text : '';\nlet parsed;\ntry {\n  const clean = content.replace(/```json|```/g,'').trim();\n  const match = clean.match(/{[\\s\\S]*}/);\n  if (!match) throw new Error('No JSON');\n  parsed = JSON.parse(match[0]);\n} catch(e) {\n  parsed = {publish:false,reject_reason:'Parse error: '+e.message};\n}\nreturn [{json:{...parsed,ingested_id:promptData.ingested_id,raw_image_url:promptData.raw_image_url,source_url:promptData.source_url,source_name:promptData.source_name}}];"
+        "jsCode": "const claudeResponse = $input.item.json;\nconst promptData = $('Build Claude Prompt').all()[$itemIndex].json;\nconst content = claudeResponse.content && claudeResponse.content[0] ? claudeResponse.content[0].text : '';\nlet parsed;\ntry {\n  const clean = content.replace(/```json|```/g,'').trim();\n  const match = clean.match(/{[\\s\\S]*}/);\n  if (!match) throw new Error('No JSON');\n  parsed = JSON.parse(match[0]);\n} catch(e) {\n  parsed = {publish:false,reject_reason:'Parse error: '+e.message};\n}\nreturn [{json:{...parsed,ingested_id:promptData.ingested_id,raw_image_url:promptData.raw_image_url,source_url:promptData.source_url,source_name:promptData.source_name}}];"
       }
     },
     {
@@ -221,7 +221,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const CC_API_KEY = 'AUTOMATION_KEY_REMOVED';\nconst item = $input.first().json;\nconst slug = (item.slug || (item.title||'').toLowerCase().replace(/[^a-z0-9 -]/g,'').replace(/ +/g,'-').substring(0,100));\nconst payload = {title:item.title,slug:slug,excerpt:item.excerpt||'',body:item.body||'',categoryId:item.category_id||7,featuredImage:item.raw_image_url||'',status:'draft',metaTitle:item.meta_title||(item.title||'').substring(0,60),metaDesc:item.meta_desc||item.excerpt||''};\nreturn [{json:{api_url:'https://www.cameroon-concord.com/api/admin/articles',api_key:CC_API_KEY,payload_str:JSON.stringify(payload),ingested_id:item.ingested_id,title:item.title}}];"
+        "jsCode": "const CC_API_KEY = 'AUTOMATION_KEY_REMOVED';\nconst item = $input.item.json;\nconst slug = (item.slug || (item.title||'').toLowerCase().replace(/[^a-z0-9 -]/g,'').replace(/ +/g,'-').substring(0,100));\nconst payload = {title:item.title,slug:slug,excerpt:item.excerpt||'',body:item.body||'',categoryId:item.category_id||7,featuredImage:item.raw_image_url||'',status:'draft',metaTitle:item.meta_title||(item.title||'').substring(0,60),metaDesc:item.meta_desc||item.excerpt||''};\nreturn [{json:{api_url:'https://www.cameroon-concord.com/api/admin/articles',api_key:CC_API_KEY,payload_str:JSON.stringify(payload),ingested_id:item.ingested_id,title:item.title}}];"
       }
     },
     {
@@ -274,7 +274,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const response = $input.first().json;\nconst payload = $('Build CC Article Payload').all()[$itemIndex].json;\nconst success = !response.error && (response.id || response.article);\nconst articleId = response.id || (response.article && response.article.id) || null;\nreturn [{json:{success,article_id:articleId,ingested_id:payload.ingested_id,title:payload.title,error:response.error||null}}];"
+        "jsCode": "const response = $input.item.json;\nconst payload = $('Build CC Article Payload').all()[$itemIndex].json;\nconst success = !response.error && (response.id || response.article);\nconst articleId = response.id || (response.article && response.article.id) || null;\nreturn [{json:{success,article_id:articleId,ingested_id:payload.ingested_id,title:payload.title,error:response.error||null}}];"
       }
     },
     {
@@ -302,7 +302,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const item = $input.first().json;\nconst id = parseInt(item.id);\nreturn [{json:{query:`UPDATE ingested_content SET status='processing' WHERE id=${id} AND status='pending' RETURNING id,source_name,source_url,raw_title,raw_body,raw_image_url,language`}}];"
+        "jsCode": "const item = $input.item.json;\nconst id = parseInt(item.id);\nreturn [{json:{query:`UPDATE ingested_content SET status='processing' WHERE id=${id} AND status='pending' RETURNING id,source_name,source_url,raw_title,raw_body,raw_image_url,language`}}];"
       }
     },
     {
@@ -336,7 +336,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "function esc(v){if(v===null||v===undefined)return 'NULL';return \"'\"+ String(v).replace(/'/g,\"''\")+ \"'\";}\nconst r=$input.first().json;\nreturn [{json:{query:`UPDATE ingested_content SET status='rejected',reject_reason=${esc(r.reject_reason)} WHERE id=${parseInt(r.ingested_id)}`}}];"
+        "jsCode": "function esc(v){if(v===null||v===undefined)return 'NULL';return \"'\"+ String(v).replace(/'/g,\"''\")+ \"'\";}\nconst r=$input.item.json;\nreturn [{json:{query:`UPDATE ingested_content SET status='rejected',reject_reason=${esc(r.reject_reason)} WHERE id=${parseInt(r.ingested_id)}`}}];"
       }
     },
     {
@@ -370,7 +370,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const r=$input.first().json;\nconst artId=r.article_id?parseInt(r.article_id):'NULL';\nreturn [{json:{query:`UPDATE ingested_content SET status='published',cc_article_id=${artId} WHERE id=${parseInt(r.ingested_id)}`,pass:r}}];"
+        "jsCode": "const r=$input.item.json;\nconst artId=r.article_id?parseInt(r.article_id):'NULL';\nreturn [{json:{query:`UPDATE ingested_content SET status='published',cc_article_id=${artId} WHERE id=${parseInt(r.ingested_id)}`,pass:r}}];"
       }
     },
     {

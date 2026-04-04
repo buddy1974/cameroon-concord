@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import AdUnit from '@/components/ads/AdUnit'
 import { ArticleCard } from '@/components/article/ArticleCard'
+import InstallBanner from '@/components/pwa/InstallBanner'
 import { JsonLd } from '@/components/seo/JsonLd'
 import {
   getFeaturedArticles, getLatestArticles,
@@ -26,7 +27,7 @@ export default async function HomePage() {
     ;[featured, latest, mostRead, allCats] = await Promise.all([
       getFeaturedArticles(7),
       getLatestArticles(18),
-      getMostRead(16),
+      getMostRead(10),
       getAllCategories(),
     ])
   } catch (err) {
@@ -89,6 +90,9 @@ export default async function HomePage() {
 
           </div>
         )}
+
+        {/* ── APP INSTALL BANNER ── */}
+        <InstallBanner />
 
         {/* ── TOP BANNER AD ── */}
         <div className="w-full max-w-[728px] mx-auto my-4">

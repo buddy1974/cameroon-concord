@@ -31,6 +31,18 @@ export default async function AdminDashboard() {
     { label: 'Drafts',         value: Number(drafts.count).toLocaleString(),        color: '#F5A623' },
   ]
 
+  let pwaStats = { click: 0, accepted: 0, installed: 0 }
+  try {
+    const rows = await db.execute(
+      sql`SELECT event, COUNT(*) as count FROM pwa_events GROUP BY event`
+    ) as { rows?: { event: string; count: string | number }[] } | { event: string; count: string | number }[]
+    const data: { event: string; count: string | number }[] = Array.isArray(rows) ? rows : (rows as any).rows ?? []
+    for (const r of data) {
+      const k = r.event as keyof typeof pwaStats
+      if (k in pwaStats) pwaStats[k] = Number(r.count)
+    }
+  } catch { /* table may not exist yet */ }
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
@@ -55,6 +67,23 @@ export default async function AdminDashboard() {
             <div style={{ fontSize: '0.72rem', color: '#444', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* PWA Install Stats */}
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ fontSize: '0.72rem', color: '#444', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>PWA Install Funnel</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          {[
+            { label: 'Banner Clicks',  value: pwaStats.click,    color: '#4A90E2' },
+            { label: 'User Accepted',  value: pwaStats.accepted,  color: '#007A3D' },
+            { label: 'App Installed',  value: pwaStats.installed, color: '#C8102E' },
+          ].map(s => (
+            <div key={s.label} style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', padding: '20px' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color }}>{s.value.toLocaleString()}</div>
+              <div style={{ fontSize: '0.72rem', color: '#444', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Recent articles table */}

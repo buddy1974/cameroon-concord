@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# n8n workflow exports (may contain embedded credentials)
+social-automation/workflows/

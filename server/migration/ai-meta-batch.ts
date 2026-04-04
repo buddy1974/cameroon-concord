@@ -52,7 +52,8 @@ Format: {"meta_title":"max 60 chars, include Cameroon if relevant","meta_desc":"
   })
   const block = msg.content?.[0]
   if (!block || block.type !== 'text' || !(block as any).text) {
-    throw new Error('Empty or non-text response from API')
+    const blockInfo = JSON.stringify(msg.content?.slice(0, 1))
+    throw new Error('Empty or non-text response: ' + blockInfo)
   }
   const text = (block as { type: string; text: string }).text.trim()
   const clean = text.replace(/```json|```/g, '').trim()

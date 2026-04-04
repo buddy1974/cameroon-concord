@@ -121,7 +121,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "function esc(v){if(v===null||v===undefined)return 'NULL';return \"'\"+ String(v).replace(/'/g,\"''\")+ \"'\";}\nconst r=$input.item.json;\nreturn [{json:{query:`INSERT INTO ingested_content (source_name,source_url,content_hash,raw_title,raw_body,raw_image_url,language,status) VALUES (${esc(r.source_name)},${esc(r.source_url)},${esc(r.content_hash)},${esc(r.raw_title)},${esc(r.raw_body)},${esc(r.raw_image_url)},${esc(r.language)},${esc(r.status)}) ON CONFLICT (content_hash) DO NOTHING`}}];"
+        "jsCode": "function esc(v){if(v===null||v===undefined)return 'NULL';return \"'\"+ String(v).replace(/'/g,\"''\")+ \"'\";}\nconst r=$input.item.json;\nreturn {json:{query:`INSERT INTO ingested_content (source_name,source_url,content_hash,raw_title,raw_body,raw_image_url,language,status) VALUES (${esc(r.source_name)},${esc(r.source_url)},${esc(r.content_hash)},${esc(r.raw_title)},${esc(r.raw_body)},${esc(r.raw_image_url)},${esc(r.language)},${esc(r.status)}) ON CONFLICT (content_hash) DO NOTHING`}};"
       }
     },
     {

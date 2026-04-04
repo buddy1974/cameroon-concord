@@ -35,7 +35,7 @@ export function Footer() {
         { href: '/contact',    label: 'Contact' },
         { href: '/advertise',  label: 'Advertise' },
         { href: '/privacy',    label: 'Privacy Policy' },
-        { href: '/api/rss',    label: 'RSS Feed' },
+        { href: '/rss',        label: 'RSS Feed' },
         { href: '/search',     label: 'Search' },
       ],
     },

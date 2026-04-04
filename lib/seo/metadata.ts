@@ -10,10 +10,10 @@ export function buildSiteMetadata(): Metadata {
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default:  `${SITE_NAME} — Cameroon News`,
+      default:  `${SITE_NAME} — Independent Cameroon News`,
       template: `%s | ${SITE_NAME}`,
     },
-    description: SITE_DESCRIPTION,
+    description: 'Independent English-language news covering Cameroon and Southern Cameroons since 2014. Politics, society, sports, business and more.',
     openGraph: {
       type:        'website',
       siteName:    SITE_NAME,
@@ -42,6 +42,12 @@ export function buildSiteMetadata(): Metadata {
         'max-video-preview': -1,
         'max-image-preview': 'large',
         'max-snippet':       -1,
+      },
+    },
+    alternates: {
+      canonical: SITE_URL,
+      types: {
+        'application/rss+xml': `${SITE_URL}/api/rss`,
       },
     },
     verification: {

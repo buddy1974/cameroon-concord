@@ -2,20 +2,6 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function proxy(req: NextRequest) {
-  const host = req.headers.get('host') || ''
-  const url  = req.nextUrl
-
-  if (
-    !host.startsWith('www.') &&
-    host.includes('cameroon-concord.com') &&
-    !host.includes('vercel.app')
-  ) {
-    return NextResponse.redirect(
-      `https://www.${host}${url.pathname}${url.search}`,
-      { status: 301 }
-    )
-  }
-
   const { pathname } = req.nextUrl
 
   // Allow everything under these paths through immediately

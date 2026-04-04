@@ -101,9 +101,10 @@ export function QuickPublish({ categories }: Props) {
     setMsg('')
     try {
       const res  = await fetch('/api/admin/articles', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
+        method:      'POST',
+        credentials: 'include',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify({
           title, slug, body: result.enhanced_body, excerpt,
           categoryId: catId, featuredImage: imageUrl || null,
           status: 'published', metaTitle: metaTitle || null, metaDesc: metaDesc || null,

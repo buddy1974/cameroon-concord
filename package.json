@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "social:post": "npx tsx server/workers/social-post.ts",
+    "telegram:ingest": "npx tsx server/workers/telegram-ingest.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
@@ -26,6 +28,7 @@
     "dotenv": "^17.4.0",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.9",
+    "input": "^1.0.1",
     "jose": "^6.2.2",
     "lucide-react": "^1.7.0",
     "mysql2": "^3.20.0",
@@ -38,6 +41,8 @@
     "slugify": "^1.6.9",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
+    "telegram": "^2.26.22",
+    "twitter-api-v2": "^1.29.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

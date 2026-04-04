@@ -52,6 +52,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  console.log('POST /api/admin/articles headers:', {
+    apiKey:      req.headers.get('x-api-key') ? 'present' : 'missing',
+    cookie:      req.headers.get('cookie')    ? 'present' : 'missing',
+    cookieValue: req.headers.get('cookie')?.substring(0, 50),
+  })
   // Auth: API key (n8n / automation) or JWT cookie (admin UI)
   const apiKey = req.headers.get('x-api-key')
   if (apiKey && apiKey === process.env.AUTOMATION_API_KEY) {

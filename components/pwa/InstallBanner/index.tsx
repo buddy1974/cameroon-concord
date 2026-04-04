@@ -82,7 +82,7 @@ export default function InstallBanner() {
         }}
       >
         <img
-          src="/app-install.png"
+          src="/WEB-MOBILE-APP-BANNER.png"
           alt="Install Cameroon Concord App"
           style={{ width: '100%', height: 'auto', display: 'block' }}
           onError={e => (e.target as HTMLImageElement).style.display = 'none'}

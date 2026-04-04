@@ -1,9 +1,7 @@
 {
   "name": "Concord — Content Publishing",
   "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
+  "settings": { "executionOrder": "v1" },
   "nodes": [
     {
       "id": "cc-cp-0001",
@@ -12,9 +10,7 @@
       "typeVersion": 1.2,
       "position": [0, 300],
       "parameters": {
-        "rule": {
-          "interval": [{ "field": "minutes", "minutesInterval": 15 }]
-        }
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 30 }] }
       }
     },
     {
@@ -59,7 +55,7 @@
       "typeVersion": 2,
       "position": [750, 500],
       "parameters": {
-        "jsCode": "return [{ json: { message: 'No pending items to publish', timestamp: new Date().toISOString() } }];"
+        "jsCode": "return [{ json: { message: 'No pending items', timestamp: new Date().toISOString() } }];"
       }
     },
     {
@@ -102,7 +98,7 @@
       "position": [1250, 150],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const ANTHROPIC_API_KEY = 'REPLACE_WITH_ANTHROPIC_KEY';\nconst item = $input.first().json;\n\nconst systemPrompt = 'You are a professional news editor for Cameroon Concord, an independent digital media platform covering Cameroon and Central Africa. Write in the style of Reuters Africa \u2014 factual, concise, and impartial. Output must always be in English. Do not use sensationalist language. Do not use tribal, ethnic, or regional framing. Do not editorialize. Focus on verified facts and credible context.';\n\nconst rawBody = (item.raw_body || '').substring(0, 2000);\nconst userPrompt = `You are given a raw news item from a Cameroon news source. Evaluate and produce social media copy.\\n\\nRAW TITLE: ${item.raw_title}\\nRAW BODY: ${rawBody}\\nSOURCE: ${item.source_name}\\nLANGUAGE: ${item.language}\\n\\nIf publishable, respond ONLY with valid JSON:\\n{\\n  \"headline\": \"Clean news headline max 80 chars\",\\n  \"facebook_post\": \"150-250 word Reuters-style post ending with hook question, no hashtags in body\",\\n  \"twitter_post\": \"Max 240 chars punchy and factual, no hashtags in body\",\\n  \"hashtags_facebook\": [\"tag1\",\"tag2\",\"tag3\",\"tag4\",\"tag5\"],\\n  \"hashtags_twitter\": [\"tag1\",\"tag2\",\"tag3\"],\\n  \"category\": \"politics|economy|security|society|sports|culture|environment\",\\n  \"image_search_query\": \"4-6 word stock photo query\",\\n  \"publish\": true,\\n  \"reject_reason\": null\\n}\\n\\nIf rejecting:\\n{\\n  \"publish\": false,\\n  \"reject_reason\": \"Brief reason why rejected\"\\n}`;\n\nconst requestBody = JSON.stringify({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 1000,\n  system: systemPrompt,\n  messages: [{ role: 'user', content: userPrompt }]\n});\n\nreturn [{\n  json: {\n    api_key: ANTHROPIC_API_KEY,\n    request_body: requestBody,\n    ingested_id: item.id,\n    raw_image_url: item.raw_image_url,\n    source_url: item.source_url,\n    source_name: item.source_name,\n    raw_title: item.raw_title\n  }\n}];"
+        "jsCode": "const ANTHROPIC_API_KEY = 'ANTHROPIC_API_KEY_FROM_ENV';\nconst item = $input.first().json;\nconst CC_CATEGORIES = [\n  { id: 1, slug: 'politics', name: 'Politics' },\n  { id: 2, slug: 'society', name: 'Society' },\n  { id: 3, slug: 'sportsnews', name: 'Sports' },\n  { id: 4, slug: 'southern-cameroons', name: 'S. Cameroons' },\n  { id: 5, slug: 'business', name: 'Business' },\n  { id: 6, slug: 'health', name: 'Health' },\n  { id: 7, slug: 'headlines', name: 'Headlines' },\n  { id: 8, slug: 'inside-cpdm', name: 'Biya' }\n];\nconst rawBody = (item.raw_body || '').substring(0, 3000);\nconst systemPrompt = 'You are a senior journalist and editor at Cameroon Concord, an independent English-language digital news platform covering Cameroon and Central Africa since 2014. Your editorial voice is factual, authoritative, and accessible. You write like Reuters Africa — no sensationalism, no tribal framing, no editorializing. You always write in English regardless of source language.';\nconst categoryList = CC_CATEGORIES.map(c => c.slug + ' (id:' + c.id + ')').join(', ');\nconst userPrompt = 'You are given a raw news item scraped from a news source. Your job is to:\\n1. Evaluate if this article is relevant to Cameroon, Chad, Central African Republic, Congo, Gabon, or Nigeria\\n2. If relevant, rewrite it as a complete professional news article for Cameroon Concord\\n3. Translate to English if the source is in French or another language\\n4. Write in Cameroon Concord journalistic style — NOT a direct translation, a full rewrite\\n5. Assign the correct category\\n\\nRAW TITLE: ' + item.raw_title + '\\nRAW BODY: ' + rawBody + '\\nSOURCE: ' + item.source_name + '\\nSOURCE LANGUAGE: ' + item.language + '\\n\\nAvailable categories: ' + categoryList + '\\n\\nIf relevant and publishable, respond ONLY with valid JSON (no markdown fences):\\n{\\n  \"publish\": true,\\n  \"title\": \"Clean journalistic English headline max 80 chars\",\\n  \"slug\": \"url-slug-lowercase-hyphens\",\\n  \"excerpt\": \"2-3 sentence summary max 200 chars\",\\n  \"body\": \"<p>Full article HTML using only p h2 h3 ul li tags. Min 4 paragraphs. Reuters-style English.</p>\",\\n  \"category_id\": 1,\\n  \"category_slug\": \"politics\",\\n  \"meta_title\": \"SEO title max 60 chars\",\\n  \"meta_desc\": \"SEO description max 155 chars\",\\n  \"reject_reason\": null\\n}\\n\\nIf NOT relevant:\\n{\\n  \"publish\": false,\\n  \"reject_reason\": \"Brief reason\"\\n}';\nconst requestBody = JSON.stringify({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 2000,\n  system: systemPrompt,\n  messages: [{ role: 'user', content: userPrompt }]\n});\nreturn [{\n  json: {\n    api_key: ANTHROPIC_API_KEY,\n    request_body: requestBody,\n    ingested_id: item.id,\n    raw_image_url: item.raw_image_url,\n    source_url: item.source_url,\n    source_name: item.source_name,\n    raw_title: item.raw_title\n  }\n}];"
       }
     },
     {
@@ -126,13 +122,7 @@
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ $json.request_body }}",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "json"
-            }
-          }
-        }
+        "options": { "response": { "response": { "responseFormat": "json" } } }
       }
     },
     {
@@ -143,7 +133,7 @@
       "position": [1750, 150],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const claudeResponse = $input.first().json;\nconst promptData = $('Build Claude Prompt').all()[$itemIndex].json;\n\nconst content = claudeResponse.content && claudeResponse.content[0]\n  ? claudeResponse.content[0].text\n  : '';\n\nlet parsed;\ntry {\n  const match = content.match(/\\{[\\s\\S]*\\}/);\n  if (!match) throw new Error('No JSON found in Claude response');\n  parsed = JSON.parse(match[0]);\n} catch (e) {\n  parsed = { publish: false, reject_reason: 'Parse error: ' + e.message };\n}\n\nreturn [{\n  json: {\n    ...parsed,\n    ingested_id: promptData.ingested_id,\n    raw_image_url: promptData.raw_image_url,\n    source_url: promptData.source_url,\n    source_name: promptData.source_name\n  }\n}];"
+        "jsCode": "const claudeResponse = $input.first().json;\nconst promptData = $('Build Claude Prompt').all()[$itemIndex].json;\nconst content = claudeResponse.content && claudeResponse.content[0] ? claudeResponse.content[0].text : '';\nlet parsed;\ntry {\n  const clean = content.replace(/```json|```/g, '').trim();\n  const match = clean.match(/\\{[\\s\\S]*\\}/);\n  if (!match) throw new Error('No JSON in response');\n  parsed = JSON.parse(match[0]);\n} catch (e) {\n  parsed = { publish: false, reject_reason: 'Parse error: ' + e.message };\n}\nreturn [{ json: { ...parsed, ingested_id: promptData.ingested_id, raw_image_url: promptData.raw_image_url, source_url: promptData.source_url, source_name: promptData.source_name } }];"
       }
     },
     {
@@ -172,7 +162,7 @@
       "name": "Mark Rejected",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
-      "position": [2250, 350],
+      "position": [2250, 400],
       "parameters": {
         "operation": "executeQuery",
         "query": "UPDATE ingested_content SET status = 'rejected', reject_reason = $2 WHERE id = $1;",
@@ -187,320 +177,103 @@
     },
     {
       "id": "cc-cp-0012",
-      "name": "Build Facebook Payload",
+      "name": "Build CC Article Payload",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [2250, 150],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const FB_PAGE_ID = 'REPLACE_WITH_FB_PAGE_ID';\nconst FB_PAGE_TOKEN = 'REPLACE_WITH_FB_PAGE_TOKEN';\nconst REPLACE_WITH_TWITTER_BEARER = 'REPLACE_WITH_TWITTER_BEARER';\nconst REPLACE_WITH_TWITTER_API_KEY = 'REPLACE_WITH_TWITTER_API_KEY';\nconst REPLACE_WITH_TWITTER_API_SECRET = 'REPLACE_WITH_TWITTER_API_SECRET';\nconst REPLACE_WITH_TWITTER_ACCESS_TOKEN = 'REPLACE_WITH_TWITTER_ACCESS_TOKEN';\nconst REPLACE_WITH_TWITTER_ACCESS_SECRET = 'REPLACE_WITH_TWITTER_ACCESS_SECRET';\n\nconst item = $input.first().json;\n\nconst fbHashtags = (item.hashtags_facebook || []).map(h => '#' + h.replace(/^#/, '')).join(' ');\nconst fbCaption = item.facebook_post + '\\n\\n' + fbHashtags;\n\nconst twHashtags = (item.hashtags_twitter || []).map(h => '#' + h.replace(/^#/, '')).join(' ');\nconst twitterPost = (item.twitter_post + ' ' + twHashtags).substring(0, 280);\n\nconst hasImage = !!item.raw_image_url && !item.raw_image_url.startsWith('tg_file:');\n\nlet fbEndpoint, fbBodyObj;\nif (hasImage) {\n  fbEndpoint = `https://graph.facebook.com/v19.0/${FB_PAGE_ID}/photos`;\n  fbBodyObj = { caption: fbCaption, url: item.raw_image_url, access_token: FB_PAGE_TOKEN };\n} else {\n  fbEndpoint = `https://graph.facebook.com/v19.0/${FB_PAGE_ID}/feed`;\n  fbBodyObj = { message: fbCaption, access_token: FB_PAGE_TOKEN };\n}\n\nreturn [{\n  json: {\n    fb_endpoint: fbEndpoint,\n    fb_body_str: JSON.stringify(fbBodyObj),\n    pass_through: {\n      ingested_id: item.ingested_id,\n      category: item.category,\n      source_url: item.source_url,\n      headline: item.headline,\n      image_url: hasImage ? item.raw_image_url : null,\n      facebook_post: fbCaption,\n      twitter_post: twitterPost\n    }\n  }\n}];"
+        "jsCode": "const CC_API_KEY = 'AUTOMATION_KEY_REMOVED';\nconst CC_API_URL = 'https://www.cameroon-concord.com/api/admin/articles';\nconst item = $input.first().json;\nconst slug = (item.slug || (item.title || '').toLowerCase().replace(/[^a-z0-9\\s-]/g,'').replace(/\\s+/g,'-').substring(0,100));\nconst payload = {\n  title: item.title,\n  slug: slug,\n  excerpt: item.excerpt || '',\n  body: item.body || '',\n  categoryId: item.category_id || 7,\n  featuredImage: item.raw_image_url || '',\n  status: 'draft',\n  metaTitle: item.meta_title || (item.title || '').substring(0,60),\n  metaDesc: item.meta_desc || item.excerpt || ''\n};\nreturn [{ json: { api_url: CC_API_URL, api_key: CC_API_KEY, payload_str: JSON.stringify(payload), ingested_id: item.ingested_id, title: item.title } }];"
       }
     },
     {
       "id": "cc-cp-0013",
-      "name": "Post to Facebook",
+      "name": "POST to Cameroon Concord",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [2500, 150],
       "continueOnFail": true,
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.fb_endpoint }}",
+        "url": "={{ $json.api_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $json.api_key }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ $json.fb_body_str }}",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "json"
-            }
-          }
-        }
+        "body": "={{ $json.payload_str }}",
+        "options": { "response": { "response": { "responseFormat": "json" } } }
       }
     },
     {
       "id": "cc-cp-0014",
-      "name": "Handle FB Response",
+      "name": "Handle CC Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [2750, 150],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const response = $input.first().json;\nconst passThrough = $('Build Facebook Payload').all()[$itemIndex].json.pass_through;\n\nif (response.error) {\n  return [{\n    json: {\n      fb_success: false,\n      error_message: response.error.message || JSON.stringify(response.error),\n      pass_through: passThrough\n    }\n  }];\n}\n\nconst fbPostId = response.post_id || response.id || null;\n\nreturn [{\n  json: {\n    fb_success: true,\n    fb_post_id: fbPostId,\n    pass_through: passThrough\n  }\n}];"
+        "jsCode": "const response = $input.first().json;\nconst payload = $('Build CC Article Payload').all()[$itemIndex].json;\nconst success = !response.error && (response.id || response.article);\nconst articleId = response.id || (response.article && response.article.id) || null;\nreturn [{ json: { success, article_id: articleId, ingested_id: payload.ingested_id, title: payload.title, error: response.error || null } }];"
       }
     },
     {
       "id": "cc-cp-0015",
-      "name": "IF: FB Success?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
+      "name": "Mark Published in Neon",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
       "position": [3000, 150],
       "parameters": {
-        "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-          "conditions": [
-            {
-              "id": "cond-fb",
-              "leftValue": "={{ $json.fb_success }}",
-              "rightValue": true,
-              "operator": { "type": "boolean", "operation": "equal" }
-            }
-          ],
-          "combinator": "and"
+        "operation": "executeQuery",
+        "query": "UPDATE ingested_content SET status = 'published', cc_article_id = $2 WHERE id = $1;",
+        "options": {
+          "queryBatching": "independently",
+          "queryParams": "={{ [$json.ingested_id, $json.article_id] }}"
         }
+      },
+      "credentials": {
+        "postgres": { "id": "CONCORD_NEON_DB_CREDENTIAL_ID", "name": "Concord Neon DB" }
       }
     },
     {
       "id": "cc-cp-0016",
-      "name": "Insert Failed Post",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [3250, 350],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "INSERT INTO social_posts (ingested_id, platform, caption, status, error_message) VALUES ($1, 'facebook', $2, 'failed', $3);",
-        "options": {
-          "queryBatching": "independently",
-          "queryParams": "={{ [$json.pass_through.ingested_id, $json.pass_through.facebook_post, $json.error_message] }}"
-        }
-      },
-      "credentials": {
-        "postgres": { "id": "CONCORD_NEON_DB_CREDENTIAL_ID", "name": "Concord Neon DB" }
-      }
-    },
-    {
-      "id": "cc-cp-0017",
-      "name": "Build Twitter Payload",
+      "name": "Log Summary",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [3250, 150],
       "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "const item = $input.first().json;\nconst passThrough = item.pass_through;\n\nreturn [{\n  json: {\n    twitter_text: passThrough.twitter_post,\n    pass_through: passThrough,\n    fb_post_id: item.fb_post_id\n  }\n}];"
-      }
-    },
-    {
-      "id": "cc-cp-0018",
-      "name": "Post to Twitter",
-      "type": "n8n-nodes-base.twitter",
-      "typeVersion": 2,
-      "position": [3500, 150],
-      "continueOnFail": true,
-      "parameters": {
-        "resource": "tweet",
-        "operation": "create",
-        "text": "={{ $json.twitter_text }}"
-      },
-      "credentials": {
-        "twitterOAuth1Api": {
-          "id": "CONCORD_TWITTER_CREDENTIAL_ID",
-          "name": "Concord Twitter"
-        }
-      }
-    },
-    {
-      "id": "cc-cp-0019",
-      "name": "Prepare Results",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [3750, 150],
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "const twitterResult = $input.first().json;\nconst tweetPayload = $('Build Twitter Payload').all()[$itemIndex].json;\nconst pt = tweetPayload.pass_through;\n\nconst twitterPostId = twitterResult.data\n  ? twitterResult.data.id\n  : (twitterResult.id || null);\n\nreturn [{\n  json: {\n    ingested_id: pt.ingested_id,\n    category: pt.category,\n    source_url: pt.source_url,\n    fb_post_id: tweetPayload.fb_post_id,\n    fb_caption: pt.facebook_post,\n    twitter_post_id: twitterPostId,\n    twitter_caption: pt.twitter_post,\n    image_url: pt.image_url\n  }\n}];"
-      }
-    },
-    {
-      "id": "cc-cp-0020",
-      "name": "Update ingested_content",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [4000, 150],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "UPDATE ingested_content SET status = 'published' WHERE id = $1 RETURNING id;",
-        "options": {
-          "queryBatching": "independently",
-          "queryParams": "={{ [$json.ingested_id] }}"
-        }
-      },
-      "credentials": {
-        "postgres": { "id": "CONCORD_NEON_DB_CREDENTIAL_ID", "name": "Concord Neon DB" }
-      }
-    },
-    {
-      "id": "cc-cp-0021",
-      "name": "Build social_posts Rows",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [4250, 150],
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "const results = $('Prepare Results').all()[$itemIndex].json;\n\nreturn [\n  {\n    json: {\n      ingested_id: results.ingested_id,\n      platform: 'facebook',\n      caption: results.fb_caption,\n      image_url: results.image_url,\n      image_source: results.image_url ? 'source' : null,\n      image_moderation_status: 'approved',\n      status: 'published',\n      platform_post_id: results.fb_post_id,\n      error_message: null\n    }\n  },\n  {\n    json: {\n      ingested_id: results.ingested_id,\n      platform: 'twitter',\n      caption: results.twitter_caption,\n      image_url: null,\n      image_source: null,\n      image_moderation_status: 'approved',\n      status: results.twitter_post_id ? 'published' : 'failed',\n      platform_post_id: results.twitter_post_id,\n      error_message: results.twitter_post_id ? null : 'Twitter post failed'\n    }\n  }\n];"
-      }
-    },
-    {
-      "id": "cc-cp-0022",
-      "name": "Insert social_posts",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [4500, 150],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "INSERT INTO social_posts (ingested_id, platform, caption, image_url, image_source, image_moderation_status, status, published_at, platform_post_id, error_message) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9);",
-        "options": {
-          "queryBatching": "independently",
-          "queryParams": "={{ [$json.ingested_id, $json.platform, $json.caption, $json.image_url, $json.image_source, $json.image_moderation_status, $json.status, $json.platform_post_id, $json.error_message] }}"
-        }
-      },
-      "credentials": {
-        "postgres": { "id": "CONCORD_NEON_DB_CREDENTIAL_ID", "name": "Concord Neon DB" }
-      }
-    },
-    {
-      "id": "cc-cp-0023",
-      "name": "Consolidate for Rotation",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [4750, 150],
-      "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const allItems = $input.all();\nreturn [{ json: { published_count: allItems.length, timestamp: new Date().toISOString() } }];"
-      }
-    },
-    {
-      "id": "cc-cp-0024",
-      "name": "Update social_rotation",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [5000, 150],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "UPDATE social_rotation SET posts_today = posts_today + 1, last_posted_at = NOW(), updated_at = NOW() WHERE platform IN ('facebook', 'twitter') AND category NOT LIKE 'offset_%';"
-      },
-      "credentials": {
-        "postgres": { "id": "CONCORD_NEON_DB_CREDENTIAL_ID", "name": "Concord Neon DB" }
-      }
-    },
-    {
-      "id": "cc-cp-0025",
-      "name": "Log Summary",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [5250, 150],
-      "parameters": {
-        "jsCode": "const d = $input.first().json;\nreturn [{\n  json: {\n    message: 'Content publishing run complete',\n    published_pairs: Math.floor(d.published_count / 2),\n    timestamp: new Date().toISOString()\n  }\n}];"
+        "jsCode": "const items = $input.all();\nreturn [{ json: { message: 'Content publishing run complete', articles_created: items.length, timestamp: new Date().toISOString() } }];"
       }
     }
   ],
   "connections": {
-    "Schedule Trigger": {
-      "main": [
-        [{ "node": "Count Pending Items", "type": "main", "index": 0 }]
-      ]
-    },
-    "Count Pending Items": {
-      "main": [
-        [{ "node": "IF: Items Pending?", "type": "main", "index": 0 }]
-      ]
-    },
+    "Schedule Trigger": { "main": [[{ "node": "Count Pending Items", "type": "main", "index": 0 }]] },
+    "Count Pending Items": { "main": [[{ "node": "IF: Items Pending?", "type": "main", "index": 0 }]] },
     "IF: Items Pending?": {
       "main": [
         [{ "node": "Fetch Pending Items", "type": "main", "index": 0 }],
         [{ "node": "Nothing New", "type": "main", "index": 0 }]
       ]
     },
-    "Fetch Pending Items": {
-      "main": [
-        [{ "node": "Mark Processing", "type": "main", "index": 0 }]
-      ]
-    },
-    "Mark Processing": {
-      "main": [
-        [{ "node": "Build Claude Prompt", "type": "main", "index": 0 }]
-      ]
-    },
-    "Build Claude Prompt": {
-      "main": [
-        [{ "node": "Claude API", "type": "main", "index": 0 }]
-      ]
-    },
-    "Claude API": {
-      "main": [
-        [{ "node": "Parse Claude Response", "type": "main", "index": 0 }]
-      ]
-    },
-    "Parse Claude Response": {
-      "main": [
-        [{ "node": "IF: Publish?", "type": "main", "index": 0 }]
-      ]
-    },
+    "Fetch Pending Items": { "main": [[{ "node": "Mark Processing", "type": "main", "index": 0 }]] },
+    "Mark Processing": { "main": [[{ "node": "Build Claude Prompt", "type": "main", "index": 0 }]] },
+    "Build Claude Prompt": { "main": [[{ "node": "Claude API", "type": "main", "index": 0 }]] },
+    "Claude API": { "main": [[{ "node": "Parse Claude Response", "type": "main", "index": 0 }]] },
+    "Parse Claude Response": { "main": [[{ "node": "IF: Publish?", "type": "main", "index": 0 }]] },
     "IF: Publish?": {
       "main": [
-        [{ "node": "Build Facebook Payload", "type": "main", "index": 0 }],
+        [{ "node": "Build CC Article Payload", "type": "main", "index": 0 }],
         [{ "node": "Mark Rejected", "type": "main", "index": 0 }]
       ]
     },
-    "Build Facebook Payload": {
-      "main": [
-        [{ "node": "Post to Facebook", "type": "main", "index": 0 }]
-      ]
-    },
-    "Post to Facebook": {
-      "main": [
-        [{ "node": "Handle FB Response", "type": "main", "index": 0 }]
-      ]
-    },
-    "Handle FB Response": {
-      "main": [
-        [{ "node": "IF: FB Success?", "type": "main", "index": 0 }]
-      ]
-    },
-    "IF: FB Success?": {
-      "main": [
-        [{ "node": "Build Twitter Payload", "type": "main", "index": 0 }],
-        [{ "node": "Insert Failed Post", "type": "main", "index": 0 }]
-      ]
-    },
-    "Build Twitter Payload": {
-      "main": [
-        [{ "node": "Post to Twitter", "type": "main", "index": 0 }]
-      ]
-    },
-    "Post to Twitter": {
-      "main": [
-        [{ "node": "Prepare Results", "type": "main", "index": 0 }]
-      ]
-    },
-    "Prepare Results": {
-      "main": [
-        [{ "node": "Update ingested_content", "type": "main", "index": 0 }]
-      ]
-    },
-    "Update ingested_content": {
-      "main": [
-        [{ "node": "Build social_posts Rows", "type": "main", "index": 0 }]
-      ]
-    },
-    "Build social_posts Rows": {
-      "main": [
-        [{ "node": "Insert social_posts", "type": "main", "index": 0 }]
-      ]
-    },
-    "Insert social_posts": {
-      "main": [
-        [{ "node": "Consolidate for Rotation", "type": "main", "index": 0 }]
-      ]
-    },
-    "Consolidate for Rotation": {
-      "main": [
-        [{ "node": "Update social_rotation", "type": "main", "index": 0 }]
-      ]
-    },
-    "Update social_rotation": {
-      "main": [
-        [{ "node": "Log Summary", "type": "main", "index": 0 }]
-      ]
-    }
+    "Build CC Article Payload": { "main": [[{ "node": "POST to Cameroon Concord", "type": "main", "index": 0 }]] },
+    "POST to Cameroon Concord": { "main": [[{ "node": "Handle CC Response", "type": "main", "index": 0 }]] },
+    "Handle CC Response": { "main": [[{ "node": "Mark Published in Neon", "type": "main", "index": 0 }]] },
+    "Mark Published in Neon": { "main": [[{ "node": "Log Summary", "type": "main", "index": 0 }]] }
   }
 }

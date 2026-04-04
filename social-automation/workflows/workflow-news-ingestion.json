@@ -1,9 +1,7 @@
 {
   "name": "Concord — News Ingestion",
   "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
+  "settings": { "executionOrder": "v1" },
   "nodes": [
     {
       "id": "cc-ni-0001",
@@ -12,14 +10,7 @@
       "typeVersion": 1.2,
       "position": [0, 300],
       "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "minutes",
-              "minutesInterval": 30
-            }
-          ]
-        }
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 30 }] }
       }
     },
     {
@@ -29,7 +20,7 @@
       "typeVersion": 2,
       "position": [250, 300],
       "parameters": {
-        "jsCode": "return [\n  { json: { url: 'https://news.google.com/rss/search?q=cameroon&hl=en-US&gl=US&ceid=US:en', source_name: 'google_news_en', language: 'en' } },\n  { json: { url: 'https://news.google.com/rss/search?q=cameroun&hl=fr-FR&gl=FR&ceid=FR:fr', source_name: 'google_news_fr', language: 'fr' } },\n  { json: { url: 'https://www.journalducameroun.com/feed/', source_name: 'journal_du_cameroun', language: 'fr' } },\n  { json: { url: 'https://www.camer.be/rss.php', source_name: 'camer_be', language: 'fr' } },\n  { json: { url: 'https://www.mutations.cm/feed/', source_name: 'mutations_cm', language: 'fr' } },\n  { json: { url: 'https://www.rfi.fr/fr/afrique/cameroun/rss', source_name: 'rfi_afrique', language: 'fr' } }\n];"
+        "jsCode": "return [\n  { json: { url: 'https://www.africanews.com/feed/rss', source_name: 'africanews', language: 'en' } },\n  { json: { url: 'https://www.237online.com/feed/', source_name: '237online', language: 'fr' } },\n  { json: { url: 'https://237actu.com/feed/', source_name: '237actu', language: 'fr' } },\n  { json: { url: 'https://camerounactuel.com/feed/', source_name: 'camerounactuel', language: 'fr' } },\n  { json: { url: 'https://www.stopblablacam.com/feed/', source_name: 'stopblablacam', language: 'fr' } },\n  { json: { url: 'https://www.camer.be/rss.php', source_name: 'camer_be', language: 'fr' } },\n  { json: { url: 'https://fr.journalducameroun.com/feed/', source_name: 'journal_du_cameroun', language: 'fr' } },\n  { json: { url: 'https://lecourrierducameroun.net/feed/', source_name: 'courrier_du_cameroun', language: 'fr' } },\n  { json: { url: 'https://lequatriemepouvoir.com/feed/', source_name: 'quatrieme_pouvoir', language: 'fr' } },\n  { json: { url: 'https://www.lebledparle.com/feed/', source_name: 'lebledparle', language: 'fr' } },\n  { json: { url: 'https://teleasu.tv/feed/', source_name: 'teleasu', language: 'fr' } },\n  { json: { url: 'https://theguardianpostcameroon.com/feed/', source_name: 'guardian_post', language: 'en' } },\n  { json: { url: 'https://thesunnewspaper.cm/feed/', source_name: 'sun_newspaper', language: 'en' } },\n  { json: { url: 'https://echosante.info/feed/', source_name: 'echosante', language: 'fr' } },\n  { json: { url: 'https://lejour.cm/feed/', source_name: 'lejour', language: 'fr' } },\n  { json: { url: 'https://en.sputniknews.africa/feed/', source_name: 'sputnik_africa', language: 'en' } },\n  { json: { url: 'https://afrik-inform.com/feed/', source_name: 'afrik_inform', language: 'fr' } },\n  { json: { url: 'https://allafrica.com/tools/headlines/rss/cameroon/all.xml', source_name: 'allafrica_cameroon', language: 'en' } },\n  { json: { url: 'https://www.theafricareport.com/feed/', source_name: 'africa_report', language: 'en' } },\n  { json: { url: 'https://foot-africa.com/en/news/africa/cameroon/feed/', source_name: 'foot_africa', language: 'en' } },\n  { json: { url: 'https://www.jeuneafrique.com/feed/', source_name: 'jeune_afrique', language: 'fr' } }\n];"
       }
     },
     {
@@ -38,22 +29,17 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [500, 300],
+      "continueOnFail": true,
       "parameters": {
         "url": "={{ $json.url }}",
         "options": {
-          "response": {
-            "response": {
-              "responseFormat": "text"
-            }
-          }
+          "response": { "response": { "responseFormat": "text" } },
+          "timeout": 15000
         },
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "User-Agent",
-              "value": "Mozilla/5.0 (compatible; ConcordBot/1.0)"
-            }
+            { "name": "User-Agent", "value": "Mozilla/5.0 (compatible; ConcordBot/1.0; +https://www.cameroon-concord.com)" }
           ]
         }
       }
@@ -70,13 +56,13 @@
     },
     {
       "id": "cc-ni-0005",
-      "name": "Parse RSS + Hash + Build Rows",
+      "name": "Parse RSS + Region Filter + Hash",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1000, 300],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const crypto = require('crypto');\n\nconst items = $input.all();\nconst rows = [];\n\nfunction getTagContent(block, tag) {\n  const cdataOpen = '<' + tag + '><![CDATA[';\n  const cdataClose = ']]></' + tag + '>';\n  let si = block.indexOf(cdataOpen);\n  if (si !== -1) {\n    const ei = block.indexOf(cdataClose, si);\n    if (ei !== -1) return block.slice(si + cdataOpen.length, ei).trim();\n  }\n  const open = '<' + tag + '>';\n  const close = '</' + tag + '>';\n  si = block.indexOf(open);\n  if (si !== -1) {\n    const ei = block.indexOf(close, si);\n    if (ei !== -1) return block.slice(si + open.length, ei).trim();\n  }\n  return '';\n}\n\nfunction getAttrValue(block, attr) {\n  const DQ = String.fromCharCode(34);\n  const SQ = String.fromCharCode(39);\n  const dqSearch = attr + '=' + DQ;\n  let si = block.indexOf(dqSearch);\n  if (si !== -1) {\n    const start = si + dqSearch.length;\n    const end = block.indexOf(DQ, start);\n    if (end !== -1) return block.slice(start, end);\n  }\n  const sqSearch = attr + '=' + SQ;\n  si = block.indexOf(sqSearch);\n  if (si !== -1) {\n    const start = si + sqSearch.length;\n    const end = block.indexOf(SQ, start);\n    if (end !== -1) return block.slice(start, end);\n  }\n  return '';\n}\n\nfunction getImageUrl(block) {\n  const tags = ['<media:content ', '<enclosure '];\n  for (const tag of tags) {\n    const idx = block.indexOf(tag);\n    if (idx !== -1) {\n      const end = block.indexOf('>', idx);\n      if (end === -1) continue;\n      const tagContent = block.slice(idx, end);\n      const url = getAttrValue(tagContent, 'url');\n      if (url) return url;\n    }\n  }\n  return null;\n}\n\nfor (const item of items) {\n  const source_name = item.json.source_name || 'unknown';\n  const language = item.json.language || 'en';\n  const xmlText = item.json.xmlData || '';\n\n  const parts = xmlText.split('<item>');\n  const rssItems = [];\n  for (let i = 1; i < parts.length; i++) {\n    const endIdx = parts[i].indexOf('</item>');\n    if (endIdx !== -1) rssItems.push(parts[i].substring(0, endIdx));\n  }\n\n  for (const block of rssItems.slice(0, 20)) {\n    const title = getTagContent(block, 'title');\n    let link = getTagContent(block, 'link');\n    if (!link) link = getTagContent(block, 'guid');\n    const description = getTagContent(block, 'description');\n    const imageUrl = getImageUrl(block);\n\n    if (!title || !link) continue;\n\n    const hashInput = (title + link).toLowerCase().replace(/\\s+/g, '');\n    const content_hash = crypto.createHash('sha256').update(hashInput).digest('hex');\n\n    rows.push({\n      source_name,\n      source_url: link,\n      content_hash,\n      raw_title: title.substring(0, 500),\n      raw_body: description.substring(0, 5000),\n      raw_image_url: imageUrl,\n      language,\n      status: 'pending'\n    });\n  }\n}\n\nreturn rows.map(r => ({ json: r }));"
+        "jsCode": "const crypto = require('crypto');\nconst REGION_KEYWORDS = [\n  'cameroon','cameroun','yaoundé','yaounde','douala','biya','ambazonia',\n  'anglophone','southern cameroons','nord-ouest','sud-ouest','northwest','southwest',\n  'chad','tchad','ndjamena',\"n'djamena\",\n  'central african republic','centrafrique','bangui','car ',\n  'congo','brazzaville','kinshasa','drc','rdc',\n  'gabon','libreville','bongo',\n  'nigeria','abuja','lagos','buhari','tinubu',\n  'afcon','indomitable lions','lions indomptables',\"eto'o\",'fecafoot',\n  'boko haram','lake chad','cemac','eccas'\n];\nconst CAMEROON_SOURCES = [\n  '237online','237actu','camerounactuel','stopblablacam','camer_be',\n  'journal_du_cameroun','courrier_du_cameroun','quatrieme_pouvoir',\n  'lebledparle','teleasu','guardian_post','sun_newspaper',\n  'echosante','lejour','allafrica_cameroon','foot_africa'\n];\nfunction getTagContent(block, tag) {\n  const cdataOpen = '<'+tag+'><![CDATA[';\n  const cdataClose = ']]></'+tag+'>';\n  let si = block.indexOf(cdataOpen);\n  if (si !== -1) { const ei = block.indexOf(cdataClose,si); if (ei !== -1) return block.slice(si+cdataOpen.length,ei).trim(); }\n  const open = '<'+tag+'>'; const close = '</'+tag+'>';\n  si = block.indexOf(open);\n  if (si !== -1) { const ei = block.indexOf(close,si); if (ei !== -1) return block.slice(si+open.length,ei).trim(); }\n  return '';\n}\nfunction getAttrValue(block, attr) {\n  const dqSearch = attr+'=\"'; let si = block.indexOf(dqSearch);\n  if (si !== -1) { const start = si+dqSearch.length; const end = block.indexOf('\"',start); if (end !== -1) return block.slice(start,end); }\n  return '';\n}\nfunction getImageUrl(block) {\n  for (const tag of ['<media:content ','<enclosure ']) {\n    const idx = block.indexOf(tag); if (idx !== -1) { const end = block.indexOf('>',idx); if (end !== -1) { const url = getAttrValue(block.slice(idx,end),'url'); if (url) return url; } }\n  }\n  return null;\n}\nfunction isRelevant(title, desc) {\n  const text = (title+' '+desc).toLowerCase();\n  return REGION_KEYWORDS.some(kw => text.includes(kw));\n}\nconst rows = [];\nfor (const item of $input.all()) {\n  const source_name = item.json.source_name||'unknown';\n  const language = item.json.language||'en';\n  const xmlText = item.json.xmlData||'';\n  if (!xmlText) continue;\n  const parts = xmlText.split('<item>');\n  for (let i = 1; i < parts.length; i++) {\n    const endIdx = parts[i].indexOf('</item>'); if (endIdx === -1) continue;\n    const block = parts[i].substring(0,endIdx);\n    const title = getTagContent(block,'title');\n    let link = getTagContent(block,'link'); if (!link) link = getTagContent(block,'guid');\n    const description = getTagContent(block,'description');\n    if (!title||!link) continue;\n    if (!CAMEROON_SOURCES.includes(source_name) && !isRelevant(title,description)) continue;\n    const hashInput = (title+link).toLowerCase().replace(/\\s+/g,'');\n    const content_hash = require('crypto').createHash('sha256').update(hashInput).digest('hex');\n    rows.push({ source_name, source_url: link, content_hash, raw_title: title.substring(0,500), raw_body: description.substring(0,5000), raw_image_url: getImageUrl(block), language, status: 'pending' });\n  }\n}\nreturn rows.map(r => ({ json: r }));"
       }
     },
     {
@@ -94,10 +80,7 @@
         }
       },
       "credentials": {
-        "postgres": {
-          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
-          "name": "Concord Neon DB"
-        }
+        "postgres": { "id": "CONCORD_NEON_DB_CREDENTIAL_ID", "name": "Concord Neon DB" }
       }
     },
     {
@@ -108,40 +91,16 @@
       "position": [1500, 300],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const items = $input.all();\nreturn [{\n  json: {\n    message: 'Ingestion run complete',\n    rows_processed: items.length,\n    timestamp: new Date().toISOString()\n  }\n}];"
+        "jsCode": "const items = $input.all();\nreturn [{ json: { message: 'Ingestion run complete', rows_inserted: items.length, timestamp: new Date().toISOString() } }];"
       }
     }
   ],
   "connections": {
-    "Schedule Trigger": {
-      "main": [
-        [{ "node": "Set RSS Sources", "type": "main", "index": 0 }]
-      ]
-    },
-    "Set RSS Sources": {
-      "main": [
-        [{ "node": "Fetch RSS Feed", "type": "main", "index": 0 }]
-      ]
-    },
-    "Fetch RSS Feed": {
-      "main": [
-        [{ "node": "Reattach Source Metadata", "type": "main", "index": 0 }]
-      ]
-    },
-    "Reattach Source Metadata": {
-      "main": [
-        [{ "node": "Parse RSS + Hash + Build Rows", "type": "main", "index": 0 }]
-      ]
-    },
-    "Parse RSS + Hash + Build Rows": {
-      "main": [
-        [{ "node": "Insert to Neon DB", "type": "main", "index": 0 }]
-      ]
-    },
-    "Insert to Neon DB": {
-      "main": [
-        [{ "node": "Log Summary", "type": "main", "index": 0 }]
-      ]
-    }
+    "Schedule Trigger": { "main": [[{ "node": "Set RSS Sources", "type": "main", "index": 0 }]] },
+    "Set RSS Sources": { "main": [[{ "node": "Fetch RSS Feed", "type": "main", "index": 0 }]] },
+    "Fetch RSS Feed": { "main": [[{ "node": "Reattach Source Metadata", "type": "main", "index": 0 }]] },
+    "Reattach Source Metadata": { "main": [[{ "node": "Parse RSS + Region Filter + Hash", "type": "main", "index": 0 }]] },
+    "Parse RSS + Region Filter + Hash": { "main": [[{ "node": "Insert to Neon DB", "type": "main", "index": 0 }]] },
+    "Insert to Neon DB": { "main": [[{ "node": "Log Summary", "type": "main", "index": 0 }]] }
   }
 }

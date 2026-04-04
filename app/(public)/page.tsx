@@ -26,7 +26,7 @@ export default async function HomePage() {
     ;[featured, latest, mostRead, allCats] = await Promise.all([
       getFeaturedArticles(7),
       getLatestArticles(18),
-      getMostRead(14),
+      getMostRead(16),
       getAllCategories(),
     ])
   } catch (err) {
@@ -91,7 +91,7 @@ export default async function HomePage() {
         )}
 
         {/* ── TOP BANNER AD ── */}
-        <div className="w-full max-w-[728px] mx-auto my-4 min-h-[90px]">
+        <div className="w-full max-w-[728px] mx-auto my-4">
           <AdUnit slot="9844142257" format="horizontal" />
         </div>
 

@@ -110,30 +110,6 @@
       }
     },
     {
-      "id": "cc-cp-0006",
-      "name": "Mark Processing",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [
-        1000,
-        150
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "UPDATE ingested_content SET status = 'processing' WHERE id = $1 AND status = 'pending' RETURNING id, source_name, source_url, raw_title, raw_body, raw_image_url, language;",
-        "options": {
-          "queryBatching": "independently",
-          "queryParams": "={{ [$json.id] }}"
-        }
-      },
-      "credentials": {
-        "postgres": {
-          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
-          "name": "Concord Neon DB"
-        }
-      }
-    },
-    {
       "id": "cc-cp-0007",
       "name": "Build Claude Prompt",
       "type": "n8n-nodes-base.code",
@@ -235,30 +211,6 @@
       }
     },
     {
-      "id": "cc-cp-0011",
-      "name": "Mark Rejected",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [
-        2250,
-        400
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "UPDATE ingested_content SET status = 'rejected', reject_reason = $2 WHERE id = $1;",
-        "options": {
-          "queryBatching": "independently",
-          "queryParams": "={{ [$json.ingested_id, $json.reject_reason] }}"
-        }
-      },
-      "credentials": {
-        "postgres": {
-          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
-          "name": "Concord Neon DB"
-        }
-      }
-    },
-    {
       "id": "cc-cp-0012",
       "name": "Build CC Article Payload",
       "type": "n8n-nodes-base.code",
@@ -326,30 +278,6 @@
       }
     },
     {
-      "id": "cc-cp-0015",
-      "name": "Mark Published in Neon",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [
-        3000,
-        150
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "UPDATE ingested_content SET status = 'published', cc_article_id = $2 WHERE id = $1;",
-        "options": {
-          "queryBatching": "independently",
-          "queryParams": "={{ [$json.ingested_id, $json.article_id] }}"
-        }
-      },
-      "credentials": {
-        "postgres": {
-          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
-          "name": "Concord Neon DB"
-        }
-      }
-    },
-    {
       "id": "cc-cp-0016",
       "name": "Log Summary",
       "type": "n8n-nodes-base.code",
@@ -361,6 +289,108 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "jsCode": "const items = $input.all();\nreturn [{json:{message:'Content publishing run complete',articles_created:items.length,timestamp:new Date().toISOString()}}];"
+      }
+    },
+    {
+      "id": "cc-cp-0006a",
+      "name": "Build Mark Processing Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        150
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.first().json;\nconst id = parseInt(item.id);\nreturn [{json:{query:`UPDATE ingested_content SET status='processing' WHERE id=${id} AND status='pending' RETURNING id,source_name,source_url,raw_title,raw_body,raw_image_url,language`}}];"
+      }
+    },
+    {
+      "id": "cc-cp-0006b",
+      "name": "Mark Processing",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1125,
+        150
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
+          "name": "Concord Neon DB"
+        }
+      }
+    },
+    {
+      "id": "cc-cp-0011a",
+      "name": "Build Mark Rejected Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2250,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function esc(v){if(v===null||v===undefined)return 'NULL';return \"'\"+ String(v).replace(/'/g,\"''\")+ \"'\";}\nconst r=$input.first().json;\nreturn [{json:{query:`UPDATE ingested_content SET status='rejected',reject_reason=${esc(r.reject_reason)} WHERE id=${parseInt(r.ingested_id)}`}}];"
+      }
+    },
+    {
+      "id": "cc-cp-0011b",
+      "name": "Mark Rejected",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2375,
+        400
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
+          "name": "Concord Neon DB"
+        }
+      }
+    },
+    {
+      "id": "cc-cp-0015a",
+      "name": "Build Mark Published Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3000,
+        150
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r=$input.first().json;\nconst artId=r.article_id?parseInt(r.article_id):'NULL';\nreturn [{json:{query:`UPDATE ingested_content SET status='published',cc_article_id=${artId} WHERE id=${parseInt(r.ingested_id)}`,pass:r}}];"
+      }
+    },
+    {
+      "id": "cc-cp-0015b",
+      "name": "Mark Published in Neon",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        3125,
+        150
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
+          "name": "Concord Neon DB"
+        }
       }
     }
   ],
@@ -409,7 +439,7 @@
       "main": [
         [
           {
-            "node": "Mark Processing",
+            "node": "Build Mark Processing Query",
             "type": "main",
             "index": 0
           }
@@ -471,7 +501,7 @@
         ],
         [
           {
-            "node": "Mark Rejected",
+            "node": "Build Mark Rejected Query",
             "type": "main",
             "index": 0
           }
@@ -504,7 +534,7 @@
       "main": [
         [
           {
-            "node": "Mark Published in Neon",
+            "node": "Build Mark Published Query",
             "type": "main",
             "index": 0
           }
@@ -516,6 +546,39 @@
         [
           {
             "node": "Log Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Mark Processing Query": {
+      "main": [
+        [
+          {
+            "node": "Mark Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Mark Rejected Query": {
+      "main": [
+        [
+          {
+            "node": "Mark Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Mark Published Query": {
+      "main": [
+        [
+          {
+            "node": "Mark Published in Neon",
             "type": "main",
             "index": 0
           }

@@ -97,30 +97,6 @@
       }
     },
     {
-      "id": "cc-ni-0006",
-      "name": "Insert to Neon DB",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [
-        1250,
-        300
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "INSERT INTO ingested_content (source_name, source_url, content_hash, raw_title, raw_body, raw_image_url, language, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (content_hash) DO NOTHING",
-        "options": {
-          "queryBatching": "independently",
-          "queryParams": "={{ [$json.source_name, $json.source_url, $json.content_hash, $json.raw_title, $json.raw_body, $json.raw_image_url, $json.language, $json.status] }}"
-        }
-      },
-      "credentials": {
-        "postgres": {
-          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
-          "name": "Concord Neon DB"
-        }
-      }
-    },
-    {
       "id": "cc-ni-0007",
       "name": "Log Summary",
       "type": "n8n-nodes-base.code",
@@ -132,6 +108,40 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "jsCode": "const items = $input.all();\nreturn [{ json: { message: 'Ingestion run complete', rows_inserted: items.length, timestamp: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "cc-ni-0006a",
+      "name": "Build Insert Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function esc(v){if(v===null||v===undefined)return 'NULL';return \"'\"+ String(v).replace(/'/g,\"''\")+ \"'\";}\nconst r=$input.first().json;\nreturn [{json:{query:`INSERT INTO ingested_content (source_name,source_url,content_hash,raw_title,raw_body,raw_image_url,language,status) VALUES (${esc(r.source_name)},${esc(r.source_url)},${esc(r.content_hash)},${esc(r.raw_title)},${esc(r.raw_body)},${esc(r.raw_image_url)},${esc(r.language)},${esc(r.status)}) ON CONFLICT (content_hash) DO NOTHING`}}];"
+      }
+    },
+    {
+      "id": "cc-ni-0006b",
+      "name": "Insert to Neon DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1500,
+        300
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CONCORD_NEON_DB_CREDENTIAL_ID",
+          "name": "Concord Neon DB"
+        }
       }
     }
   ],
@@ -184,7 +194,7 @@
       "main": [
         [
           {
-            "node": "Insert to Neon DB",
+            "node": "Build Insert Query",
             "type": "main",
             "index": 0
           }
@@ -196,6 +206,17 @@
         [
           {
             "node": "Log Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Insert Query": {
+      "main": [
+        [
+          {
+            "node": "Insert to Neon DB",
             "type": "main",
             "index": 0
           }

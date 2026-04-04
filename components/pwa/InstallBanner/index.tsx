@@ -1,12 +1,20 @@
 'use client'
 import { useEffect, useState } from 'react'
 
+type Platform = 'android' | 'ios' | 'desktop' | 'unknown'
+
 export default function InstallBanner() {
+  const [platform,       setPlatform]       = useState<Platform>('unknown')
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [installed,      setInstalled]      = useState(false)
   const [showIOSModal,   setShowIOSModal]   = useState(false)
 
   useEffect(() => {
+    const ua = navigator.userAgent.toLowerCase()
+    if (/iphone|ipad|ipod/.test(ua)) setPlatform('ios')
+    else if (/android/.test(ua)) setPlatform('android')
+    else setPlatform('desktop')
+
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setInstalled(true)
       return
@@ -16,8 +24,7 @@ export default function InstallBanner() {
       e.preventDefault()
       setDeferredPrompt(e)
     }
-    window.addEventListener('beforeinstallprompt', handler as EventListener)
-
+    window.addEventListener('beforeinstallprompt', handler as any)
     window.addEventListener('appinstalled', () => {
       setInstalled(true)
       fetch('/api/pwa/track', {
@@ -26,18 +33,19 @@ export default function InstallBanner() {
         body:    JSON.stringify({ event: 'installed' }),
       })
     })
-
-    return () => window.removeEventListener('beforeinstallprompt', handler as EventListener)
+    return () => window.removeEventListener('beforeinstallprompt', handler as any)
   }, [])
 
-  const handleInstallClick = async () => {
+  if (installed) return null
+
+  const handleClick = async () => {
     fetch('/api/pwa/track', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ event: 'click' }),
     })
 
-    if (deferredPrompt) {
+    if (platform === 'android' && deferredPrompt) {
       deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
       if (outcome === 'accepted') {
@@ -48,77 +56,115 @@ export default function InstallBanner() {
         })
       }
       setDeferredPrompt(null)
-    } else {
+    } else if (platform === 'ios') {
       setShowIOSModal(true)
+    } else {
+      if (deferredPrompt) {
+        deferredPrompt.prompt()
+        setDeferredPrompt(null)
+      }
     }
   }
 
-  if (installed) return null
-
-  const isIOS = /iphone|ipad|ipod/i.test(
-    typeof navigator !== 'undefined' ? navigator.userAgent : ''
-  )
+  const buttonLabel =
+    platform === 'android' ? '⬇ Install App Free'
+    : platform === 'ios'   ? '📲 Add to Home Screen'
+    : '💻 Install App'
 
   return (
     <>
       <div
+        onClick={handleClick}
         style={{
           width: '100%', maxWidth: '900px', margin: '16px auto',
           cursor: 'pointer', position: 'relative', borderRadius: '12px',
-          overflow: 'hidden', boxShadow: '0 4px 20px rgba(204,0,0,0.3)',
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, #1a0000 0%, #cc0000 60%, #880000 100%)',
+          minHeight: '160px', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', padding: '28px 36px',
+          boxShadow: '0 4px 24px rgba(204,0,0,0.5)',
         }}
-        onClick={handleInstallClick}
       >
         <img
           src="/app-install.png"
-          alt="Install Cameroon Concord App"
-          style={{ width: '100%', height: 'auto', display: 'block' }}
+          alt=""
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', opacity: 0.2,
+          }}
+          onError={e => (e.target as HTMLImageElement).style.display = 'none'}
         />
-        <div style={{
-          position: 'absolute', bottom: '16px', right: '16px',
-          background: '#cc0000', color: '#fff', padding: '10px 20px',
-          borderRadius: '8px', fontWeight: 700, fontSize: '14px',
-        }}>
-          {deferredPrompt ? '📱 Install App' : isIOS ? '📱 Add to Home Screen' : '📱 Get the App'}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ color: '#fff', fontSize: '20px', fontWeight: 800, marginBottom: '6px' }}>
+            📱 Cameroon Concord App
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px' }}>
+            {platform === 'android' && 'Tap to install directly on your Android'}
+            {platform === 'ios'     && 'Tap to add to your iPhone home screen'}
+            {platform === 'desktop' && 'Install as a desktop app for quick access'}
+            {platform === 'unknown' && 'Get the latest Cameroon news on your device'}
+          </div>
         </div>
+        <button style={{
+          position: 'relative', zIndex: 1,
+          background: '#fff', color: '#cc0000',
+          padding: '12px 22px', borderRadius: '999px',
+          fontWeight: 800, fontSize: '14px',
+          border: 'none', cursor: 'pointer',
+          whiteSpace: 'nowrap', flexShrink: 0,
+        }}>
+          {buttonLabel}
+        </button>
       </div>
 
-      {/* iOS instructions modal */}
       {showIOSModal && (
         <div
           style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)',
-            zIndex: 9999, display: 'flex', alignItems: 'center',
-            justifyContent: 'center', padding: '20px',
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.88)', zIndex: 9999,
+            display: 'flex', alignItems: 'flex-end',
+            justifyContent: 'center', padding: '0 0 40px',
           }}
           onClick={() => setShowIOSModal(false)}
         >
           <div
             style={{
-              background: '#1a1a1a', borderRadius: '16px',
-              padding: '32px', maxWidth: '360px', textAlign: 'center', color: '#fff',
+              background: '#1a1a1a', borderRadius: '20px',
+              padding: '32px 28px', maxWidth: '380px',
+              width: '100%', textAlign: 'center', color: '#fff',
             }}
             onClick={e => e.stopPropagation()}
           >
-            <h3 style={{ color: '#cc0000', marginBottom: '16px' }}>Install Cameroon Concord</h3>
-            <p style={{ color: '#ccc', marginBottom: '12px', lineHeight: 1.6 }}>
-              1. Tap the <strong>Share</strong> button at the bottom of your browser
-            </p>
-            <p style={{ color: '#ccc', marginBottom: '12px', lineHeight: 1.6 }}>
-              2. Scroll down and tap <strong>&ldquo;Add to Home Screen&rdquo;</strong>
-            </p>
-            <p style={{ color: '#ccc', marginBottom: '24px', lineHeight: 1.6 }}>
-              3. Tap <strong>&ldquo;Add&rdquo;</strong> to install
-            </p>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>📲</div>
+            <h3 style={{ color: '#cc0000', marginBottom: '20px', fontSize: '18px' }}>
+              Install on iPhone
+            </h3>
+            <div style={{
+              background: '#111', borderRadius: '12px',
+              padding: '16px', marginBottom: '20px',
+              textAlign: 'left', lineHeight: '2',
+            }}>
+              <p style={{ color: '#ccc', margin: '0 0 8px' }}>
+                1. Tap <strong style={{ color: '#fff' }}>⎋ Share</strong> at the bottom of Safari
+              </p>
+              <p style={{ color: '#ccc', margin: '0 0 8px' }}>
+                2. Scroll and tap <strong style={{ color: '#fff' }}>&ldquo;Add to Home Screen&rdquo;</strong>
+              </p>
+              <p style={{ color: '#ccc', margin: 0 }}>
+                3. Tap <strong style={{ color: '#fff' }}>&ldquo;Add&rdquo;</strong>
+              </p>
+            </div>
             <button
               onClick={() => setShowIOSModal(false)}
               style={{
-                background: '#cc0000', color: '#fff', border: 'none',
-                padding: '12px 32px', borderRadius: '8px',
-                cursor: 'pointer', fontWeight: 700,
+                background: '#cc0000', color: '#fff',
+                border: 'none', padding: '14px 40px',
+                borderRadius: '999px', cursor: 'pointer',
+                fontWeight: 700, fontSize: '16px', width: '100%',
               }}
             >
-              Got it
+              Got it ✓
             </button>
           </div>
         </div>

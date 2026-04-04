@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/react'
 import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
+import AdSenseLoader from '@/components/ads/AdSenseLoader'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -56,13 +56,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0554291063972402"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AdSenseLoader />
         {children}
         <ServiceWorkerRegistration />
         <SpeedInsights />

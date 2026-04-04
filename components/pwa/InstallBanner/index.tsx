@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 
 export default function InstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
@@ -70,13 +69,10 @@ export default function InstallBanner() {
         }}
         onClick={handleInstallClick}
       >
-        <Image
+        <img
           src="/app-install.png"
           alt="Install Cameroon Concord App"
-          width={900}
-          height={400}
           style={{ width: '100%', height: 'auto', display: 'block' }}
-          priority
         />
         <div style={{
           position: 'absolute', bottom: '16px', right: '16px',

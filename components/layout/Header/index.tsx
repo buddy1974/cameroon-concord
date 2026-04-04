@@ -58,6 +58,11 @@ export function Header() {
       {open && (
         <nav className="lg:hidden fixed inset-x-0 top-[89px] bottom-0 bg-[#080808] z-50 overflow-y-auto p-4">
           <div className="grid grid-cols-2 gap-2">
+            <Link href="/"
+              className="flex items-center gap-2.5 px-4 py-3 bg-[#101010] border border-[#C8102E] rounded-xl text-sm font-semibold text-white transition-all col-span-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C8102E] flex-shrink-0" />
+              Home
+            </Link>
             {NAV_CATEGORIES.map(cat => (
               <Link key={cat.slug} href={`/${cat.slug}`}
                 className="flex items-center gap-2.5 px-4 py-3 bg-[#101010] border border-[#1E1E1E] rounded-xl text-sm font-semibold text-[#999] hover:text-white hover:border-[#C8102E] transition-all">

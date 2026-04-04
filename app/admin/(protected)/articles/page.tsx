@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 interface ArticleRow {
   id: number; title: string; slug: string; status: string
@@ -8,6 +9,9 @@ interface ArticleRow {
 }
 
 export default function ArticlesListPage() {
+  const urlParams = useSearchParams()
+  const statusFilter = urlParams.get('status') || ''
+
   const [articles, setArticles] = useState<ArticleRow[]>([])
   const [total,    setTotal]    = useState(0)
   const [page,     setPage]     = useState(1)
@@ -17,12 +21,13 @@ export default function ArticlesListPage() {
   const load = useCallback(async () => {
     setLoading(true)
     const params = new URLSearchParams({ page: String(page), q: search })
+    if (statusFilter) params.set('status', statusFilter)
     const res  = await fetch(`/api/admin/articles?${params}`)
     const data = await res.json() as { articles: ArticleRow[]; total: number }
     setArticles(data.articles)
     setTotal(data.total)
     setLoading(false)
-  }, [page, search])
+  }, [page, search, statusFilter])
 
   useEffect(() => { load() }, [load])
 
@@ -30,7 +35,7 @@ export default function ArticlesListPage() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <h1 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#fff', margin: 0 }}>
-          Articles <span style={{ color: '#333', fontSize: '1rem' }}>({total.toLocaleString()})</span>
+          {statusFilter === 'draft' ? 'Drafts' : 'Articles'} <span style={{ color: '#333', fontSize: '1rem' }}>({total.toLocaleString()})</span>
         </h1>
         <Link href="/admin/articles/new" style={{
           background: '#C8102E', color: '#fff', padding: '8px 16px',

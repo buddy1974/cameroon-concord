@@ -74,14 +74,16 @@ export default async function AdminDashboard() {
                   <div style={{ fontSize: '0.65rem', color: '#444', marginTop: '2px' }}>{a.catName}</div>
                 </td>
                 <td style={{ padding: '12px 20px', textAlign: 'right' }}>
-                  <span style={{
-                    fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '20px',
-                    background: a.status === 'published' ? 'rgba(0,122,61,0.12)' : 'rgba(245,166,35,0.12)',
-                    color: a.status === 'published' ? '#007A3D' : '#F5A623',
-                    textTransform: 'uppercase', letterSpacing: '0.08em',
-                  }}>
-                    {a.status}
-                  </span>
+                  <Link href={`/admin/articles/${a.id}/edit`} style={{ textDecoration: 'none' }}>
+                    <span style={{
+                      fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '20px',
+                      background: a.status === 'published' ? 'rgba(0,122,61,0.12)' : 'rgba(245,166,35,0.12)',
+                      color: a.status === 'published' ? '#007A3D' : '#F5A623',
+                      textTransform: 'uppercase', letterSpacing: '0.08em',
+                    }}>
+                      {a.status}
+                    </span>
+                  </Link>
                 </td>
                 <td style={{ padding: '12px 20px', textAlign: 'right' }}>
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>

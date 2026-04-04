@@ -2,20 +2,33 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 
 const NAV = [
-  { href: '/admin',              label: '📊 Dashboard' },
-  { href: '/admin/articles/new', label: '✏️ New Article' },
-  { href: '/admin/articles',     label: '📰 All Articles' },
-  { href: '/admin/categories',   label: '📁 Categories' },
-  { href: '/',                   label: '🌐 View Site' },
+  { href: '/admin',                        label: '📊 Dashboard' },
+  { href: '/admin/articles/new',           label: '✏️ New Article' },
+  { href: '/admin/articles',               label: '📰 All Articles' },
+  { href: '/admin/articles?status=draft',  label: '📝 Drafts' },
+  { href: '/admin/categories',             label: '📁 Categories' },
+  { href: '/',                             label: '🌐 View Site' },
 ]
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const statusParam = searchParams.get('status')
+
+  function isActive(href: string): boolean {
+    if (href === '/admin/articles?status=draft') {
+      return pathname === '/admin/articles' && statusParam === 'draft'
+    }
+    if (href === '/admin/articles') {
+      return pathname === '/admin/articles' && statusParam !== 'draft'
+    }
+    return pathname === href
+  }
 
   const sidebar = (
     <div className="flex flex-col h-full">
@@ -31,7 +44,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             href={item.href}
             onClick={() => setOpen(false)}
             className={`block px-3 py-2 rounded-lg text-[0.8rem] font-medium no-underline transition-colors ${
-              pathname === item.href ? 'text-white bg-[#181818]' : 'text-[#555] hover:text-white hover:bg-[#181818]'
+              isActive(item.href) ? 'text-white bg-[#181818]' : 'text-[#555] hover:text-white hover:bg-[#181818]'
             }`}
           >
             {item.label}

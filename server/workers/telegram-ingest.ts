@@ -1,6 +1,6 @@
 import { TelegramClient } from 'telegram'
 import { StringSession } from 'telegram/sessions/index.js'
-import { createPool } from 'mysql2/promise'
+import { Pool } from 'pg'
 import { config } from 'dotenv'
 import { appendFileSync, writeFileSync, existsSync, readFileSync } from 'fs'
 import * as readline from 'readline'
@@ -80,15 +80,11 @@ async function main() {
   writeFileSync(SESSION_FILE, savedSession)
   log('Session saved — future runs will not require auth')
 
-  // Connect to DB (Hostinger MariaDB — uses DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME)
-  const pool = createPool({
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT || '3306'),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+  // Connect to Neon PostgreSQL — unified ingestion queue read by n8n
+  const pool = new Pool({
+    connectionString: process.env.NEON_DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    connectionLimit: 2,
+    max: 2,
   })
 
   let inserted = 0
@@ -109,13 +105,11 @@ async function main() {
         const raw_title = text.substring(0, 200).split('\n')[0]
         const raw_body = text.substring(0, 5000)
 
-        const query = `INSERT IGNORE INTO ingested_content (source_name, source_url, content_hash, raw_title, raw_body, raw_image_url, language, status) VALUES (${esc('telegram_' + channel.replace('@', ''))}, ${esc(null)}, ${esc(content_hash)}, ${esc(raw_title)}, ${esc(raw_body)}, NULL, 'fr', 'pending')`
+        const query = `INSERT INTO ingested_content (source_name, source_url, content_hash, raw_title, raw_body, raw_image_url, language, status) VALUES (${esc('telegram_' + channel.replace('@', ''))}, ${esc(null)}, ${esc(content_hash)}, ${esc(raw_title)}, ${esc(raw_body)}, NULL, 'fr', 'pending') ON CONFLICT (content_hash) DO NOTHING`
 
-        const conn = await pool.getConnection()
-        const [result] = await conn.query(query) as any
-        conn.release()
+        const result = await pool.query(query)
 
-        if (result.affectedRows > 0) {
+        if (result.rowCount && result.rowCount > 0) {
           inserted++
         } else {
           skipped++

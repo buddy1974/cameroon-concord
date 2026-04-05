@@ -4,6 +4,7 @@ import { articles, categories, authors } from '@/lib/db/schema'
 import { desc, eq, like, sql, and } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
+import { postArticleToSocial } from '@/server/lib/social'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,5 +88,23 @@ export async function POST(req: NextRequest) {
     updatedAt:     now,
   }).$returningId()
 
-  return NextResponse.json({ ok: true, id: result[0].id })
+  const newId = result[0].id
+
+  // Fire-and-forget social post for published articles
+  if (body.status === 'published') {
+    const cat = await db.select({ slug: categories.slug, name: categories.name })
+      .from(categories).where(eq(categories.id, body.categoryId)).limit(1)
+    if (cat[0]) {
+      postArticleToSocial({
+        id:            newId,
+        title:         body.title,
+        slug:          body.slug,
+        excerpt:       body.excerpt,
+        featuredImage: body.featuredImage,
+        category:      cat[0],
+      }).catch(console.error)
+    }
+  }
+
+  return NextResponse.json({ ok: true, id: newId })
 }

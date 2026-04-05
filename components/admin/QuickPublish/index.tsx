@@ -105,7 +105,7 @@ export function QuickPublish({ categories }: Props) {
       const res  = await fetch('/api/admin/articles', {
         method:      'POST',
         credentials: 'include',
-        headers:     { 'Content-Type': 'application/json', 'x-api-key': 'AUTOMATION_KEY_REMOVED' },
+        headers:     { 'Content-Type': 'application/json', 'x-api-key': process.env.NEXT_PUBLIC_AUTOMATION_API_KEY || '' },
         body:        JSON.stringify({
           title, slug, body: body || result.enhanced_body, excerpt,
           categoryId: catId, featuredImage: imageUrl || null,

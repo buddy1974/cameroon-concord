@@ -51,6 +51,7 @@ export function QuickPublish({ categories }: Props) {
   const [slug,      setSlug]      = useState('')
   const [catId,     setCatId]     = useState<number>(0)
   const [excerpt,   setExcerpt]   = useState('')
+  const [body,      setBody]      = useState('')
   const [metaTitle, setMetaTitle] = useState('')
   const [metaDesc,  setMetaDesc]  = useState('')
 
@@ -72,6 +73,7 @@ export function QuickPublish({ categories }: Props) {
       setTitle(data.title || '')
       setSlug(data.slug || '')
       setExcerpt(data.excerpt || '')
+      setBody(data.enhanced_body || '')
       setMetaTitle(data.meta_title || '')
       setMetaDesc(data.meta_desc || '')
 
@@ -87,7 +89,7 @@ export function QuickPublish({ categories }: Props) {
   function handleReview() {
     if (!result) return
     localStorage.setItem('quick_publish_draft', JSON.stringify({
-      title, slug, body: result.enhanced_body,
+      title, slug, body,
       excerpt, categoryId: catId,
       featuredImage: imageUrl || '',
       metaTitle, metaDesc,
@@ -105,7 +107,7 @@ export function QuickPublish({ categories }: Props) {
         credentials: 'include',
         headers:     { 'Content-Type': 'application/json', 'x-api-key': 'AUTOMATION_KEY_REMOVED' },
         body:        JSON.stringify({
-          title, slug, body: result.enhanced_body, excerpt,
+          title, slug, body: body || result.enhanced_body, excerpt,
           categoryId: catId, featuredImage: imageUrl || null,
           status: 'published', metaTitle: metaTitle || null, metaDesc: metaDesc || null,
         }),
@@ -223,6 +225,15 @@ export function QuickPublish({ categories }: Props) {
                     onChange={e => setExcerpt(e.target.value)}
                     rows={3}
                     style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Body Preview</label>
+                  <textarea
+                    value={body}
+                    onChange={e => setBody(e.target.value)}
+                    rows={10}
+                    style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.7, minHeight: '200px', fontSize: '0.82rem' }}
                   />
                 </div>
                 <div>

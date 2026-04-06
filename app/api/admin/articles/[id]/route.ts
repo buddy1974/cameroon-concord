@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { articles, categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { revalidatePath } from 'next/cache'
 import { postArticleToSocial } from '@/server/lib/social'
 
 export const dynamic = 'force-dynamic'
@@ -43,6 +44,9 @@ export async function PUT(
     }
   }
 
+  revalidatePath('/')
+  revalidatePath('/[category]', 'layout')
+  revalidatePath('/[category]/[slug]', 'page')
   return NextResponse.json({ ok: true })
 }
 

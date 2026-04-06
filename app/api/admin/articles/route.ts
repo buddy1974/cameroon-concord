@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   // Auth: API key (n8n / automation) or JWT cookie (admin UI)
   const apiKey = req.headers.get('x-api-key')
-  if (apiKey && apiKey === process.env.AUTOMATION_API_KEY) {
+  if (apiKey && apiKey === process.env.NEXT_PUBLIC_AUTOMATION_API_KEY) {
     // authenticated via API key — continue
   } else {
     const cookieStore = await cookies()

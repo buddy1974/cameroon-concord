@@ -60,10 +60,13 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return new NextResponse(JSON.stringify({ text }), {
+    const payload = JSON.stringify({ text });
+    return new NextResponse(payload, {
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'no-transform, no-store',
+        'Content-Type': 'application/json',
+        'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
+        'Cache-Control': 'no-transform, no-store, no-cache',
+        'X-Content-Type-Options': 'nosniff',
       }
     });
 

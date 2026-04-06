@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
       messages: [{ role: 'user', content: user }]
     });
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    let text = message.content[0].type === 'text' ? message.content[0].text : '';
+    text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
     console.log('RAW CLAUDE RESPONSE:', text.substring(0, 500));
 
     // Validate JSON before returning

@@ -1,3 +1,11 @@
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '4mb',
+    },
+  },
+};
+
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -10,8 +18,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let body = await req.json();
-    if (typeof body === 'string') body = JSON.parse(body);
+    const rawText = await req.text();
+    let body: any;
+    try {
+      body = JSON.parse(rawText);
+      if (typeof body === 'string') body = JSON.parse(body);
+    } catch(e: any) {
+      return NextResponse.json({ error: 'Body parse failed: ' + e.message, raw: rawText.substring(0, 200) }, { status: 400 });
+    }
     const { system, user } = body;
 
     if (!system || !user) {

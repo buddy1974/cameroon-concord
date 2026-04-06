@@ -26,7 +26,12 @@ export async function POST(req: NextRequest) {
     });
 
     const text = message.content[0].type === 'text' ? message.content[0].text : '';
-    return NextResponse.json({ text });
+    return new NextResponse(JSON.stringify({ text }), {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-transform, no-store',
+      }
+    });
 
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });

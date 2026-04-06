@@ -96,7 +96,7 @@ export function ArticleEditor({ categories, article }: Props) {
     setSaving(true)
     setMsg('')
     const payload = {
-      title, slug, body, excerpt, categoryId: catId,
+      title, slug, body, excerpt, categoryId: catId || article?.categoryId || categories[0]?.id || 1,
       featuredImage: imgUrl || null, status: publishStatus,
       isBreaking: breaking, isFeatured: featured,
       metaTitle: metaT || null, metaDesc: metaD || null,

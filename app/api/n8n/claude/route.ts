@@ -26,6 +26,25 @@ export async function POST(req: NextRequest) {
     });
 
     const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    console.log('RAW CLAUDE RESPONSE:', text.substring(0, 500));
+
+    // Validate JSON before returning
+    try {
+      JSON.parse(text);
+    } catch {
+      console.error('INVALID JSON FROM CLAUDE:', text.substring(0, 500));
+      return new NextResponse(JSON.stringify({
+        publish: false,
+        error: 'INVALID_JSON_FROM_CLAUDE',
+        raw: text.substring(0, 500),
+      }), {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-transform, no-store',
+        }
+      });
+    }
+
     return new NextResponse(JSON.stringify({ text }), {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',

@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
         destination: '/privacy',
         permanent: true,
       },
+      {
+        source: '/sports',
+        destination: '/sportsnews',
+        permanent: true,
+      },
+      {
+        source: '/sports/:path*',
+        destination: '/sportsnews/:path*',
+        permanent: true,
+      },
     ]
   },
 }

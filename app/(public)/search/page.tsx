@@ -46,7 +46,7 @@ export default function SearchPage() {
         <button
           onClick={() => handleSearch(query)}
           disabled={loading}
-          className="bg-[#C8102E] text-white font-semibold px-5 py-3 rounded-xl hover:bg-[#8B0000] disabled:opacity-50 transition-colors text-sm"
+          className="bg-[#C8102E] text-white font-semibold px-5 py-3 rounded-xl hover:bg-[#8B0000] disabled:opacity-50 transition-colors text-sm flex-shrink-0 whitespace-nowrap"
         >
           {loading ? <Loader2 size={16} className="animate-spin" /> : 'Search'}
         </button>

@@ -92,6 +92,7 @@ export function ArticleEditor({ categories, article }: Props) {
   async function handleSave(publishStatus: string, exit = false) {
     if (!title.trim()) { setMsg('Title is required'); return }
     if (!slug.trim())  { setMsg('Slug is required'); return }
+    console.log('PUBLISH DEBUG - body length:', body.length, 'title:', title, 'slug:', slug, 'catId:', catId)
     if (!body.trim())  { setMsg('Body is required'); return }
     setSaving(true)
     setMsg('')

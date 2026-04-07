@@ -26,9 +26,10 @@ export async function PUT(
   const body = await req.json() as Partial<typeof articles.$inferInsert>
   console.log('PUBLISH DB WRITE', { id, status: body.status, categoryId: body.categoryId })
 
-  const validCategoryIds = [1,2,3,4,5,6,7,8];
-  if (!validCategoryIds.includes(Number(body.categoryId))) {
-    body.categoryId = 7;
+  const validCats = await db.select({ id: categories.id }).from(categories);
+  const validCatIds = validCats.map(c => c.id);
+  if (body.categoryId && !validCatIds.includes(Number(body.categoryId))) {
+    body.categoryId = validCatIds[0] || 7;
   }
 
   await db.update(articles)

@@ -11,6 +11,7 @@ const NAV = [
   { href: '/admin/quick-publish',          label: '⚡ Quick Publish' },
   { href: '/admin/articles',               label: '📰 All Articles' },
   { href: '/admin/articles?status=draft',  label: '📝 Drafts' },
+  { href: '/admin/comments',              label: '💬 Comments' },
   { href: '/admin/categories',             label: '📁 Categories' },
   { href: '/',                             label: '🌐 View Site' },
 ]

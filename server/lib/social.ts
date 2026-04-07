@@ -34,6 +34,7 @@ async function postToFacebook(article: SocialArticle): Promise<void> {
 
   await db.execute(sql`UPDATE articles SET fb_posted_at = NOW() WHERE id = ${article.id}`)
   console.log(`[social] FB posted — ${article.title.slice(0, 60)}`)
+  console.log(`[social] FB success id=${article.id}`)
 }
 
 async function postToTwitter(article: SocialArticle): Promise<void> {
@@ -53,6 +54,33 @@ async function postToTwitter(article: SocialArticle): Promise<void> {
   await client.v2.tweet(text)
   await db.execute(sql`UPDATE articles SET twitter_posted_at = NOW() WHERE id = ${article.id}`)
   console.log(`[social] Twitter posted — ${article.title.slice(0, 60)}`)
+  console.log(`[social] Twitter success id=${article.id}`)
+}
+
+async function postToTelegram(article: SocialArticle): Promise<void> {
+  const botToken  = process.env.TELEGRAM_BOT_TOKEN
+  const channelId = process.env.TELEGRAM_CHANNEL_ID
+  if (!botToken || !channelId) throw new Error('Telegram credentials not set')
+
+  const url  = `${SITE_URL}/${article.category.slug}/${article.slug}`
+  const text = `*${article.title}*\n\n${article.excerpt || ''}\n\n[Read more](${url})`
+
+  const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({
+      chat_id:                channelId,
+      text,
+      parse_mode:             'Markdown',
+      disable_web_page_preview: false,
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(`Telegram API error: ${JSON.stringify(err)}`)
+  }
+  console.log(`[social] Telegram success id=${article.id}`)
 }
 
 export async function postArticleToSocial(article: SocialArticle): Promise<void> {
@@ -63,5 +91,8 @@ export async function postArticleToSocial(article: SocialArticle): Promise<void>
     postToTwitter(article).catch(err =>
       console.error(`[social] Twitter error id=${article.id}:`, err)
     ),
+    postToTelegram(article)
+      .then(() => console.log(`[social] Telegram success id=${article.id}`))
+      .catch(e => console.error(`[social] Telegram error id=${article.id}:`, e.message)),
   ])
 }

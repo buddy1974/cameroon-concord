@@ -30,25 +30,42 @@ export default function SearchPage() {
     <div className="max-w-4xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-black text-white mb-6">Search Articles</h1>
 
-      <div className="flex gap-3 mb-8">
-        <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
+      <div style={{ display: 'flex', alignItems: 'center', borderBottom: '2px solid #C8102E', marginBottom: '2rem', background: 'transparent' }}>
+        <div style={{ position: 'relative', flex: 1 }}>
           <input
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKey}
             placeholder="Search Cameroon news..."
-            className="w-full min-w-0 bg-[#161616] border border-[#2A2A2A] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#C8102E] transition-colors"
             autoFocus
+            style={{
+              width: '100%',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              color: '#fff',
+              fontSize: '1.1rem',
+              padding: '12px 0',
+              caretColor: '#C8102E',
+            }}
           />
         </div>
         <button
           onClick={() => handleSearch(query)}
           disabled={loading}
-          className="bg-[#C8102E] text-white font-semibold px-5 py-3 rounded-xl hover:bg-[#8B0000] disabled:opacity-50 transition-colors text-sm flex-shrink-0 whitespace-nowrap"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            padding: '8px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#C8102E',
+            flexShrink: 0,
+          }}
         >
-          {loading ? <Loader2 size={16} className="animate-spin" /> : 'Search'}
+          {loading ? <Loader2 size={20} className="animate-spin" /> : <Search size={22} />}
         </button>
       </div>
 

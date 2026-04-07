@@ -1,5 +1,5 @@
 import { db } from '@/lib/db/client'
-import { articles, categories } from '@/lib/db/schema'
+import { articles, categories, articleHits } from '@/lib/db/schema'
 import { desc, eq, sql } from 'drizzle-orm'
 import Link from 'next/link'
 
@@ -43,6 +43,37 @@ export default async function AdminDashboard() {
     }
   } catch { /* table may not exist yet */ }
 
+  // Top 10 articles by hits
+  const topArticles = await db
+    .select({
+      id:      articles.id,
+      title:   articles.title,
+      slug:    articles.slug,
+      hits:    articleHits.hits,
+      catSlug: categories.slug,
+    })
+    .from(articles)
+    .innerJoin(categories,   eq(articles.categoryId, categories.id))
+    .leftJoin(articleHits,   eq(articles.id, articleHits.articleId))
+    .where(eq(articles.status, 'published'))
+    .orderBy(desc(articleHits.hits))
+    .limit(10)
+
+  // Category performance — total hits per category
+  const categoryStats = await db
+    .select({
+      category:     categories.name,
+      slug:         categories.slug,
+      totalHits:    sql<number>`COALESCE(SUM(${articleHits.hits}), 0)`,
+      articleCount: sql<number>`COUNT(${articles.id})`,
+    })
+    .from(articles)
+    .innerJoin(categories,  eq(articles.categoryId, categories.id))
+    .leftJoin(articleHits,  eq(articles.id, articleHits.articleId))
+    .where(eq(articles.status, 'published'))
+    .groupBy(categories.id, categories.name, categories.slug)
+    .orderBy(desc(sql`SUM(${articleHits.hits})`))
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
@@ -84,6 +115,56 @@ export default async function AdminDashboard() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Top Articles by Hits */}
+      <div style={{ marginTop: '2rem' }}>
+        <h2 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>Top Articles by Hits</h2>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid #333' }}>
+              <th style={{ color: '#999', textAlign: 'left', padding: '8px', fontSize: '0.75rem' }}>TITLE</th>
+              <th style={{ color: '#999', textAlign: 'right', padding: '8px', fontSize: '0.75rem' }}>HITS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topArticles.map(a => (
+              <tr key={a.id} style={{ borderBottom: '1px solid #1a1a1a' }}>
+                <td style={{ padding: '8px', fontSize: '0.8rem' }}>
+                  <a href={`/${a.catSlug}/${a.slug}`} target="_blank" style={{ color: '#C8102E', textDecoration: 'none' }}>
+                    {a.title?.slice(0, 80)}
+                  </a>
+                </td>
+                <td style={{ padding: '8px', fontSize: '0.8rem', color: '#fff', textAlign: 'right' }}>
+                  {(a.hits || 0).toLocaleString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Category Performance */}
+      <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+        <h2 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>Category Performance</h2>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid #333' }}>
+              <th style={{ color: '#999', textAlign: 'left', padding: '8px', fontSize: '0.75rem' }}>CATEGORY</th>
+              <th style={{ color: '#999', textAlign: 'right', padding: '8px', fontSize: '0.75rem' }}>ARTICLES</th>
+              <th style={{ color: '#999', textAlign: 'right', padding: '8px', fontSize: '0.75rem' }}>TOTAL HITS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {categoryStats.map(c => (
+              <tr key={c.slug} style={{ borderBottom: '1px solid #1a1a1a' }}>
+                <td style={{ padding: '8px', fontSize: '0.8rem', color: '#fff' }}>{c.category}</td>
+                <td style={{ padding: '8px', fontSize: '0.8rem', color: '#999', textAlign: 'right' }}>{Number(c.articleCount).toLocaleString()}</td>
+                <td style={{ padding: '8px', fontSize: '0.8rem', color: '#C8102E', textAlign: 'right', fontWeight: 700 }}>{Number(c.totalHits).toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Recent articles table */}

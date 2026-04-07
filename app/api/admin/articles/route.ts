@@ -70,6 +70,11 @@ export async function POST(req: NextRequest) {
     metaTitle?: string; metaDesc?: string; isBreaking?: boolean; isFeatured?: boolean
   }
 
+  const validCategoryIds = [1,2,3,4,5,6,7,8];
+  if (!validCategoryIds.includes(Number(body.categoryId))) {
+    body.categoryId = 7;
+  }
+
   const now = new Date()
   const result = await db.insert(articles).values({
     title:         body.title,

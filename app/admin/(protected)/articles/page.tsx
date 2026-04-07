@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
+
 interface ArticleRow {
   id: number; title: string; slug: string; status: string
   publishedAt: string | null; category: string; catSlug: string
@@ -12,11 +13,13 @@ export default function ArticlesListPage() {
   const urlParams = useSearchParams()
   const statusFilter = urlParams.get('status') || ''
 
-  const [articles, setArticles] = useState<ArticleRow[]>([])
-  const [total,    setTotal]    = useState(0)
-  const [page,     setPage]     = useState(1)
-  const [search,   setSearch]   = useState('')
-  const [loading,  setLoading]  = useState(true)
+  const [articles,     setArticles]     = useState<ArticleRow[]>([])
+  const [total,        setTotal]        = useState(0)
+  const [page,         setPage]         = useState(1)
+  const [search,       setSearch]       = useState('')
+  const [loading,      setLoading]      = useState(true)
+  const [selectedIds,  setSelectedIds]  = useState<Set<number>>(new Set())
+  const [deleting,     setDeleting]     = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -58,6 +61,26 @@ export default function ArticlesListPage() {
         }}
       />
 
+      {selectedIds.size > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px',
+          background: '#1a0000', border: '1px solid #C8102E', borderRadius: '8px', marginBottom: '12px' }}>
+          <span style={{ color: '#fff', fontSize: '0.85rem' }}>{selectedIds.size} article(s) selected</span>
+          <button disabled={deleting} onClick={async () => {
+            if (!confirm(`Delete ${selectedIds.size} article(s)? This cannot be undone.`)) return
+            setDeleting(true)
+            await Promise.all([...selectedIds].map(id =>
+              fetch(`/api/admin/articles/${id}`, { method: 'DELETE', credentials: 'include' })
+            ))
+            setDeleting(false)
+            setSelectedIds(new Set())
+            load()
+          }} style={{ background: '#C8102E', color: '#fff', border: 'none', padding: '6px 16px',
+            borderRadius: '6px', cursor: deleting ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>
+            {deleting ? 'Deleting...' : 'Delete Selected'}
+          </button>
+        </div>
+      )}
+
       <div style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#444', fontSize: '0.8rem' }}>Loading...</div>
@@ -65,6 +88,12 @@ export default function ArticlesListPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #1A1A1A' }}>
+                <th style={{ width: '40px', padding: '10px 16px' }}>
+                  <input type="checkbox" onChange={e => {
+                    if (e.target.checked) setSelectedIds(new Set(articles.map(a => a.id)))
+                    else setSelectedIds(new Set())
+                  }} />
+                </th>
                 {['Title', 'Category', 'Status', 'Date', 'Actions'].map(h => (
                   <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: '0.62rem', fontWeight: 700, color: '#444', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</th>
                 ))}
@@ -73,6 +102,15 @@ export default function ArticlesListPage() {
             <tbody>
               {articles.map(a => (
                 <tr key={a.id} style={{ borderBottom: '1px solid #0D0D0D' }}>
+                  <td style={{ padding: '10px 16px' }}>
+                    <input type="checkbox" checked={selectedIds.has(a.id)}
+                      onChange={e => {
+                        const next = new Set(selectedIds)
+                        if (e.target.checked) next.add(a.id)
+                        else next.delete(a.id)
+                        setSelectedIds(next)
+                      }} />
+                  </td>
                   <td style={{ padding: '10px 16px', maxWidth: '400px' }}>
                     <Link href={`/admin/articles/${a.id}/edit`} style={{ color: '#CCC', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 500 }}>
                       {a.title}

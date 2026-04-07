@@ -103,7 +103,7 @@ export function ArticleEditor({ categories, article }: Props) {
     }
     try {
       const res  = await fetch(
-        isEdit ? `/api/admin/articles/${article!.id}` : '/api/admin/articles',
+        isEdit ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/articles/${article!.id}` : `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/articles`,
         { method: isEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
       )
       const data = await res.json() as { ok?: boolean; id?: number; error?: string }

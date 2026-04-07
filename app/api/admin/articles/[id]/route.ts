@@ -32,8 +32,12 @@ export async function PUT(
     body.categoryId = validCatIds[0] || 7;
   }
 
+  const updateData = { ...body, updatedAt: new Date() };
+  if (body.status === 'published') {
+    updateData.publishedAt = updateData.publishedAt || new Date();
+  }
   await db.update(articles)
-    .set({ ...body, updatedAt: new Date() })
+    .set(updateData)
     .where(eq(articles.id, articleId))
 
   // Fire-and-forget social post when status changes to published

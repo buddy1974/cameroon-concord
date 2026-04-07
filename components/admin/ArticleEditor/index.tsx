@@ -97,7 +97,7 @@ export function ArticleEditor({ categories, article }: Props) {
     setSaving(true)
     setMsg('')
     const payload = {
-      title, slug, body, excerpt, categoryId: catId || article?.categoryId || categories[0]?.id || 1,
+      title, slug, body, excerpt, categoryId: (catId && catId > 0 && categories.some(c => c.id === catId)) ? catId : (article?.categoryId && categories.some(c => c.id === article.categoryId) ? article.categoryId : (categories[0]?.id || 1)),
       featuredImage: imgUrl || null, status: publishStatus,
       isBreaking: breaking, isFeatured: featured,
       metaTitle: metaT || null, metaDesc: metaD || null,

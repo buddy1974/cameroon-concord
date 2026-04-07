@@ -15,7 +15,7 @@ export interface SocialArticle {
 
 async function postToFacebook(article: SocialArticle): Promise<void> {
   const pageId    = process.env.FB_PAGE_ID
-  const pageToken = process.env.FB_PAGE_TOKEN
+  const pageToken = process.env.FB_PAGE_TOKEN || process.env.FB_ACCESS_TOKEN
   if (!pageId || !pageToken) throw new Error('FB credentials not set')
 
   const url     = `${SITE_URL}/${article.category.slug}/${article.slug}`

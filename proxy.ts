@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function proxy(req: NextRequest) {
+  const host = req.headers.get('host') || '';
+  if (!host.startsWith('www.') && !host.includes('localhost') && !host.includes('vercel.app')) {
+    const wwwUrl = new URL(req.url);
+    wwwUrl.host = 'www.' + host;
+    return NextResponse.redirect(wwwUrl.toString(), 301);
+  }
+
   const { pathname } = req.nextUrl
 
   // Allow everything under these paths through immediately

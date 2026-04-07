@@ -39,7 +39,7 @@ export default function SearchPage() {
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKey}
             placeholder="Search Cameroon news..."
-            className="w-full bg-[#161616] border border-[#2A2A2A] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#C8102E] transition-colors"
+            className="w-full min-w-0 bg-[#161616] border border-[#2A2A2A] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-[#4B5563] focus:outline-none focus:border-[#C8102E] transition-colors"
             autoFocus
           />
         </div>

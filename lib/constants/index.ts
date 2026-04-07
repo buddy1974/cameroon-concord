@@ -18,7 +18,7 @@ export const CATEGORIES = [
   { slug: 'lifestyle',          name: 'Lifestyle',    color: '#007A3D' },
   { slug: 'editorial',          name: 'Editorial',    color: '#C8102E' },
   { slug: 'inside-cpdm',        name: 'Biya',         color: '#8B0000' },
-  { slug: 'localnews',          name: 'Local News',   color: '#007A3D' },
+  { slug: 'society',            name: 'Local News',   color: '#007A3D' },
 ] as const
 
 export const NAV_CATEGORIES = CATEGORIES.slice(0, 8)

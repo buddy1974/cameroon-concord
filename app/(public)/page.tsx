@@ -6,6 +6,7 @@ import Link from 'next/link'
 import AdUnit from '@/components/ads/AdUnit'
 import { ArticleCard } from '@/components/article/ArticleCard'
 import InstallBanner from '@/components/pwa/InstallBanner'
+import SubscribeForm from '@/components/newsletter/SubscribeForm'
 import { JsonLd } from '@/components/seo/JsonLd'
 import {
   getFeaturedArticles, getLatestArticles,
@@ -126,6 +127,9 @@ export default async function HomePage() {
 
           {/* SIDEBAR — Most Read */}
           <aside>
+            <div style={{ marginBottom: '16px' }}>
+              <SubscribeForm source="homepage" />
+            </div>
             <div className="bg-[#101010] border border-[#1E1E1E] rounded-xl p-5">
               <div className="section-head">
                 <span className="section-head-title" style={{ color: '#F5A623' }}>Most Read</span>

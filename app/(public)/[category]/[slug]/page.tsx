@@ -8,6 +8,7 @@ import { ArticleCard }      from '@/components/article/ArticleCard'
 import AdUnit               from '@/components/ads/AdUnit'
 import { JsonLd }           from '@/components/seo/JsonLd'
 import CommentsSection      from '@/components/article/CommentSection'
+import SubscribeForm        from '@/components/newsletter/SubscribeForm'
 import ShareButtons          from '@/components/article/ShareButtons'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
@@ -197,8 +198,9 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* Sidebar — desktop only */}
         <div className="hidden lg:block w-[300px] shrink-0">
-          <div className="sticky top-4 min-h-[250px]">
+          <div className="sticky top-4 flex flex-col gap-4">
             <AdUnit slot="5520370976" format="rectangle" />
+            <SubscribeForm source="article" />
           </div>
         </div>
 

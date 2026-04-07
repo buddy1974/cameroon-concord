@@ -111,15 +111,16 @@ export function ArticleEditor({ categories, article }: Props) {
       if (data.ok) {
         setMsg(`✓ ${publishStatus === 'published' ? 'Published' : 'Saved'}`)
         setStatus(publishStatus as ArticleStatus)
-        if (exit) { router.push('/admin/articles'); return }
+        if (exit) { setSaving(false); router.push('/admin/articles'); return }
         if (!isEdit && data.id) router.push(`/admin/articles/${data.id}/edit`)
       } else {
         setMsg(`✗ ${data.error || 'Save failed'}`)
       }
     } catch {
       setMsg('✗ Network error')
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   async function handleUnpublish() {

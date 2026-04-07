@@ -17,7 +17,9 @@
       "Bash(git pull:*)",
       "Bash(git stash:*)",
       "Bash(git fetch:*)",
-      "Bash(C:/Program Files/MySQL/MySQL Server 9.6/bin/mysql.exe:*)"
+      "Bash(C:/Program Files/MySQL/MySQL Server 9.6/bin/mysql.exe:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(dir:*)"
     ]
   }
 }

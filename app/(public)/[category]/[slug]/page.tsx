@@ -7,7 +7,7 @@ import { Eye, Clock, Calendar } from 'lucide-react'
 import { ArticleCard }      from '@/components/article/ArticleCard'
 import AdUnit               from '@/components/ads/AdUnit'
 import { JsonLd }           from '@/components/seo/JsonLd'
-import { CommentSection }   from '@/components/article/CommentSection'
+import CommentsSection      from '@/components/article/CommentSection'
 import ShareButtons          from '@/components/article/ShareButtons'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
@@ -190,7 +190,7 @@ export default async function ArticlePage({ params }: Props) {
 
           {/* Comments */}
           <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #222' }}>
-            <CommentSection articleId={article.id} />
+            <CommentsSection articleId={article.id} />
           </div>
 
         </div>

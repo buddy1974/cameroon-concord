@@ -1,0 +1,11 @@
+[2026-04-03T13:50:48.389Z] ═══ R2 IMAGE UPLOAD START ═══
+[2026-04-03T13:50:48.395Z] Found 1942 files in public/images/
+[2026-04-03T13:52:31.069Z] Upload done — uploaded:0 skipped:1942 failed:0
+[2026-04-03T13:52:31.070Z] ═══ UPDATING DB IMAGE URLS ═══
+[2026-04-03T13:52:31.403Z] Updated 0 rows
+[2026-04-03T13:52:31.501Z] Updated 0 rows
+[2026-04-03T13:52:31.573Z] Updated 4801 rows
+[2026-04-03T13:52:31.877Z] Updated 0 rows
+[2026-04-03T13:52:32.196Z] Updated 0 rows
+[2026-04-03T13:52:32.197Z] DB update complete
+[2026-04-03T13:52:32.198Z] ═══ MIGRATION COMPLETE ═══

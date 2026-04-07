@@ -1,0 +1,26 @@
+[2026-04-07T11:48:31.880Z] Starting AI meta batch
+[2026-04-07T11:48:33.393Z] Total articles to process: 1135
+[2026-04-07T11:48:35.940Z] ERR id=17026 title="Cameroon Strengthens Malaria Control wit": Error: Empty or non-text response: []
+[2026-04-07T11:52:10.015Z] [50/1135] OK id=8172: Knife Attack in London Kills One, Injures Six
+[2026-04-07T11:55:32.594Z] [100/1135] OK id=6681: Pope Apologizes for Catholic Church Role in Rwanda Genocide
+[2026-04-07T11:58:56.046Z] [150/1135] OK id=8020: World Humanitarian Day 2024: Africa Commemorates
+[2026-04-07T12:02:21.021Z] [200/1135] OK id=2689: Cameroon: Armed Thugs Attack Mokolo Market Police Stations
+[2026-04-07T12:05:54.223Z] [250/1135] OK id=3049: ELECAM Releases Provisional Voters Registers in Cameroon
+[2026-04-07T12:09:21.041Z] [300/1135] OK id=6738: Kabul Military Hospital Attack: 30+ Killed by Gunmen
+[2026-04-07T12:13:07.836Z] [350/1135] OK id=4513: Arab NATO Rising From Yemen's Conflict
+[2026-04-07T12:16:33.947Z] [400/1135] OK id=17628: Tchiroma Declares Rupture at Kousseri Rally
+[2026-04-07T12:19:56.681Z] [450/1135] OK id=2774: Cameroon Releases 54 Prisoners from Yaoundé Jail
+[2026-04-07T12:23:24.175Z] [500/1135] OK id=2566: Cameroon Launches 2015-2016 National Coffee Season
+[2026-04-07T12:26:46.928Z] [550/1135] OK id=16593: Soldier Attacks ENEO Agents in Yaoundé Damas District
+[2026-04-07T12:30:09.346Z] [600/1135] OK id=2539: Cameroon: Three Students Killed in Motorbike Crash
+[2026-04-07T12:33:40.504Z] [650/1135] OK id=17662: Why Biya Can't Win: The Math Behind Cameroon's Vote
+[2026-04-07T12:37:00.040Z] [700/1135] OK id=6168: Douala Seaport Dockers Call Off Strike | Cameroon
+[2026-04-07T12:40:29.969Z] [750/1135] OK id=6943: Nigerians Protest Economic Crisis Despite Cancellation
+[2026-04-07T12:44:14.221Z] [800/1135] OK id=2605: Cameroon PM Boosts Math Teaching in Secondary Schools
+[2026-04-07T12:47:44.024Z] [850/1135] OK id=11232: Biya & Buhari Renew Support for Anti-Boko Haram Force
+[2026-04-07T12:51:11.326Z] [900/1135] OK id=2974: Cameroon CPDM Policy on Vice Principals in Douala
+[2026-04-07T12:54:45.657Z] [950/1135] OK id=5091: Nigeria to Court-Martial 22 Officers Over Boko Haram War
+[2026-04-07T12:58:22.233Z] [1000/1135] OK id=4840: Nigeria Recaptures Monguno from Boko Haram
+[2026-04-07T13:01:45.077Z] [1050/1135] OK id=3833: UN Peacekeeper Killed in Central African Republic
+[2026-04-07T13:05:11.492Z] [1100/1135] OK id=4076: French Defense Minister Backs Mali Peace Deal
+[2026-04-07T13:07:33.718Z] DONE. OK=1134 FAIL=1 TOTAL=1135

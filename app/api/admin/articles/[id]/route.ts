@@ -24,6 +24,7 @@ export async function PUT(
   const { id }  = await params
   const articleId = parseInt(id)
   const body = await req.json() as Partial<typeof articles.$inferInsert>
+  console.log('PUBLISH DB WRITE', { id, status: body.status, categoryId: body.categoryId })
 
   const validCategoryIds = [1,2,3,4,5,6,7,8];
   if (!validCategoryIds.includes(Number(body.categoryId))) {

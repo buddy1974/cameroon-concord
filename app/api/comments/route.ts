@@ -1,66 +1,83 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createComment, getApprovedComments } from '@/lib/db/queries'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db/client';
+import { comments, commentBans } from '@/lib/db/schema';
+import { eq, and, desc } from 'drizzle-orm';
+import Anthropic from '@anthropic-ai/sdk';
 
-const CommentSchema = z.object({
-  articleId:   z.number().int().positive(),
-  parentId:    z.number().int().positive().optional(),
-  authorName:  z.string().min(2).max(100).trim(),
-  authorEmail: z.string().email().max(200).trim(),
-  body:        z.string().min(3).max(2000).trim(),
-  cfToken:     z.string().min(1),
-})
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
-  const secret = process.env.TURNSTILE_SECRET_KEY
-  if (!secret) return true // skip in dev if not set
-  const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ secret, response: token, remoteip: ip }),
-  })
-  const data = await res.json() as { success: boolean }
-  return data.success
+async function moderateComment(body: string, authorName: string): Promise<{ flagged: boolean; reason: string }> {
+  try {
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 100,
+      messages: [{
+        role: 'user',
+        content: `Moderate this comment. Reply with JSON only: {"flagged": true/false, "reason": "brief reason or null"}
+Comment by "${authorName}": ${body}`
+      }]
+    });
+    const text = msg.content[0].type === 'text' ? msg.content[0].text : '{"flagged":false,"reason":null}';
+    return JSON.parse(text.replace(/```json\n?/gi, '').replace(/```\n?/gi, '').trim());
+  } catch {
+    return { flagged: false, reason: '' };
+  }
 }
 
 export async function GET(req: NextRequest) {
-  const articleId = parseInt(req.nextUrl.searchParams.get('articleId') || '0')
-  if (!articleId) return NextResponse.json({ error: 'Missing articleId' }, { status: 400 })
-  const comments = await getApprovedComments(articleId)
-  return NextResponse.json({ comments })
+  const { searchParams } = new URL(req.url);
+  const articleId = parseInt(searchParams.get('articleId') || '0');
+  if (!articleId) return NextResponse.json([]);
+
+  const rows = await db.select({
+    id: comments.id,
+    parentId: comments.parentId,
+    authorName: comments.authorName,
+    authorIsAdmin: comments.authorIsAdmin,
+    body: comments.body,
+    createdAt: comments.createdAt,
+  })
+  .from(comments)
+  .where(and(eq(comments.articleId, articleId), eq(comments.status, 'approved')))
+  .orderBy(desc(comments.createdAt));
+
+  return NextResponse.json(rows);
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const body   = await req.json()
-    const parsed = CommentSchema.safeParse(body)
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
-    }
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '';
+  const body = await req.json();
+  const { articleId, parentId, authorName, authorEmail, text, notifyEmail } = body;
 
-    const ip = req.headers.get('cf-connecting-ip')
-      || req.headers.get('x-forwarded-for')
-      || '0.0.0.0'
-
-    const valid = await verifyTurnstile(parsed.data.cfToken, ip)
-    if (!valid) {
-      return NextResponse.json({ error: 'Verification failed' }, { status: 403 })
-    }
-
-    await createComment({
-      articleId:   parsed.data.articleId,
-      parentId:    parsed.data.parentId ?? null,
-      authorName:  parsed.data.authorName,
-      authorEmail: parsed.data.authorEmail,
-      body:        parsed.data.body,
-      status:      'pending',
-      ipAddress:   ip,
-      userAgent:   req.headers.get('user-agent') || '',
-    })
-
-    return NextResponse.json({ ok: true, message: 'Comment submitted for review' })
-  } catch (err) {
-    console.error('Comment error:', err)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  if (!articleId || !authorName || !authorEmail || !text) {
+    return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
+
+  const bans = await db.select().from(commentBans).where(eq(commentBans.value, ip));
+  const emailBan = await db.select().from(commentBans).where(eq(commentBans.value, authorEmail.toLowerCase()));
+  if (bans.length > 0 || emailBan.length > 0) {
+    return NextResponse.json({ error: 'Submission not allowed' }, { status: 403 });
+  }
+
+  const mod = await moderateComment(text, authorName);
+  const status = mod.flagged ? 'pending' : 'approved';
+
+  await db.insert(comments).values({
+    articleId,
+    parentId: parentId || null,
+    authorName,
+    authorEmail,
+    body: text,
+    status,
+    ipAddress: ip,
+    flagged: mod.flagged ? 1 : 0,
+    flagReason: mod.reason || null,
+    notifyEmail: notifyEmail ? 1 : 0,
+  });
+
+  return NextResponse.json({
+    success: true,
+    pending: mod.flagged,
+    message: mod.flagged ? 'Your comment is awaiting moderation.' : 'Comment posted successfully.'
+  });
 }

@@ -16,12 +16,6 @@ const nextConfig: NextConfig = {
         destination: '/privacy',
         permanent: true,
       },
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'cameroon-concord.com' }],
-        destination: 'https://www.cameroon-concord.com/:path*',
-        permanent: true,
-      },
     ]
   },
 }

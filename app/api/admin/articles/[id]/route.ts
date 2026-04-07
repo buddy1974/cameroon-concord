@@ -41,6 +41,7 @@ export async function PUT(
     .where(eq(articles.id, articleId))
 
   // Fire-and-forget social post when status changes to published
+  console.log('SOCIAL TRIGGER CHECK', { status: body.status, title: !!body.title, slug: !!body.slug, categoryId: body.categoryId })
   if (body.status === 'published' && body.title && body.slug && body.categoryId) {
     const cat = await db.select({ slug: categories.slug, name: categories.name })
       .from(categories).where(eq(categories.id, body.categoryId)).limit(1)

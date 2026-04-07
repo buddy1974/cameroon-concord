@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
     sameSite: 'lax',
     maxAge:   60 * 60 * 24 * 7,
     path:     '/',
-    domain:   '.cameroon-concord.com',
   })
   return res
 }

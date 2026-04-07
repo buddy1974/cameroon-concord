@@ -60,15 +60,6 @@ export default async function ArticlePage({ params }: Props) {
         <div style={{ display: 'flex', gap: '32px', maxWidth: '1060px', width: '100%', alignItems: 'flex-start' }}>
         <div style={{ maxWidth: '720px', width: '100%', display: 'flex', flexDirection: 'column', gap: '0' }}>
 
-          {/* Breadcrumb — navigation path only, title is the H1 below */}
-          <nav className="text-xs text-[#6B7280] mb-4 flex items-center gap-1">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span>›</span>
-            <Link href={`/${catSlug}`} className="hover:text-white transition-colors text-[#C8102E]">
-              {article.category.name}
-            </Link>
-          </nav>
-
           {/* Category + Breaking badges */}
           <div className="flex items-center gap-2 mb-3">
             <Link

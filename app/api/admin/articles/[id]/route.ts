@@ -60,6 +60,19 @@ export async function PUT(
   revalidatePath('/')
   revalidatePath('/[category]', 'layout')
   revalidatePath('/[category]/[slug]', 'page')
+
+  // Ping Facebook to re-scrape og:image
+  if (body.status === 'published' && body.slug && body.categoryId) {
+    const catRes = await db.select({ slug: categories.slug })
+      .from(categories).where(eq(categories.id, body.categoryId)).limit(1);
+    if (catRes[0]) {
+      const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${catRes[0].slug}/${body.slug}`;
+      fetch(`https://graph.facebook.com/?id=${encodeURIComponent(articleUrl)}&scrape=true`, {
+        method: 'POST'
+      }).catch(() => {});
+    }
+  }
+
   return NextResponse.json({ ok: true })
 }
 

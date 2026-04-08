@@ -27,6 +27,23 @@ export async function proxy(req: NextRequest) {
     )
   }
 
+  // Legacy Joomla URL cleanup — return 410 Gone for old Joomla paths
+  const joomlaPatterns = [
+    '/index.php',
+    '/component/',
+    '/itemlist/',
+    '/author/',
+    '?format=feed',
+    '?option=com_',
+    '?start=',
+    'Itemid=',
+  ]
+
+  const isJoomlaUrl = joomlaPatterns.some(p => req.nextUrl.pathname.includes(p) || req.nextUrl.search.includes(p))
+  if (isJoomlaUrl) {
+    return new NextResponse('Gone', { status: 410 })
+  }
+
   // Maintenance mode — public pages only
   if (process.env.MAINTENANCE_MODE === 'true') {
     const bypass = req.cookies.get('maintenance_bypass')?.value

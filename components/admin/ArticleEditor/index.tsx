@@ -300,13 +300,34 @@ export function ArticleEditor({ categories, article }: Props) {
 
           {/* Image */}
           <div style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', padding: '16px' }}>
-            <label style={labelStyle}>Featured Image URL</label>
+            <label style={labelStyle}>Featured Image</label>
             <input
               value={imgUrl}
               onChange={e => setImgUrl(e.target.value)}
               placeholder="https://media.cameroon-concord.com/..."
-              style={{ ...inputStyle, fontSize: '0.78rem' }}
+              style={{ ...inputStyle, fontSize: '0.78rem', marginBottom: '8px' }}
             />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+              <label style={{
+                background: '#1a1a1a', border: '1px dashed #333', borderRadius: '6px',
+                padding: '8px 14px', cursor: 'pointer', fontSize: '0.78rem', color: '#999',
+                display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0
+              }}>
+                📷 Upload from device
+                <input type="file" accept="image/*" style={{ display: 'none' }}
+                  onChange={async e => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    const form = new FormData()
+                    form.append('file', file)
+                    const res = await fetch('/api/admin/upload', { method: 'POST', body: form, credentials: 'include' })
+                    const data = await res.json()
+                    if (data.url) setImgUrl(data.url)
+                  }}
+                />
+              </label>
+              <span style={{ color: '#444', fontSize: '0.75rem' }}>or paste URL above</span>
+            </div>
             {imgUrl && (
               <img
                 src={imgUrl}

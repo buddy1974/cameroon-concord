@@ -24,7 +24,7 @@ export async function GET() {
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${date}</pubDate>
-      <description><![CDATA[${a.excerpt || ''}]]></description>
+      <description><![CDATA[${(a.excerpt || '').replace(/[\r\n]+/g, ' ').trim()}]]></description>
       <category><![CDATA[${a.category.name}]]></category>
       ${image ? `<enclosure url="${image}" type="image/jpeg" />` : ''}
       <news:news>

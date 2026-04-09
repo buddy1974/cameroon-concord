@@ -36,13 +36,20 @@ export async function PUT(
   if (body.status === 'published') {
     updateData.publishedAt = updateData.publishedAt || new Date();
   }
+  const [existing] = await db
+    .select({ status: articles.status })
+    .from(articles)
+    .where(eq(articles.id, articleId))
+    .limit(1)
+  const wasAlreadyPublished = existing?.status === 'published'
+
   await db.update(articles)
     .set(updateData)
     .where(eq(articles.id, articleId))
 
-  // Fire-and-forget social post when status changes to published
+  // Fire-and-forget social post only on first-time publish transition
   console.log('SOCIAL TRIGGER CHECK', { status: body.status, title: !!body.title, slug: !!body.slug, categoryId: body.categoryId })
-  if (body.status === 'published' && body.title && body.slug && body.categoryId) {
+  if (body.status === 'published' && !wasAlreadyPublished && body.title && body.slug && body.categoryId) {
     const cat = await db.select({ slug: categories.slug, name: categories.name })
       .from(categories).where(eq(categories.id, body.categoryId)).limit(1)
     if (cat[0]) {

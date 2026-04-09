@@ -12,9 +12,6 @@ import {
   getFeaturedArticles, getLatestArticles,
   getMostRead, getArticlesByCategory, getAllCategories,
 } from '@/lib/db/queries'
-import { db } from '@/lib/db/client'
-import { articles as articlesTable } from '@/lib/db/schema'
-import { desc, eq } from 'drizzle-orm'
 import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema } from '@/lib/seo/schema'
 import type { ArticleWithRelations, Category } from '@/lib/types'
@@ -26,7 +23,6 @@ export default async function HomePage() {
   let latest:         ArticleWithRelations[] = []
   let mostRead:       ArticleWithRelations[] = []
   let allCats:        Category[]             = []
-  let latestArticles: ArticleWithRelations[] = []
 
   try {
     ;[featured, latest, mostRead, allCats] = await Promise.all([
@@ -37,17 +33,6 @@ export default async function HomePage() {
     ])
   } catch (err) {
     console.error('Homepage DB error:', err)
-  }
-
-  try {
-    latestArticles = await db.query.articles.findMany({
-      where: eq(articlesTable.status, 'published'),
-      orderBy: [desc(articlesTable.publishedAt)],
-      limit: 10,
-      with: { category: true },
-    }) as unknown as ArticleWithRelations[]
-  } catch (err) {
-    console.error('Latest articles DB error:', err)
   }
 
   const targetSlugs = ['politics', 'society', 'sportsnews', 'southern-cameroons', 'health', 'business']
@@ -154,13 +139,13 @@ export default async function HomePage() {
                 <ArticleCard key={a.id} article={a} variant="list" index={i} />
               ))}
             </div>
-            {latestArticles.length > 0 && (
+            {latest.slice(0, 10).length > 0 && (
               <div className="bg-[#101010] border border-[#1E1E1E] rounded-xl p-5" style={{ marginTop: '16px' }}>
                 <div className="section-head">
                   <span className="section-head-title" style={{ color: '#F5A623' }}>Latest Articles</span>
                   <span className="section-head-line" />
                 </div>
-                {latestArticles.map((a, i) => (
+                {latest.slice(0, 10).map((a, i) => (
                   <ArticleCard key={a.id} article={a} variant="list" index={i} />
                 ))}
               </div>

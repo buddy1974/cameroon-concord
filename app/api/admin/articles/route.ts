@@ -75,6 +75,17 @@ export async function POST(req: NextRequest) {
     body.categoryId = 7;
   }
 
+  // Block low-quality or non-embeddable image sources
+  const BLOCKED_IMAGE_HOSTS = [
+    'fbcdn.net',
+    'scontent.',
+    'encrypted-tbn0.gstatic.com',
+    'gstatic.com',
+  ]
+  const isBadImage = (url?: string) =>
+    !!url && BLOCKED_IMAGE_HOSTS.some(h => url.includes(h))
+  if (isBadImage(body.featuredImage)) body.featuredImage = undefined
+
   const now = new Date()
   const result = await db.insert(articles).values({
     title:         body.title,

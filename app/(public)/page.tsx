@@ -125,11 +125,22 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* SIDEBAR — Most Read */}
+          {/* SIDEBAR — Latest + Most Read */}
           <aside>
             <div style={{ marginBottom: '16px' }}>
               <SubscribeForm source="homepage" />
             </div>
+            {latest.slice(0, 7).length > 0 && (
+              <div className="bg-[#101010] border border-[#1E1E1E] rounded-xl p-5" style={{ marginBottom: '16px' }}>
+                <div className="section-head">
+                  <span className="section-head-title" style={{ color: '#F5A623' }}>Latest Articles</span>
+                  <span className="section-head-line" />
+                </div>
+                {latest.slice(0, 7).map((a, i) => (
+                  <ArticleCard key={a.id} article={a} variant="list" index={i} />
+                ))}
+              </div>
+            )}
             <div className="bg-[#101010] border border-[#1E1E1E] rounded-xl p-5">
               <div className="section-head">
                 <span className="section-head-title" style={{ color: '#F5A623' }}>Most Read</span>
@@ -139,17 +150,6 @@ export default async function HomePage() {
                 <ArticleCard key={a.id} article={a} variant="list" index={i} />
               ))}
             </div>
-            {latest.slice(0, 10).length > 0 && (
-              <div className="bg-[#101010] border border-[#1E1E1E] rounded-xl p-5" style={{ marginTop: '16px' }}>
-                <div className="section-head">
-                  <span className="section-head-title" style={{ color: '#F5A623' }}>Latest Articles</span>
-                  <span className="section-head-line" />
-                </div>
-                {latest.slice(0, 10).map((a, i) => (
-                  <ArticleCard key={a.id} article={a} variant="list" index={i} />
-                ))}
-              </div>
-            )}
           </aside>
 
         </div>

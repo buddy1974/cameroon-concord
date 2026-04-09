@@ -52,7 +52,6 @@ async function postToTwitter(article: SocialArticle): Promise<void> {
     : `${article.title.slice(0, max - 1)}… ${url}`
 
   await client.v2.tweet(text)
-  await db.execute(sql`UPDATE articles SET twitter_posted_at = NOW() WHERE id = ${article.id}`)
   console.log(`[social] Twitter posted — ${article.title.slice(0, 60)}`)
   console.log(`[social] Twitter success id=${article.id}`)
 }

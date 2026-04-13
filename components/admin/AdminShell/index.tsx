@@ -56,9 +56,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       <div className="p-3 border-t border-[#1A1A1A]">
-        <Link href="/api/admin/logout" className="block px-3 py-2 text-[0.75rem] text-[#333] hover:text-white no-underline rounded-lg transition-colors">
+        <button
+          onClick={() => { window.location.href = '/api/admin/logout' }}
+          className="block px-3 py-2 text-[0.75rem] text-[#333] hover:text-white no-underline rounded-lg transition-colors"
+        >
           → Logout
-        </Link>
+        </button>
       </div>
     </div>
   )

@@ -121,6 +121,7 @@ export default async function ArticlePage({ params }: Props) {
                 src={article.featuredImage}
                 alt={article.imageAlt || article.title}
                 caption={article.imageCaption}
+                priority={true}
               />
             </div>
           )}

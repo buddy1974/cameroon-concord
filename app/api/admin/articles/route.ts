@@ -82,6 +82,8 @@ export async function POST(req: NextRequest) {
     'scontent.',
     'encrypted-tbn0.gstatic.com',
     'gstatic.com',
+    'images.euronews.com',
+    'euronews.com',
   ]
   const isBadImage = (url?: string) =>
     !!url && BLOCKED_IMAGE_HOSTS.some(h => url.includes(h))

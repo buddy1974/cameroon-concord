@@ -172,9 +172,13 @@ export default async function ArticlePage({ params }: Props) {
             <div className="bg-[#161616] border border-[#2A2A2A] rounded-xl p-5" style={{ marginBottom: '40px' }}>
               <p className="text-[10px] font-black uppercase tracking-widest text-[#6B7280] mb-3">About the Author</p>
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#C8102E] flex items-center justify-center text-white font-black text-sm flex-shrink-0">
-                  {article.author.name.charAt(0)}
-                </div>
+                {article.author.avatarUrl ? (
+                  <img src={article.author.avatarUrl} alt={article.author.name} width={40} height={40} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-[#C8102E] flex items-center justify-center text-white font-black text-sm flex-shrink-0">
+                    {article.author.name.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <p className="font-semibold text-white text-sm">{article.author.name}</p>
                   {article.author.bio && (

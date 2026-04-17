@@ -32,6 +32,8 @@ export function ArticleEditor({ categories, article }: Props) {
   const [featured,  setFeatured]  = useState(article?.isFeatured || false)
   const [metaT,     setMetaT]     = useState(article?.metaTitle || '')
   const [metaD,     setMetaD]     = useState(article?.metaDesc || '')
+  const [authorId,  setAuthorId]  = useState<number|null>(article?.authorId ?? null)
+  const [authorName, setAuthorName] = useState<string>('')
   const [saving,    setSaving]    = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [msg,       setMsg]       = useState('')
@@ -73,7 +75,7 @@ export function ArticleEditor({ categories, article }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ title, body, type: 'full' }),
       })
-      const data = await res.json() as { title?: string; meta_title?: string; meta_desc?: string; excerpt?: string; enhanced_body?: string; error?: string }
+      const data = await res.json() as { title?: string; meta_title?: string; meta_desc?: string; excerpt?: string; enhanced_body?: string; error?: string; author_id?: number; author_name?: string; author_avatar?: string }
       if (data.title) {
         setTitle(data.title)
         setSlug(slugify(data.title))
@@ -82,6 +84,7 @@ export function ArticleEditor({ categories, article }: Props) {
       if (data.meta_desc)     setMetaD(data.meta_desc)
       if (data.excerpt)       setExcerpt(data.excerpt)
       if (data.enhanced_body) setBody(data.enhanced_body)
+      if (data.author_id)     { setAuthorId(data.author_id); setAuthorName(data.author_name ?? '') }
       setMsg(data.error ? '✗ AI error' : '✓ AI enhanced')
     } catch {
       setMsg('✗ AI request failed')
@@ -100,6 +103,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
       featuredImage: imgUrl || null, status: publishStatus,
       isBreaking: breaking, isFeatured: featured,
       metaTitle: metaT || null, metaDesc: metaD || null,
+      authorId: authorId || null,
     }
     try {
       const res  = await fetch(
@@ -257,6 +261,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
               placeholder="article-slug-here"
               style={{ ...inputStyle, fontFamily: 'monospace', fontSize: '0.82rem', color: '#888' }}
             />
+            {authorName && <div style={{ fontSize: '0.75rem', color: '#555', marginTop: '4px' }}>Author: {authorName}</div>}
           </div>
           <div>
             <label style={labelStyle}>Excerpt</label>

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { db } from '@/lib/db/client'
+import { authors } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 
 const claude = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
 
@@ -77,7 +80,17 @@ Return ONLY valid JSON. No markdown fences. No explanation.
   const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
   try {
     const clean = text.replace(/```json|```/g, '').trim()
-    return NextResponse.json(JSON.parse(clean))
+    const parsed = JSON.parse(clean)
+
+    if (type === 'full') {
+      const authorSlugs = ['nkemdirim-tabi','ebot-ayuk','cynthia-mbah','fidelis-ngong','solange-achu','emeka-tambe','bridget-forjindam','ndong-eyong']
+      const randomSlug = authorSlugs[Math.floor(Math.random() * authorSlugs.length)]
+      const [author] = await db.select({ id: authors.id, name: authors.name, slug: authors.slug, avatarUrl: authors.avatarUrl })
+        .from(authors).where(eq(authors.slug, randomSlug)).limit(1)
+      return NextResponse.json({ ...parsed, author_id: author?.id, author_name: author?.name, author_avatar: author?.avatarUrl })
+    }
+
+    return NextResponse.json(parsed)
   } catch {
     return NextResponse.json({ error: 'Parse failed', raw: text }, { status: 500 })
   }

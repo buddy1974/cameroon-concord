@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
     title: string; slug: string; body: string; excerpt?: string
     categoryId: number; featuredImage?: string; status: string
     metaTitle?: string; metaDesc?: string; isBreaking?: boolean; isFeatured?: boolean
+    authorId?: number | null
   }
 
   const validCategoryIds = [1,2,3,4,5,6,7,8];
@@ -104,6 +105,7 @@ export async function POST(req: NextRequest) {
     isFeatured:    body.isFeatured || false,
     metaTitle:     body.metaTitle || null,
     metaDesc:      body.metaDesc || null,
+    authorId:      body.authorId || null,
     publishedAt:   body.status === 'published' ? now : null,
     createdAt:     now,
     updatedAt:     now,

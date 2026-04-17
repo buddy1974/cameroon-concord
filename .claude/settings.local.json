@@ -25,7 +25,11 @@
       "Bash(echo \"Rows affected: $?\")",
       "Bash(xargs grep *)",
       "Bash(sed -n '85,100p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\article\\\\CommentSection\\\\index.tsx\")",
-      "Bash(sed -n '136,142p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\article\\\\CommentSection\\\\index.tsx\")"
+      "Bash(sed -n '136,142p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\article\\\\CommentSection\\\\index.tsx\")",
+      "Bash(sed -n '60,72p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\layout\\\\Footer\\\\index.tsx\")",
+      "Bash(sed -n '140,150p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\pwa\\\\InstallBanner\\\\index.tsx\")",
+      "Bash(sed -n '43,50p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\article\\\\ShareButtons\\\\index.tsx\")",
+      "Bash(sed -n '60,70p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\newsletter\\\\SubscribeForm\\\\index.tsx\")"
     ]
   }
 }

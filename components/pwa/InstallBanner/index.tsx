@@ -141,6 +141,7 @@ export default function InstallBanner() {
             </div>
             <button
               onClick={() => setShowIOSModal(false)}
+              aria-label="Close"
               style={{
                 background: '#cc0000', color: '#fff',
                 border: 'none', padding: '14px 40px',

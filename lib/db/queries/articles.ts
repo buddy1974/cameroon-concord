@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache'
 import { db } from '@/lib/db/client'
 import { articles, categories, authors, articleHits } from '@/lib/db/schema'
 import { eq, desc, and, or, like, sql, inArray } from 'drizzle-orm'
@@ -10,7 +11,7 @@ function cleanImg(url: string | null | undefined): string | null {
   return clean
 }
 
-export async function getArticleBySlug(
+async function _getArticleBySlug(
   categorySlug: string,
   articleSlug: string
 ): Promise<ArticleWithRelations | null> {
@@ -43,6 +44,12 @@ export async function getArticleBySlug(
     hits:     rows[0].hits ?? 0,
   }
 }
+
+export const getArticleBySlug = unstable_cache(
+  _getArticleBySlug,
+  ['article-by-slug'],
+  { revalidate: 3600, tags: ['articles'] }
+)
 
 export async function getArticlesByCategory(
   categorySlug: string,
@@ -95,7 +102,7 @@ export async function getArticlesByCategory(
   }
 }
 
-export async function getLatestArticles(limit = 20, offset = 0): Promise<ArticleWithRelations[]> {
+async function _getLatestArticles(limit = 20, offset = 0): Promise<ArticleWithRelations[]> {
   const rows = await db
     .select({
       article:  articles,
@@ -120,6 +127,12 @@ export async function getLatestArticles(limit = 20, offset = 0): Promise<Article
     hits:     r.hits ?? 0,
   }))
 }
+
+export const getLatestArticles = unstable_cache(
+  _getLatestArticles,
+  ['latest-articles'],
+  { revalidate: 60, tags: ['articles'] }
+)
 
 export async function getFeaturedArticles(limit = 3): Promise<ArticleWithRelations[]> {
   const rows = await db
@@ -213,7 +226,7 @@ export async function getBreakingNews(limit = 5): Promise<ArticleWithRelations[]
   }))
 }
 
-export async function getMostRead(limit = 5): Promise<ArticleWithRelations[]> {
+async function _getMostRead(limit = 5): Promise<ArticleWithRelations[]> {
   const rows = await db
     .select({
       article:  articles,
@@ -238,7 +251,13 @@ export async function getMostRead(limit = 5): Promise<ArticleWithRelations[]> {
   }))
 }
 
-export async function getRelatedArticles(
+export const getMostRead = unstable_cache(
+  _getMostRead,
+  ['most-read'],
+  { revalidate: 60, tags: ['articles'] }
+)
+
+async function _getRelatedArticles(
   articleId: number,
   categoryId: number,
   limit = 4
@@ -272,6 +291,12 @@ export async function getRelatedArticles(
     hits:     r.hits ?? 0,
   }))
 }
+
+export const getRelatedArticles = unstable_cache(
+  _getRelatedArticles,
+  ['related-articles'],
+  { revalidate: 3600, tags: ['articles'] }
+)
 
 export async function searchArticles(
   query: string,

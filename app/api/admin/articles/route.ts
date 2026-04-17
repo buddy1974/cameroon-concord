@@ -5,6 +5,7 @@ import { desc, eq, like, sql, and } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
 import { postArticleToSocial } from '@/server/lib/social'
+import { sanitizeArticleBody } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
   const result = await db.insert(articles).values({
     title:         body.title,
     slug:          body.slug,
-    body:          body.body,
+    body:          sanitizeArticleBody(body.body || ''),
     excerpt:       body.excerpt || null,
     categoryId:    body.categoryId,
     featuredImage: body.featuredImage || null,

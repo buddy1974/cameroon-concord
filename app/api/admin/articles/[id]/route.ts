@@ -4,6 +4,7 @@ import { articles, categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { postArticleToSocial } from '@/server/lib/social'
+import { sanitizeArticleBody } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +34,7 @@ export async function PUT(
   }
 
   const updateData = { ...body, updatedAt: new Date() };
+  if (updateData.body) updateData.body = sanitizeArticleBody(updateData.body)
   if (body.status === 'published') {
     updateData.publishedAt = updateData.publishedAt || new Date();
   }

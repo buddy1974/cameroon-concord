@@ -9,3 +9,25 @@ Allow: /
 
 Sitemap: https://www.cameroon-concord.com/sitemap.xml
 Sitemap: https://www.cameroon-concord.com/api/news-sitemap
+
+# Block AI training crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /

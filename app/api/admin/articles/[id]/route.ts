@@ -63,6 +63,11 @@ export async function PUT(
         featuredImage: body.featuredImage,
         category:      cat[0],
       }).catch(console.error)
+
+      const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${cat[0].slug}/${body.slug}`
+      fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=aa09538f68b64fe688308d20511485f0`, {
+        method: 'GET',
+      }).catch(() => {})
     }
   }
 

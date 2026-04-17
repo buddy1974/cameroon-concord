@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation'
 
 interface ArticleRow {
   id: number; title: string; slug: string; status: string
-  publishedAt: string | null; category: string; catSlug: string
+  publishedAt: string | null; category: string; catSlug: string; hits?: number
 }
 
 export default function ArticlesListPage() {
@@ -94,7 +94,7 @@ export default function ArticlesListPage() {
                     else setSelectedIds(new Set())
                   }} />
                 </th>
-                {['Title', 'Category', 'Status', 'Date', 'Actions'].map(h => (
+                {['Title', 'Category', 'Status', 'Date', 'Reads', 'Actions'].map(h => (
                   <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: '0.62rem', fontWeight: 700, color: '#444', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</th>
                 ))}
               </tr>
@@ -129,6 +129,9 @@ export default function ArticlesListPage() {
                   </td>
                   <td style={{ padding: '10px 16px', fontSize: '0.72rem', color: '#555', whiteSpace: 'nowrap' }}>
                     {a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : '—'}
+                  </td>
+                  <td style={{ padding: '10px 16px', fontSize: '0.72rem', color: '#555', whiteSpace: 'nowrap' }}>
+                    {(a.hits || 0).toLocaleString()}
                   </td>
                   <td style={{ padding: '10px 16px' }}>
                     <div style={{ display: 'flex', gap: '6px' }}>

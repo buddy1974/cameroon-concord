@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
-import { articles, categories, authors } from '@/lib/db/schema'
+import { articles, categories, authors, articleHits } from '@/lib/db/schema'
 import { desc, eq, like, sql, and } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
@@ -35,10 +35,12 @@ export async function GET(req: NextRequest) {
       publishedAt: articles.publishedAt,
       category:    categories.name,
       catSlug:     categories.slug,
+      hits:        articleHits.hits,
     })
     .from(articles)
     .innerJoin(categories, eq(articles.categoryId, categories.id))
     .leftJoin(authors, eq(articles.authorId, authors.id))
+    .leftJoin(articleHits, eq(articleHits.articleId, articles.id))
     .where(where)
     .orderBy(desc(articles.publishedAt))
     .limit(limit)

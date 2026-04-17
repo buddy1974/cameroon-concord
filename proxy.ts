@@ -14,6 +14,9 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith('/fonts/') ||
     pathname === '/maintenance' ||
     pathname === '/favicon.ico' ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/api/news-sitemap' ||
+    pathname === '/robots.txt' ||
     pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|mp4|pdf)$/) !== null
   ) {
     return NextResponse.next()

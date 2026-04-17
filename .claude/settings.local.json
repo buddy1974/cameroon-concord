@@ -20,7 +20,9 @@
       "Bash(C:/Program Files/MySQL/MySQL Server 9.6/bin/mysql.exe:*)",
       "Bash(python3 -c ':*)",
       "Bash(dir:*)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Bash(mysql *)",
+      "Bash(echo \"Rows affected: $?\")"
     ]
   }
 }

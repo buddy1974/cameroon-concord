@@ -7,10 +7,6 @@ Disallow: /maintenance
 User-agent: Googlebot-News
 Allow: /
 
-Sitemap: https://www.cameroon-concord.com/sitemap.xml
-Sitemap: https://www.cameroon-concord.com/api/news-sitemap
-
-# Block AI training crawlers
 User-agent: GPTBot
 Disallow: /
 
@@ -31,3 +27,6 @@ Disallow: /
 
 User-agent: Amazonbot
 Disallow: /
+
+Sitemap: https://www.cameroon-concord.com/sitemap.xml
+Sitemap: https://www.cameroon-concord.com/api/news-sitemap

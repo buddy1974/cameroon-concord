@@ -23,7 +23,9 @@
       "Bash(npx vercel:*)",
       "Bash(mysql *)",
       "Bash(echo \"Rows affected: $?\")",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(sed -n '85,100p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\article\\\\CommentSection\\\\index.tsx\")",
+      "Bash(sed -n '136,142p' \"C:\\\\Users\\\\loneb\\\\Documents\\\\ai-software-dev\\\\projects\\\\cameroon.concord\\\\components\\\\article\\\\CommentSection\\\\index.tsx\")"
     ]
   }
 }

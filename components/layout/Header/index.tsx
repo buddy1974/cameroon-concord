@@ -28,10 +28,10 @@ export function Header() {
             <Image src="/logo.png" alt="Cameroon Concord" width={200} height={36} priority className="h-9 w-auto" />
           </Link>
           <div className="flex items-center gap-1">
-            <Link href="/search" className="w-9 h-9 grid place-items-center text-[#555] hover:text-white hover:bg-[#181818] rounded-lg transition-colors">
+            <Link href="/search" aria-label="Search" className="w-9 h-9 grid place-items-center text-[#555] hover:text-white hover:bg-[#181818] rounded-lg transition-colors">
               <Search size={16} strokeWidth={2.5} />
             </Link>
-            <button onClick={() => setOpen(!open)} className="lg:hidden w-9 h-9 grid place-items-center text-[#555] hover:text-white hover:bg-[#181818] rounded-lg transition-colors">
+            <button onClick={() => setOpen(!open)} aria-label={open ? 'Close menu' : 'Open menu'} className="lg:hidden w-9 h-9 grid place-items-center text-[#555] hover:text-white hover:bg-[#181818] rounded-lg transition-colors">
               {open ? <X size={17} /> : <Menu size={17} />}
             </button>
           </div>

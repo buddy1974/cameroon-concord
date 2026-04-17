@@ -132,15 +132,24 @@ export default async function ArticlePage({ params }: Props) {
               if (parts.length <= 3) {
                 return <div dangerouslySetInnerHTML={{ __html: article.body }} />
               }
-              const before = parts.slice(0, 3).join('</p>') + '</p>'
-              const after  = parts.slice(3).join('</p>')
+              const first  = parts.slice(0, 3).join('</p>') + '</p>'
+              const middle = parts.slice(3, 6).join('</p>') + (parts.length > 6 ? '</p>' : '')
+              const last   = parts.length > 6 ? parts.slice(6).join('</p>') : ''
               return (
                 <>
-                  <div dangerouslySetInnerHTML={{ __html: before }} />
+                  <div dangerouslySetInnerHTML={{ __html: first }} />
                   <div className="my-6 min-h-[250px]">
                     <AdUnit slot="5471720771" format="auto" />
                   </div>
-                  <div dangerouslySetInnerHTML={{ __html: after }} />
+                  <div dangerouslySetInnerHTML={{ __html: middle }} />
+                  {last && (
+                    <>
+                      <div className="my-6 min-h-[250px]">
+                        <AdUnit slot="5520370976" format="rectangle" />
+                      </div>
+                      <div dangerouslySetInnerHTML={{ __html: last }} />
+                    </>
+                  )}
                 </>
               )
             })() : (

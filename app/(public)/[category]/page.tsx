@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArticleCard } from '@/components/article/ArticleCard'
+import AdUnit from '@/components/ads/AdUnit'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { getCategoryBySlug, getArticlesByCategory } from '@/lib/db/queries'
 import { buildCategoryMetadata } from '@/lib/seo/metadata'
@@ -72,8 +73,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             gap: '24px',
             marginBottom: '40px'
           }}>
-            {articles.map(a => (
-              <ArticleCard key={a.id} article={a} />
+            {articles.map((a, i) => (
+              <>
+                <ArticleCard key={a.id} article={a} />
+                {i === 5 && (
+                  <div key="cat-ad" className="col-span-full my-4">
+                    <AdUnit slot="9844142257" format="horizontal" />
+                  </div>
+                )}
+              </>
             ))}
           </div>
         ) : (

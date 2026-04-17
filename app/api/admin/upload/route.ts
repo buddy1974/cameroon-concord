@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
+import sharp from 'sharp';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -22,15 +23,21 @@ export async function POST(req: NextRequest) {
   const file = form.get('file') as File;
   if (!file) return NextResponse.json({ error: 'No file' }, { status: 400 });
 
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-  const key = `uploads/${randomUUID()}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const rawBuffer = Buffer.from(await file.arrayBuffer());
+
+  // Convert to WebP, resize to max 1200px wide, quality 82
+  const webpBuffer = await sharp(rawBuffer)
+    .resize({ width: 1200, withoutEnlargement: true })
+    .webp({ quality: 82 })
+    .toBuffer();
+
+  const key = `uploads/${randomUUID()}.webp`;
 
   await s3.send(new PutObjectCommand({
     Bucket: process.env.R2_BUCKET!,
     Key: key,
-    Body: buffer,
-    ContentType: file.type,
+    Body: webpBuffer,
+    ContentType: 'image/webp',
     CacheControl: 'public, max-age=31536000',
   }));
 

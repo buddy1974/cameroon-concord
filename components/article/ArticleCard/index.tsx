@@ -171,7 +171,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
   if (variant === 'featured') {
     return (
       <Link href={href} className="relative block rounded-xl overflow-hidden group card img-zoom h-full" style={{ background: '#101010' }}>
-        {src && <img src={src} alt={article.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />}
+        {src && <img src={src} alt={article.title} width={640} height={360} className="absolute inset-0 w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <span className="cat-pill mb-2 block w-fit">{article.category.name}</span>
@@ -193,7 +193,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
       <Link href={href} className="flex items-start gap-3 group py-2">
         {src && (
           <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-[#181818] img-zoom">
-            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
+            <img src={src} alt={article.title} width={640} height={360} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -215,7 +215,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
       <Link href={href} className="flex gap-3 group card py-3 border-b border-[#1E1E1E] last:border-0">
         {src && (
           <div className="w-24 h-[66px] flex-shrink-0 rounded-lg overflow-hidden bg-[#181818] img-zoom">
-            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
+            <img src={src} alt={article.title} width={640} height={360} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -247,7 +247,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
         </div>
         {src && (
           <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-[#181818] img-zoom">
-            <img src={src} alt={article.title} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
+            <img src={src} alt={article.title} width={640} height={360} className="w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.parentElement!.style.display = 'none' }} />
           </div>
         )}
       </Link>
@@ -289,6 +289,8 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
             <img
               src={src}
               alt={article.title}
+              width={640}
+              height={360}
               loading="lazy"
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
               onError={e => { e.currentTarget.style.display = 'none' }}

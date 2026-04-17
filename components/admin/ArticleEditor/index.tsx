@@ -17,6 +17,17 @@ function slugify(text: string): string {
     .trim()
 }
 
+const CC_AUTHORS = [
+  { id: 3,  name: 'Nkemdirim Tabi' },
+  { id: 4,  name: 'Ebot Ayuk' },
+  { id: 5,  name: 'Cynthia Mbah' },
+  { id: 6,  name: 'Fidelis Ngong' },
+  { id: 7,  name: 'Solange Achu' },
+  { id: 8,  name: 'Emeka Tambe' },
+  { id: 9,  name: 'Bridget Forjindam' },
+  { id: 10, name: 'Ndong Eyong' },
+]
+
 export function ArticleEditor({ categories, article }: Props) {
   const router = useRouter()
   const isEdit = !!article
@@ -59,6 +70,14 @@ export function ArticleEditor({ categories, article }: Props) {
       localStorage.removeItem('quick_publish_draft')
     } catch { /* ignore malformed draft */ }
   }, [isEdit])
+
+  useEffect(() => {
+    if (!authorId) {
+      const random = CC_AUTHORS[Math.floor(Math.random() * CC_AUTHORS.length)]
+      setAuthorId(random.id)
+      setAuthorName(random.name)
+    }
+  }, [])
 
   const handleTitleChange = useCallback((val: string) => {
     setTitle(val)
@@ -298,6 +317,26 @@ if (!body.trim())  { setMsg('Body is required'); return }
             >
               {filteredCats.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Author */}
+          <div style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', padding: '16px' }}>
+            <label style={labelStyle}>Author *</label>
+            <select
+              value={authorId ?? ''}
+              onChange={e => {
+                const id = Number(e.target.value)
+                const found = CC_AUTHORS.find(a => a.id === id)
+                setAuthorId(id)
+                setAuthorName(found?.name ?? '')
+              }}
+              style={{ ...inputStyle, cursor: 'pointer' }}
+            >
+              <option value="">— Select author —</option>
+              {CC_AUTHORS.map(a => (
+                <option key={a.id} value={a.id}>{a.name}</option>
               ))}
             </select>
           </div>

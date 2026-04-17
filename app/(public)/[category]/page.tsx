@@ -35,9 +35,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { articles, total } = await getArticlesByCategory(slug, page, PER_PAGE)
   const totalPages = Math.ceil(total / PER_PAGE)
 
-  // Diagnostic — visible in Vercel function logs
-  console.log('[CategoryPage]', { slug, page, returned: articles.length, total, ids: articles.map(a => a.id) })
-
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home',        url: SITE_URL },
     { name: category.name, url: `${SITE_URL}/${slug}` },

@@ -25,8 +25,6 @@ export async function PUT(
   const { id }  = await params
   const articleId = parseInt(id)
   const body = await req.json() as Partial<typeof articles.$inferInsert>
-  console.log('PUBLISH DB WRITE', { id, status: body.status, categoryId: body.categoryId })
-
   const validCats = await db.select({ id: categories.id }).from(categories);
   const validCatIds = validCats.map(c => c.id);
   if (body.categoryId && !validCatIds.includes(Number(body.categoryId))) {
@@ -50,7 +48,6 @@ export async function PUT(
     .where(eq(articles.id, articleId))
 
   // Fire-and-forget social post only on first-time publish transition
-  console.log('SOCIAL TRIGGER CHECK', { status: body.status, title: !!body.title, slug: !!body.slug, categoryId: body.categoryId })
   if (body.status === 'published' && !wasAlreadyPublished && body.title && body.slug && body.categoryId) {
     const cat = await db.select({ slug: categories.slug, name: categories.name })
       .from(categories).where(eq(categories.id, body.categoryId)).limit(1)

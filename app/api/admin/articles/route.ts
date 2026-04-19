@@ -6,6 +6,7 @@ import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
 import { postArticleToSocial } from '@/server/lib/social'
 import { sanitizeArticleBody } from '@/lib/sanitize'
+import { revalidateTag } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -112,6 +113,8 @@ export async function POST(req: NextRequest) {
   }).$returningId()
 
   const newId = result[0].id
+
+  revalidateTag('articles', {})
 
   // Fire-and-forget social post for published articles
   if (body.status === 'published') {

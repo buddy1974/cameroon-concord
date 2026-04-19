@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { articles, categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { postArticleToSocial } from '@/server/lib/social'
 import { sanitizeArticleBody } from '@/lib/sanitize'
 
@@ -47,6 +47,8 @@ export async function PUT(
     .set(updateData)
     .where(eq(articles.id, articleId))
 
+  revalidateTag('articles', {})
+
   // Fire-and-forget social post only on first-time publish transition
   if (body.status === 'published' && !wasAlreadyPublished && body.title && body.slug && body.categoryId) {
     const cat = await db.select({ slug: categories.slug, name: categories.name })
@@ -81,6 +83,8 @@ export async function PUT(
       fetch(`https://graph.facebook.com/?id=${encodeURIComponent(articleUrl)}&scrape=true`, {
         method: 'POST'
       }).catch(() => {});
+      revalidatePath(`/${catRes[0].slug}/${body.slug}`)
+      revalidatePath(`/${catRes[0].slug}`)
     }
   }
 

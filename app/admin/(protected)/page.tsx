@@ -26,9 +26,10 @@ export default async function AdminDashboard() {
     .limit(10)
 
   const stats = [
-    { label: 'Total Articles', value: Number(totalArticles.count).toLocaleString(), color: '#C8102E' },
-    { label: 'Published',      value: Number(published.count).toLocaleString(),     color: '#007A3D' },
-    { label: 'Drafts',         value: Number(drafts.count).toLocaleString(),        color: '#F5A623' },
+    { label: 'Total Articles', value: Number(totalArticles.count).toLocaleString(), color: '#F5A623' },
+    { label: 'Published',      value: Number(published.count).toLocaleString(),     color: '#22C55E' },
+    { label: 'Drafts',         value: Number(drafts.count).toLocaleString(),        color: '#A855F7' },
+    { label: 'AI Generated',   value: '—',                                          color: '#3B82F6' },
   ]
 
   let pwaStats = { click: 0, accepted: 0, installed: 0 }
@@ -74,6 +75,15 @@ export default async function AdminDashboard() {
     .groupBy(categories.id, categories.name, categories.slug)
     .orderBy(desc(sql`SUM(${articleHits.hits})`))
 
+  const sectionHeading: React.CSSProperties = {
+    color: '#F5A623',
+    fontSize: '0.85rem',
+    fontWeight: 700,
+    marginBottom: '1rem',
+    borderLeft: '3px solid #F5A623',
+    paddingLeft: '10px',
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
@@ -90,28 +100,40 @@ export default async function AdminDashboard() {
         </Link>
       </div>
 
-      {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
+      {/* Stats row — 4 cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '32px' }}>
         {stats.map(s => (
-          <div key={s.label} style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: '0.72rem', color: '#444', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
+          <div key={s.label} style={{
+            background: '#0F0F0F',
+            border: '1px solid #1A1A1A',
+            borderTop: `3px solid ${s.color}`,
+            borderRadius: '12px',
+            padding: '20px',
+          }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: '0.72rem', color: '#555', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* PWA Install Stats */}
       <div style={{ marginBottom: '32px' }}>
-        <div style={{ fontSize: '0.72rem', color: '#444', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>PWA Install Funnel</div>
+        <h2 style={sectionHeading}>PWA Install Funnel</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
           {[
-            { label: 'Banner Clicks',  value: pwaStats.click,    color: '#4A90E2' },
-            { label: 'User Accepted',  value: pwaStats.accepted,  color: '#007A3D' },
+            { label: 'Banner Clicks',  value: pwaStats.click,     color: '#3B82F6' },
+            { label: 'User Accepted',  value: pwaStats.accepted,  color: '#22C55E' },
             { label: 'App Installed',  value: pwaStats.installed, color: '#C8102E' },
           ].map(s => (
-            <div key={s.label} style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', padding: '20px' }}>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color }}>{s.value.toLocaleString()}</div>
-              <div style={{ fontSize: '0.72rem', color: '#444', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
+            <div key={s.label} style={{
+              background: '#0F0F0F',
+              border: '1px solid #1A1A1A',
+              borderTop: `3px solid ${s.color}`,
+              borderRadius: '12px',
+              padding: '20px',
+            }}>
+              <div style={{ fontSize: '2.5rem', fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.value.toLocaleString()}</div>
+              <div style={{ fontSize: '0.72rem', color: '#555', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -119,23 +141,23 @@ export default async function AdminDashboard() {
 
       {/* Top Articles by Hits */}
       <div style={{ marginTop: '2rem' }}>
-        <h2 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>Top Articles by Hits</h2>
+        <h2 style={sectionHeading}>Top Articles by Hits</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #333' }}>
-              <th style={{ color: '#999', textAlign: 'left', padding: '8px', fontSize: '0.75rem' }}>TITLE</th>
-              <th style={{ color: '#999', textAlign: 'right', padding: '8px', fontSize: '0.75rem' }}>HITS</th>
+              <th style={{ color: '#666', textAlign: 'left', padding: '8px', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Title</th>
+              <th style={{ color: '#666', textAlign: 'right', padding: '8px', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Hits</th>
             </tr>
           </thead>
           <tbody>
             {topArticles.map(a => (
               <tr key={a.id} style={{ borderBottom: '1px solid #1a1a1a' }}>
-                <td style={{ padding: '8px', fontSize: '0.8rem' }}>
-                  <a href={`/${a.catSlug}/${a.slug}`} target="_blank" style={{ color: '#C8102E', textDecoration: 'none' }}>
+                <td style={{ padding: '10px 8px', fontSize: '0.8rem' }}>
+                  <a href={`/${a.catSlug}/${a.slug}`} target="_blank" style={{ color: '#EEE', textDecoration: 'none' }}>
                     {a.title?.slice(0, 80)}
                   </a>
                 </td>
-                <td style={{ padding: '8px', fontSize: '0.8rem', color: '#fff', textAlign: 'right' }}>
+                <td style={{ padding: '10px 8px', fontSize: '0.8rem', color: '#F5A623', textAlign: 'right', fontWeight: 700 }}>
                   {(a.hits || 0).toLocaleString()}
                 </td>
               </tr>
@@ -146,21 +168,26 @@ export default async function AdminDashboard() {
 
       {/* Category Performance */}
       <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-        <h2 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>Category Performance</h2>
+        <h2 style={sectionHeading}>Category Performance</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #333' }}>
-              <th style={{ color: '#999', textAlign: 'left', padding: '8px', fontSize: '0.75rem' }}>CATEGORY</th>
-              <th style={{ color: '#999', textAlign: 'right', padding: '8px', fontSize: '0.75rem' }}>ARTICLES</th>
-              <th style={{ color: '#999', textAlign: 'right', padding: '8px', fontSize: '0.75rem' }}>TOTAL HITS</th>
+              <th style={{ color: '#666', textAlign: 'left', padding: '8px', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Category</th>
+              <th style={{ color: '#666', textAlign: 'right', padding: '8px', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Articles</th>
+              <th style={{ color: '#666', textAlign: 'right', padding: '8px', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Total Hits</th>
             </tr>
           </thead>
           <tbody>
             {categoryStats.map(c => (
               <tr key={c.slug} style={{ borderBottom: '1px solid #1a1a1a' }}>
-                <td style={{ padding: '8px', fontSize: '0.8rem', color: '#fff' }}>{c.category}</td>
-                <td style={{ padding: '8px', fontSize: '0.8rem', color: '#999', textAlign: 'right' }}>{Number(c.articleCount).toLocaleString()}</td>
-                <td style={{ padding: '8px', fontSize: '0.8rem', color: '#C8102E', textAlign: 'right', fontWeight: 700 }}>{Number(c.totalHits).toLocaleString()}</td>
+                <td style={{ padding: '10px 8px', fontSize: '0.8rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#F5A623', flexShrink: 0 }} />
+                    <span style={{ color: '#EEE' }}>{c.category}</span>
+                  </div>
+                </td>
+                <td style={{ padding: '10px 8px', fontSize: '0.8rem', color: '#666', textAlign: 'right' }}>{Number(c.articleCount).toLocaleString()}</td>
+                <td style={{ padding: '10px 8px', fontSize: '0.8rem', color: '#F5A623', textAlign: 'right', fontWeight: 700 }}>{Number(c.totalHits).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -170,7 +197,7 @@ export default async function AdminDashboard() {
       {/* Recent articles table */}
       <div style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #1A1A1A', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#EEE', margin: 0 }}>Recent Articles</h2>
+          <h2 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F5A623', margin: 0, borderLeft: '3px solid #F5A623', paddingLeft: '10px' }}>Recent Articles</h2>
           <Link href="/admin/articles" style={{ fontSize: '0.72rem', color: '#C8102E', textDecoration: 'none' }}>View all →</Link>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -181,14 +208,14 @@ export default async function AdminDashboard() {
                   <Link href={`/admin/articles/${a.id}/edit`} style={{ color: '#EEE', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 500 }}>
                     {a.title}
                   </Link>
-                  <div style={{ fontSize: '0.65rem', color: '#444', marginTop: '2px' }}>{a.catName}</div>
+                  <div style={{ fontSize: '0.65rem', color: '#555', marginTop: '2px' }}>{a.catName}</div>
                 </td>
                 <td style={{ padding: '12px 20px', textAlign: 'right' }}>
                   <Link href={`/admin/articles/${a.id}/edit`} style={{ textDecoration: 'none' }}>
                     <span style={{
                       fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '20px',
-                      background: a.status === 'published' ? 'rgba(0,122,61,0.12)' : 'rgba(245,166,35,0.12)',
-                      color: a.status === 'published' ? '#007A3D' : '#F5A623',
+                      background: a.status === 'published' ? 'rgba(34,197,94,0.12)' : 'rgba(168,85,247,0.12)',
+                      color: a.status === 'published' ? '#22C55E' : '#A855F7',
                       textTransform: 'uppercase', letterSpacing: '0.08em',
                     }}>
                       {a.status}

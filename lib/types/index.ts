@@ -31,4 +31,5 @@ export type ArticleWithRelations = Article & {
   author:   Author | null
   tags:     Tag[]
   hits:     number
+  summary?: string[] | null
 }

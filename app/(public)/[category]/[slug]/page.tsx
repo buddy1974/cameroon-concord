@@ -114,6 +114,21 @@ export default async function ArticlePage({ params }: Props) {
             </div>
           )}
 
+          {/* Quick Summary bullets */}
+          {article.summary && Array.isArray(article.summary) && article.summary.length > 0 && (
+            <div style={{ background: '#0F0F0F', border: '1px solid #C8102E', borderLeft: '4px solid #C8102E', borderRadius: '8px', padding: '16px 20px', margin: '20px 0' }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#C8102E', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '10px' }}>Quick Summary</div>
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                {article.summary.map((point: string, i: number) => (
+                  <li key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px', fontSize: '0.85rem', color: '#ccc', lineHeight: 1.5 }}>
+                    <span style={{ color: '#C8102E', fontWeight: 700, flexShrink: 0 }}>•</span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Featured image */}
           {article.featuredImage && (
             <div className="mb-6">

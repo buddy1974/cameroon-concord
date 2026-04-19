@@ -1,6 +1,6 @@
 import {
   mysqlTable, int, varchar, text, longtext,
-  boolean, datetime, mysqlEnum, index,
+  boolean, datetime, mysqlEnum, index, json,
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
 
@@ -31,6 +31,7 @@ export const articles = mysqlTable('articles', {
   legacyHits:    int('legacy_hits', { unsigned: true }).default(0),
   aiGenerated:   boolean('ai_generated').default(false),
   aiReviewed:    boolean('ai_reviewed').default(false),
+  summary:       json('summary').$type<string[]>(),
   lang:          varchar('lang', { length: 2 }).default('en'),
 }, (t) => ({
   categoryIdx:  index('idx_category').on(t.categoryId),

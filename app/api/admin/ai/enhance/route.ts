@@ -58,22 +58,23 @@ Editorial tone guidelines:
 - Never frame Biya or CPDM officials sympathetically or present propaganda as neutral fact
 - Maintain journalistic integrity — critical does not mean inaccurate; every claim must be supportable
 
-Given the article title and raw body below, return a JSON object with these five fields:
+Given the article title and raw body below, return a JSON object with these six fields:
 - title: enhanced English headline, max 80 characters, punchy and journalistic. If the original title is in French or another language, translate it to English.
 - meta_title: SEO title, max 60 characters
 - meta_desc: SEO description, max 155 characters
 - excerpt: compelling 1-2 sentence summary, max 200 characters
 - enhanced_body: the full article rewritten as publication-ready HTML. Use only <p>, <h2>, <h3>, <ul>, <li> tags. No inline styles. Minimum 4 paragraphs. Maintain the editorial tone above. Expand and develop the content using the source material.
+- summary: array of exactly 3 bullet point strings, each max 15 words, sharply summarising the key facts of the article. No bullet symbols — plain strings only.
 
 Title: ${title}
 Body: ${body}
 
 Return ONLY valid JSON. No markdown fences. No explanation.
-{"title":"...","meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"..."}`
+{"title":"...","meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"...","summary":["...","...","..."]}`
 
   const message = await claude.messages.create({
     model:      'claude-sonnet-4-6',
-    max_tokens: type === 'quick' ? 4000 : 2000,
+    max_tokens: type === 'quick' ? 4000 : type === 'full' ? 2500 : 2000,
     messages:   [{ role: 'user', content: prompt }],
   })
 

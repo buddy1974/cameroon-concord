@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Search, Menu, X } from 'lucide-react'
 import { NAV_CATEGORIES } from '@/lib/constants'
+import { ThemeToggle } from '@/components/common/ThemeToggle'
 
 export function Header() {
   const [open, setOpen] = useState(false)
@@ -31,6 +32,7 @@ export function Header() {
             <Link href="/search" aria-label="Search" className="w-9 h-9 grid place-items-center text-[#555] hover:text-white hover:bg-[#181818] rounded-lg transition-colors">
               <Search size={16} strokeWidth={2.5} />
             </Link>
+            <ThemeToggle />
             <button onClick={() => setOpen(!open)} aria-label={open ? 'Close menu' : 'Open menu'} className="lg:hidden w-9 h-9 grid place-items-center text-[#555] hover:text-white hover:bg-[#181818] rounded-lg transition-colors">
               {open ? <X size={17} /> : <Menu size={17} />}
             </button>

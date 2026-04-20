@@ -13,6 +13,24 @@
   --font-sans: var(--font-geist-sans), 'Inter', system-ui, sans-serif;
 }
 
+[data-theme="light"] {
+  --color-bg:         #FFFFFF;
+  --color-surface:    #F5F5F5;
+  --color-border:     #E0E0E0;
+  --color-text:       #111111;
+  --color-text-muted: #666666;
+  --color-primary:    #C8102E;
+}
+
+[data-theme="light"] body {
+  background: #FFFFFF;
+  color: #111111;
+}
+
+[data-theme="light"] .article-body {
+  color: #1A1A1A;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; overflow-x: hidden; }
 

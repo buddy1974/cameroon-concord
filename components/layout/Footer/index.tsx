@@ -31,12 +31,13 @@ export function Footer() {
     {
       title: 'Company',
       links: [
-        { href: '/about',      label: 'About Us' },
-        { href: '/contact',    label: 'Contact' },
-        { href: '/advertise',  label: 'Advertise' },
-        { href: '/privacy',    label: 'Privacy Policy' },
-        { href: '/rss',        label: 'RSS Feed' },
-        { href: '/search',     label: 'Search' },
+        { href: '/about',             label: 'About Us' },
+        { href: '/contact',           label: 'Contact' },
+        { href: '/advertise',         label: 'Advertise' },
+        { href: '/privacy',           label: 'Privacy Policy' },
+        { href: '/editorial-policy',  label: 'Editorial Policy' },
+        { href: '/rss',               label: 'RSS Feed' },
+        { href: '/search',            label: 'Search' },
       ],
     },
   ]

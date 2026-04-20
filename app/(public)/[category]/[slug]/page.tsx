@@ -94,6 +94,11 @@ export default async function ArticlePage({ params }: Props) {
               <Calendar size={11} />
               {formatDate(article.publishedAt!)}
             </span>
+            {article.updatedAt && new Date(article.updatedAt).toDateString() !== new Date(article.publishedAt!).toDateString() && (
+              <span style={{ fontSize: '0.72rem', color: '#555', marginLeft: '8px' }}>
+                Updated: {new Date(article.updatedAt).toLocaleDateString()}
+              </span>
+            )}
             <span className="flex items-center gap-1">
               <Clock size={11} />
               {minutes} min read

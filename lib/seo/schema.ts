@@ -6,25 +6,37 @@ import type { ArticleWithRelations } from '@/lib/types'
 import { absoluteUrl } from '@/lib/utils'
 
 export function buildNewsArticleSchema(article: ArticleWithRelations): object {
-  const url   = absoluteUrl(`/${article.category.slug}/${article.slug}`)
-  const image = article.featuredImage || `${SITE_URL}/icons/og-default.jpg`
+  const url = absoluteUrl(`/${article.category.slug}/${article.slug}`)
+
+  const image = article.featuredImage
+    ? { '@type': 'ImageObject', 'url': article.featuredImage, 'width': 1200, 'height': 675 }
+    : `${SITE_URL}/icons/og-default.jpg`
+
+  const author = article.author
+    ? {
+        '@type': 'Person',
+        'name':  article.author.name,
+        'url':   `${SITE_URL}/author/${article.author.slug}`,
+      }
+    : {
+        '@type': 'Organization',
+        'name':  SITE_NAME,
+      }
 
   return {
-    '@context':       'https://schema.org',
-    '@type':          'NewsArticle',
-    'headline':       article.title,
-    'description':    article.excerpt || '',
-    'url':            url,
-    'datePublished':  article.publishedAt,
-    'dateModified':   article.updatedAt || article.publishedAt,
-    'articleSection': article.category.name,
-    'keywords':       `${article.category.name}, Cameroon, Africa, news`,
-    'inLanguage':     'en',
-    'image': [image],
-    'author': {
-      '@type': 'Organization',
-      'name':  SITE_NAME,
-    },
+    '@context':           'https://schema.org',
+    '@type':              'NewsArticle',
+    'headline':           article.title,
+    'description':        article.excerpt || '',
+    'url':                url,
+    'datePublished':      article.publishedAt,
+    'dateModified':       article.updatedAt || article.publishedAt,
+    'articleSection':     article.category.name,
+    'keywords':           `${article.category.name}, Cameroon, Africa, news`,
+    'inLanguage':         'en',
+    'isAccessibleForFree': true,
+    'image':              image,
+    'author':             author,
     'publisher': {
       '@type': 'Organization',
       'name':  SITE_NAME,

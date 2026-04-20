@@ -43,6 +43,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <>
       <JsonLd data={breadcrumb} />
+      {page > 1 && <link rel="prev" href={`${SITE_URL}/${slug}${page === 2 ? '' : `?page=${page - 1}`}`} />}
+      {page < totalPages && <link rel="next" href={`${SITE_URL}/${slug}?page=${page + 1}`} />}
 
       {/* Global container provides max-width — just add vertical padding */}
       <div style={{ paddingTop: '32px', paddingBottom: '48px' }}>

@@ -1,4 +1,4 @@
-export const revalidate = 300
+export const revalidate = 60
 
 import { db } from '@/lib/db/client'
 import { articles, categories } from '@/lib/db/schema'
@@ -29,7 +29,7 @@ export async function GET() {
       .limit(1000)
   } catch {
     return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>', {
-      headers: { 'Content-Type': 'application/xml' },
+      headers: { 'Content-Type': 'application/xml; charset=utf-8' },
     })
   }
 
@@ -44,7 +44,7 @@ export async function GET() {
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${pubDate}</news:publication_date>
-      <news:title><![CDATA[${row.title}]]></news:title>
+      <news:title><![CDATA[${row.title.normalize('NFC')}]]></news:title>
     </news:news>
   </url>`
   }).join('\n')
@@ -57,8 +57,8 @@ ${urls}
 
   return new Response(xml, {
     headers: {
-      'Content-Type': 'application/xml',
-      'Cache-Control': 'public, s-maxage=300',
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, s-maxage=60',
     },
   })
 }

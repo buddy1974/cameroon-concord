@@ -37,6 +37,7 @@ export function Footer() {
         { href: '/advertise',         label: 'Advertise' },
         { href: '/privacy',           label: 'Privacy Policy' },
         { href: '/editorial-policy',  label: 'Editorial Policy' },
+        { href: '/accountability',    label: 'Accountability Tracker' },
         { href: '/rss',               label: 'RSS Feed' },
         { href: '/search',            label: 'Search' },
       ],

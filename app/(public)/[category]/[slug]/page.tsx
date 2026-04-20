@@ -12,7 +12,8 @@ import SubscribeForm        from '@/components/newsletter/SubscribeForm'
 import ShareButtons          from '@/components/article/ShareButtons'
 import { ReactionBar }       from '@/components/article/ReactionBar'
 import { FollowUpStories }   from '@/components/article/FollowUpStories'
-import { AudioPlayer }       from '@/components/article/AudioPlayer'
+import { AudioPlayer }          from '@/components/article/AudioPlayer'
+import { PerspectiveEngine }    from '@/components/article/PerspectiveEngine'
 import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
@@ -141,6 +142,9 @@ export default async function ArticlePage({ params }: Props) {
 
           {/* Audio player */}
           <AudioPlayer text={article.body} title={article.title} />
+
+          {/* Perspective Engine */}
+          <PerspectiveEngine articleId={article.id} categorySlug={article.category.slug} />
 
           {/* Featured image */}
           {article.featuredImage && (

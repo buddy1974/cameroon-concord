@@ -32,6 +32,7 @@ export const articles = mysqlTable('articles', {
   aiGenerated:   boolean('ai_generated').default(false),
   aiReviewed:    boolean('ai_reviewed').default(false),
   summary:       json('summary').$type<string[]>(),
+  perspectives:  json('perspectives').$type<{ regime: string; opposition: string; independent: string }>(),
   lang:          varchar('lang', { length: 2 }).default('en'),
 }, (t) => ({
   categoryIdx:  index('idx_category').on(t.categoryId),

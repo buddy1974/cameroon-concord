@@ -31,6 +31,7 @@ export function Footer() {
     {
       title: 'Company',
       links: [
+        { href: '/explains',          label: 'CC Explains' },
         { href: '/about',             label: 'About Us' },
         { href: '/contact',           label: 'Contact' },
         { href: '/advertise',         label: 'Advertise' },

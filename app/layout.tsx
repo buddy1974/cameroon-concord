@@ -6,6 +6,7 @@ import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
 import AdSenseLoader from '@/components/ads/AdSenseLoader'
+import { ReadingStreak } from '@/components/common/ReadingStreak'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ServiceWorkerRegistration />
         <SpeedInsights />
         <Analytics />
+        <ReadingStreak />
       </body>
     </html>
   )

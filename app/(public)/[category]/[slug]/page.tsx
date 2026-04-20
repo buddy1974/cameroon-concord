@@ -11,6 +11,7 @@ import CommentsSection      from '@/components/article/CommentSection'
 import SubscribeForm        from '@/components/newsletter/SubscribeForm'
 import ShareButtons          from '@/components/article/ShareButtons'
 import { ReactionBar }       from '@/components/article/ReactionBar'
+import { FollowUpStories }   from '@/components/article/FollowUpStories'
 import { AudioPlayer }       from '@/components/article/AudioPlayer'
 import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
@@ -184,6 +185,9 @@ export default async function ArticlePage({ params }: Props) {
               <p className="text-[#666]">Content unavailable.</p>
             )}
           </div>
+
+          {/* Follow-up stories */}
+          <FollowUpStories articleId={article.id} />
 
           {/* Reaction bar */}
           <ReactionBar articleId={article.id} />

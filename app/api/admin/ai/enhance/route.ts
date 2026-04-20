@@ -58,23 +58,27 @@ Editorial tone guidelines:
 - Never frame Biya or CPDM officials sympathetically or present propaganda as neutral fact
 - Maintain journalistic integrity — critical does not mean inaccurate; every claim must be supportable
 
-Given the article title and raw body below, return a JSON object with these six fields:
+Given the article title and raw body below, return a JSON object with these ten fields:
 - title: enhanced English headline, max 80 characters, punchy and journalistic. If the original title is in French or another language, translate it to English.
 - meta_title: SEO title, max 60 characters
 - meta_desc: SEO description, max 155 characters
 - excerpt: compelling 1-2 sentence summary, max 200 characters
 - enhanced_body: the full article rewritten as publication-ready HTML. Use only <p>, <h2>, <h3>, <ul>, <li> tags. No inline styles. Minimum 4 paragraphs. Maintain the editorial tone above. Expand and develop the content using the source material.
 - summary: array of exactly 3 bullet point strings, each max 15 words, sharply summarising the key facts of the article. No bullet symbols — plain strings only.
+- tiktok_script: A 3-part TikTok/Reels script as a single string with sections marked: HOOK: (3 seconds, shocking opening line, no more than 10 words) | FACTS: (3 key facts, each one sentence, punchy) | CTA: (call to action, 8 words max, e.g. 'Follow CC for more Cameroon stories')
+- twitter_thread: A 5-tweet thread as a JSON array of 5 strings. Tweet 1: hook with no link. Tweets 2-4: one key fact each, under 240 chars. Tweet 5: opinion/CTA + [LINK]. Use CC's editorial voice — sharp, regime-critical where relevant.
+- whatsapp_message: A 3-sentence WhatsApp broadcast message. Sentence 1: the headline fact. Sentence 2: key detail. Sentence 3: 'Full story: [LINK]'. Bold key names using *asterisks*. Under 300 chars total.
+- facebook_post: A Facebook post in CC's voice. 2-3 sentences of context + emotional hook + a question to drive comments (e.g. 'What do you think?') + [LINK]. Under 400 chars.
 
 Title: ${title}
 Body: ${body}
 
 Return ONLY valid JSON. No markdown fences. No explanation.
-{"title":"...","meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"...","summary":["...","...","..."]}`
+{"title":"...","meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"...","summary":["...","...","..."],"tiktok_script":"HOOK: ... | FACTS: ... | CTA: ...","twitter_thread":["tweet1","tweet2","tweet3","tweet4","tweet5"],"whatsapp_message":"...","facebook_post":"..."}`
 
   const message = await claude.messages.create({
     model:      'claude-sonnet-4-6',
-    max_tokens: type === 'quick' ? 4000 : type === 'full' ? 2500 : 2000,
+    max_tokens: type === 'quick' ? 4000 : type === 'full' ? 4000 : 2000,
     messages:   [{ role: 'user', content: prompt }],
   })
 

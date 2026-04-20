@@ -48,6 +48,10 @@ export function ArticleEditor({ categories, article }: Props) {
   const [saving,    setSaving]    = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [msg,       setMsg]       = useState('')
+  const [tiktokScript,   setTiktokScript]   = useState('')
+  const [twitterThread,  setTwitterThread]  = useState<string[]>([])
+  const [whatsappMsg,    setWhatsappMsg]    = useState('')
+  const [fbPost,         setFbPost]         = useState('')
 
   // Pre-fill from Quick Publish "Review in Full Editor" flow
   useEffect(() => {
@@ -94,16 +98,25 @@ export function ArticleEditor({ categories, article }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ title, body, type: 'full' }),
       })
-      const data = await res.json() as { title?: string; meta_title?: string; meta_desc?: string; excerpt?: string; enhanced_body?: string; error?: string; author_id?: number; author_name?: string; author_avatar?: string }
+      const data = await res.json() as {
+        title?: string; meta_title?: string; meta_desc?: string; excerpt?: string
+        enhanced_body?: string; error?: string; author_id?: number; author_name?: string
+        author_avatar?: string; tiktok_script?: string; twitter_thread?: string[]
+        whatsapp_message?: string; facebook_post?: string
+      }
       if (data.title) {
         setTitle(data.title)
         setSlug(slugify(data.title))
       }
-      if (data.meta_title)    setMetaT(data.meta_title)
-      if (data.meta_desc)     setMetaD(data.meta_desc)
-      if (data.excerpt)       setExcerpt(data.excerpt)
-      if (data.enhanced_body) setBody(data.enhanced_body)
-      if (data.author_id)     { setAuthorId(data.author_id); setAuthorName(data.author_name ?? '') }
+      if (data.meta_title)       setMetaT(data.meta_title)
+      if (data.meta_desc)        setMetaD(data.meta_desc)
+      if (data.excerpt)          setExcerpt(data.excerpt)
+      if (data.enhanced_body)    setBody(data.enhanced_body)
+      if (data.author_id)        { setAuthorId(data.author_id); setAuthorName(data.author_name ?? '') }
+      if (data.tiktok_script)    setTiktokScript(data.tiktok_script)
+      if (data.twitter_thread)   setTwitterThread(Array.isArray(data.twitter_thread) ? data.twitter_thread : [])
+      if (data.whatsapp_message) setWhatsappMsg(data.whatsapp_message)
+      if (data.facebook_post)    setFbPost(data.facebook_post)
       setMsg(data.error ? '✗ AI error' : '✓ AI enhanced')
     } catch {
       setMsg('✗ AI request failed')
@@ -417,6 +430,51 @@ if (!body.trim())  { setMsg('Body is required'); return }
               {metaD.length}/155
             </div>
           </div>
+
+          {/* Social Assets */}
+          {(tiktokScript || whatsappMsg || fbPost || twitterThread.length > 0) && (
+            <div style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', padding: '16px' }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#F5A623', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '12px' }}>
+                📱 Social Assets
+              </div>
+
+              {tiktokScript && (
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '0.62rem', color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>🎵 TikTok / Reels Script</div>
+                  <div style={{ fontSize: '0.78rem', color: '#aaa', background: '#161616', borderRadius: '6px', padding: '8px', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{tiktokScript}</div>
+                  <button onClick={() => navigator.clipboard.writeText(tiktokScript)} style={{ marginTop: '4px', fontSize: '0.65rem', color: '#F5A623', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Copy</button>
+                </div>
+              )}
+
+              {twitterThread.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '0.62rem', color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>🐦 Twitter/X Thread ({twitterThread.length} tweets)</div>
+                  {twitterThread.map((tweet, i) => (
+                    <div key={i} style={{ fontSize: '0.78rem', color: '#aaa', background: '#161616', borderRadius: '6px', padding: '6px 8px', marginBottom: '4px', lineHeight: 1.5 }}>
+                      <span style={{ color: '#555', fontSize: '0.65rem' }}>{i + 1}.</span> {tweet}
+                    </div>
+                  ))}
+                  <button onClick={() => navigator.clipboard.writeText(twitterThread.join('\n\n'))} style={{ marginTop: '4px', fontSize: '0.65rem', color: '#F5A623', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Copy All</button>
+                </div>
+              )}
+
+              {whatsappMsg && (
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '0.62rem', color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>💬 WhatsApp Broadcast</div>
+                  <div style={{ fontSize: '0.78rem', color: '#aaa', background: '#161616', borderRadius: '6px', padding: '8px', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{whatsappMsg}</div>
+                  <button onClick={() => navigator.clipboard.writeText(whatsappMsg)} style={{ marginTop: '4px', fontSize: '0.65rem', color: '#F5A623', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Copy</button>
+                </div>
+              )}
+
+              {fbPost && (
+                <div>
+                  <div style={{ fontSize: '0.62rem', color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>📘 Facebook Post</div>
+                  <div style={{ fontSize: '0.78rem', color: '#aaa', background: '#161616', borderRadius: '6px', padding: '8px', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{fbPost}</div>
+                  <button onClick={() => navigator.clipboard.writeText(fbPost)} style={{ marginTop: '4px', fontSize: '0.65rem', color: '#F5A623', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Copy</button>
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
       </div>

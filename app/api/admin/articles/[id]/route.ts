@@ -85,6 +85,18 @@ export async function PUT(
       }).catch(() => {});
       revalidatePath(`/${catRes[0].slug}/${body.slug}`)
       revalidatePath(`/${catRes[0].slug}`)
+
+      if (body.isBreaking) {
+        fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/push/send`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.NEXT_PUBLIC_AUTOMATION_API_KEY! },
+          body: JSON.stringify({
+            title: `🚨 BREAKING: ${body.title}`,
+            body:  body.excerpt || '',
+            url:   articleUrl,
+          }),
+        }).catch(() => {})
+      }
     }
   }
 

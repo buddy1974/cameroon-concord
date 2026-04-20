@@ -12,6 +12,7 @@ import SubscribeForm        from '@/components/newsletter/SubscribeForm'
 import ShareButtons          from '@/components/article/ShareButtons'
 import { ReactionBar }       from '@/components/article/ReactionBar'
 import { AudioPlayer }       from '@/components/article/AudioPlayer'
+import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
 import { ReadingProgress }  from '@/components/article/ReadingProgress'
@@ -111,6 +112,7 @@ export default async function ArticlePage({ params }: Props) {
                 {formatHitCount(article.hits)}
               </span>
             )}
+            <PushSubscribeButton />
           </div>
 
           {/* Summary box */}

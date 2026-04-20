@@ -11,6 +11,7 @@ import CommentsSection      from '@/components/article/CommentSection'
 import SubscribeForm        from '@/components/newsletter/SubscribeForm'
 import ShareButtons          from '@/components/article/ShareButtons'
 import { ReactionBar }       from '@/components/article/ReactionBar'
+import { AudioPlayer }       from '@/components/article/AudioPlayer'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
 import { ReadingProgress }  from '@/components/article/ReadingProgress'
@@ -134,6 +135,9 @@ export default async function ArticlePage({ params }: Props) {
               </ul>
             </div>
           )}
+
+          {/* Audio player */}
+          <AudioPlayer text={article.body} title={article.title} />
 
           {/* Featured image */}
           {article.featuredImage && (

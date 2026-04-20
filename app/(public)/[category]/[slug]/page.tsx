@@ -10,6 +10,7 @@ import { JsonLd }           from '@/components/seo/JsonLd'
 import CommentsSection      from '@/components/article/CommentSection'
 import SubscribeForm        from '@/components/newsletter/SubscribeForm'
 import ShareButtons          from '@/components/article/ShareButtons'
+import { ReactionBar }       from '@/components/article/ReactionBar'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
 import { ReadingProgress }  from '@/components/article/ReadingProgress'
@@ -177,6 +178,9 @@ export default async function ArticlePage({ params }: Props) {
               <p className="text-[#666]">Content unavailable.</p>
             )}
           </div>
+
+          {/* Reaction bar */}
+          <ReactionBar articleId={article.id} />
 
           {/* Share bar */}
           <div style={{ borderTop: '1px solid #2A2A2A', borderBottom: '1px solid #2A2A2A', margin: '32px 0' }}>

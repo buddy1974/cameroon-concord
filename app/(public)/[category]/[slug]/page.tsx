@@ -16,6 +16,7 @@ import { AudioPlayer }          from '@/components/article/AudioPlayer'
 import { PerspectiveEngine }    from '@/components/article/PerspectiveEngine'
 import { ProgressiveBody }      from '@/components/article/ProgressiveBody'
 import { HeatScore }            from '@/components/article/HeatScore'
+import { StoryTimeline }        from '@/components/article/StoryTimeline'
 import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
@@ -228,6 +229,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="hidden lg:block w-[300px] shrink-0">
           <div className="sticky top-4 flex flex-col gap-4">
             <AdUnit slot="5520370976" format="rectangle" />
+            <StoryTimeline articleId={article.id} />
             <SubscribeForm source="article" />
           </div>
         </div>

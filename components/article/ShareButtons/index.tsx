@@ -93,6 +93,10 @@ export default function ShareButtons({ title, categorySlug, slug }: Props) {
           </a>
         </div>
       )}
+      <a href="https://www.tiktok.com/@cameroonconcord" target="_blank" rel="noopener noreferrer"
+        style={{ fontSize: '0.72rem', color: '#555', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '12px' }}>
+        🎵 Follow CC on TikTok
+      </a>
     </div>
   )
 }

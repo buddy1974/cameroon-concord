@@ -75,6 +75,11 @@ export function Footer() {
                 style={{ background: '#111', border: '1px solid #1E1E1E', color: '#888', padding: '8px 14px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 700, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Twitter/X
               </a>
+              <a href="https://www.tiktok.com/@cameroonconcord" target="_blank" rel="noopener noreferrer"
+                className="hover:text-[#EEE] transition-colors"
+                style={{ background: '#111', border: '1px solid #1E1E1E', color: '#888', padding: '8px 14px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 700, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                TikTok
+              </a>
             </div>
 
             {/* Newsletter CTA */}

@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
   const validCats = await db.select({ id: categories.id }).from(categories)
   const validCategoryIds = validCats.map(c => c.id)
   if (!validCategoryIds.includes(Number(body.categoryId))) {
-    body.categoryId = 7;
+    body.categoryId = 9;
   }
 
   // Block low-quality or non-embeddable image sources

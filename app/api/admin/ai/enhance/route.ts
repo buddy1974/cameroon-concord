@@ -65,6 +65,7 @@ Given the article title and raw body below, return a JSON object with these ten 
 - excerpt: compelling 1-2 sentence summary, max 200 characters
 - enhanced_body: the full article rewritten as publication-ready HTML. Use only <p>, <h2>, <h3>, <ul>, <li>, <a> tags. No inline styles. Minimum 4 paragraphs. Maintain the editorial tone above. Expand and develop the content using the source material. IMPORTANT: Naturally embed 2-3 internal hyperlinks within the body text using this exact format: <a href="/[category-slug]/[article-slug]">[anchor text]</a>. Use these CC topic paths for relevant mentions: /topics/anglophone-crisis for Anglophone crisis references, /topics/paul-biya for Paul Biya references, /topics/samuel-etoo-fecafoot for Eto'o/FECAFOOT references, /topics/cameroon-elections-2025 for 2025 election references, /topics/cameroon-diaspora for diaspora references, /explains/anglophone-crisis for crisis explainer, /explains/bir for BIR references, /explains/cpdm for CPDM references, /accountability for government promise references. Only link where genuinely relevant — never force links.
 - summary: array of exactly 3 bullet point strings, each max 15 words, sharply summarising the key facts of the article. No bullet symbols — plain strings only.
+- category_id: detect the most appropriate category ID for this article from this list and return ONLY the number: 2=Business, 5=Health, 6=Sports, 7=Lifestyle, 8=Society, 9=Headlines, 10=Politics, 12=Southern Cameroons, 85=Editorial. Base your choice on the article topic and content. If uncertain, return 9 (Headlines). Never return 7 (Lifestyle) unless the article is genuinely about lifestyle topics like fashion, food, health trends, or celebrity life.
 - tiktok_script: A 3-part TikTok/Reels script as a single string with sections marked: HOOK: (3 seconds, shocking opening line, no more than 10 words) | FACTS: (3 key facts, each one sentence, punchy) | CTA: (call to action, 8 words max, e.g. 'Follow CC for more Cameroon stories')
 - twitter_thread: A 5-tweet thread as a JSON array of 5 strings. Tweet 1: hook with no link. Tweets 2-4: one key fact each, under 240 chars. Tweet 5: opinion/CTA + [LINK]. Use CC's editorial voice — sharp, regime-critical where relevant.
 - whatsapp_message: A 3-sentence WhatsApp broadcast message. Sentence 1: the headline fact. Sentence 2: key detail. Sentence 3: 'Full story: [LINK]'. Bold key names using *asterisks*. Under 300 chars total.
@@ -74,7 +75,7 @@ Title: ${title}
 Body: ${body}
 
 Return ONLY valid JSON. No markdown fences. No explanation.
-{"title":"...","meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"...","summary":["...","...","..."],"tiktok_script":"HOOK: ... | FACTS: ... | CTA: ...","twitter_thread":["tweet1","tweet2","tweet3","tweet4","tweet5"],"whatsapp_message":"...","facebook_post":"..."}`
+{"title":"...","meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"...","summary":["...","...","..."],"category_id":9,"tiktok_script":"HOOK: ... | FACTS: ... | CTA: ...","twitter_thread":["tweet1","tweet2","tweet3","tweet4","tweet5"],"whatsapp_message":"...","facebook_post":"..."}`
 
   const message = await claude.messages.create({
     model:      'claude-sonnet-4-6',

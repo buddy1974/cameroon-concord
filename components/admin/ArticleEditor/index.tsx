@@ -113,7 +113,7 @@ export function ArticleEditor({ categories, article }: Props) {
         title?: string; meta_title?: string; meta_desc?: string; excerpt?: string
         enhanced_body?: string; error?: string; author_id?: number; author_name?: string
         author_avatar?: string; tiktok_script?: string; twitter_thread?: string[]
-        whatsapp_message?: string; facebook_post?: string
+        whatsapp_message?: string; facebook_post?: string; category_id?: number
       }
       if (data.title) {
         setTitle(data.title)
@@ -124,6 +124,7 @@ export function ArticleEditor({ categories, article }: Props) {
       if (data.excerpt)          setExcerpt(data.excerpt)
       if (data.enhanced_body)    setBody(data.enhanced_body)
       if (data.author_id)        { setAuthorId(data.author_id); setAuthorName(data.author_name ?? '') }
+      if (data.category_id && !isEdit) setCatId(Number(data.category_id))
       if (data.tiktok_script)    setTiktokScript(data.tiktok_script)
       if (data.twitter_thread)   setTwitterThread(Array.isArray(data.twitter_thread) ? data.twitter_thread : [])
       if (data.whatsapp_message) setWhatsappMsg(data.whatsapp_message)

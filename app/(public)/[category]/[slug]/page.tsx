@@ -16,6 +16,7 @@ import { AudioPlayer }          from '@/components/article/AudioPlayer'
 import { PerspectiveEngine }    from '@/components/article/PerspectiveEngine'
 import { ProgressiveBody }      from '@/components/article/ProgressiveBody'
 import { HeatScore }            from '@/components/article/HeatScore'
+import { FollowButton }         from '@/components/common/FollowButton'
 import { StoryTimeline }        from '@/components/article/StoryTimeline'
 import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
@@ -70,13 +71,14 @@ export default async function ArticlePage({ params }: Props) {
         <div style={{ maxWidth: '720px', width: '100%', display: 'flex', flexDirection: 'column', gap: '0' }}>
 
           {/* Category + Breaking badges */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <Link
               href={`/${catSlug}`}
               className="inline-block bg-[#C8102E] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded"
             >
               {article.category.name}
             </Link>
+            <FollowButton topicSlug={article.category.slug} topicName={article.category.name} />
             {article.isBreaking && (
               <span className="inline-block bg-[#F5A623] text-black text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded">
                 Breaking

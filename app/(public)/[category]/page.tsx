@@ -10,6 +10,7 @@ import { getCategoryBySlug, getArticlesByCategory } from '@/lib/db/queries'
 import { buildCategoryMetadata } from '@/lib/seo/metadata'
 import { buildBreadcrumbSchema } from '@/lib/seo/schema'
 import { SITE_URL } from '@/lib/constants'
+import { FollowButton } from '@/components/common/FollowButton'
 
 interface Props {
   params: Promise<{ category: string }>
@@ -56,11 +57,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             <span>›</span>
             <span className="text-[#C8102E] font-semibold">{category.name}</span>
           </nav>
-          <div className="flex items-baseline gap-4">
+          <div className="flex items-baseline gap-4 flex-wrap">
             <h1 className="text-[2.5rem] md:text-[3.5rem] font-black uppercase tracking-[-0.03em] text-white leading-none">
               {category.name}
             </h1>
             <span className="text-[#333] text-sm">{total.toLocaleString()} articles</span>
+            <FollowButton topicSlug={slug} topicName={category.name} />
           </div>
         </div>
 

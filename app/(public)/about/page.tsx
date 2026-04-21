@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { DiasporaMap } from '@/components/common/DiasporaMap'
 
 export const metadata: Metadata = {
   title: 'About Cameroon Concord | Independent News from Cameroon',
@@ -65,6 +66,7 @@ export default function AboutPage() {
           Editorial inquiries: <a href="mailto:info@cameroon-concord.com" style={{ color: '#F5A623' }}>info@cameroon-concord.com</a><br />
           Tips and press releases: <a href="mailto:tips@cameroon-concord.com" style={{ color: '#F5A623' }}>tips@cameroon-concord.com</a>
         </p>
+        <DiasporaMap />
       </div>
     </div>
   )

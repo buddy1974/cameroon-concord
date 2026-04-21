@@ -7,6 +7,7 @@ import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
 import AdSenseLoader from '@/components/ads/AdSenseLoader'
 import { ReadingStreak } from '@/components/common/ReadingStreak'
+import { GeoTracker }    from '@/components/common/GeoTracker'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SpeedInsights />
         <Analytics />
         <ReadingStreak />
+        <GeoTracker />
       </body>
     </html>
   )

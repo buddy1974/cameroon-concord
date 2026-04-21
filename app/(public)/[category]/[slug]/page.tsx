@@ -17,6 +17,7 @@ import { PerspectiveEngine }    from '@/components/article/PerspectiveEngine'
 import { ProgressiveBody }      from '@/components/article/ProgressiveBody'
 import { HeatScore }            from '@/components/article/HeatScore'
 import { FollowButton }         from '@/components/common/FollowButton'
+import { EntityReference }      from '@/components/article/EntityReference'
 import { StoryTimeline }        from '@/components/article/StoryTimeline'
 import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
@@ -168,6 +169,9 @@ export default async function ArticlePage({ params }: Props) {
           <div className="prose" id="article-content">
             <ProgressiveBody html={article.body || ''} />
           </div>
+
+          {/* Key terms reference */}
+          <EntityReference body={article.body} />
 
           {/* Follow-up stories */}
           <FollowUpStories articleId={article.id} />

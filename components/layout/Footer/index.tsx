@@ -39,6 +39,7 @@ export function Footer() {
         { href: '/editorial-policy',  label: 'Editorial Policy' },
         { href: '/topics',            label: 'Topics' },
         { href: '/time-capsule',      label: 'Time Capsule' },
+        { href: '/exile-voices',      label: 'Exile Voices' },
         { href: '/accountability',    label: 'Accountability Tracker' },
         { href: '/rss',               label: 'RSS Feed' },
         { href: '/search',            label: 'Search' },

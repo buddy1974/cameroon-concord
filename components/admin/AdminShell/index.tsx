@@ -14,6 +14,8 @@ const NAV = [
   { href: '/admin/comments',              label: '💬 Comments' },
   { href: '/admin/newsletter',            label: '📬 Newsletter' },
   { href: '/admin/categories',             label: '📁 Categories' },
+  { href: '/admin/accountability',         label: '⚖️ Accountability' },
+  { href: '/admin/exile-voices',           label: '🕵️ Exile Voices' },
   { href: '/',                             label: '🌐 View Site' },
 ]
 

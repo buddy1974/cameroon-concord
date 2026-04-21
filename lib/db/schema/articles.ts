@@ -35,6 +35,7 @@ export const articles = mysqlTable('articles', {
   aiReviewed:    boolean('ai_reviewed').default(false),
   summary:       json('summary').$type<string[]>(),
   perspectives:  json('perspectives').$type<{ regime: string; opposition: string; independent: string }>(),
+  countryTags:   json('country_tags').$type<string[]>(),
   ccScore:       tinyint('cc_score', { unsigned: true }),
   lang:          varchar('lang', { length: 2 }).default('en'),
 }, (t) => ({

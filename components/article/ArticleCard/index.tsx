@@ -16,10 +16,24 @@ function cleanSrc(url: string | null | undefined): string {
   return url.split('#')[0].trim()
 }
 
+function CountryTagStrip({ tags }: { tags: string[] | null | undefined }) {
+  if (!tags || tags.length === 0) return null
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
+      {tags.slice(0, 3).map(t => (
+        <span key={t} style={{ background: '#D4AF37', color: '#1A1A1A', fontSize: '0.58rem', fontWeight: 700, padding: '2px 6px', borderRadius: '3px', textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.4 }}>
+          {t}
+        </span>
+      ))}
+    </div>
+  )
+}
+
 export function ArticleCard({ article, variant = 'default', priority = false, index }: Props) {
   const href = `/${article.category.slug}/${article.slug}`
   const mins = readingTime(article.body)
   const src  = cleanSrc(article.featuredImage)
+  const tags = (article as Record<string, unknown>).countryTags as string[] | null | undefined
 
   /* ── HERO ── */
   if (variant === 'hero') {
@@ -84,7 +98,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
             }}
           >
             {/* BADGES */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               {article.isBreaking && (
                 <span style={{
                   background: '#F5A623',
@@ -107,6 +121,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
               }}>
                 {article.category.name.toUpperCase()}
               </span>
+              <CountryTagStrip tags={tags} />
             </div>
 
             {/* TITLE */}
@@ -174,7 +189,10 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
         {src && <img src={src} alt={article.title} width={640} height={360} className="absolute inset-0 w-full h-full object-cover" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <span className="cat-pill mb-2 block w-fit">{article.category.name}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', flexWrap: 'wrap' }}>
+            <span className="cat-pill">{article.category.name}</span>
+            <CountryTagStrip tags={tags} />
+          </div>
           <h3 className="text-white font-black text-[0.95rem] leading-snug group-hover:text-[#F5A623] transition-colors line-clamp-3">
             {article.title}
           </h3>
@@ -296,8 +314,9 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
               onError={e => { e.currentTarget.style.display = 'none' }}
             />
           )}
-          <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
+          <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
             <span className="cat-pill">{article.category.name}</span>
+            <CountryTagStrip tags={tags} />
           </div>
           {article.isBreaking && (
             <div style={{ position: 'absolute', top: '10px', right: '10px' }}>

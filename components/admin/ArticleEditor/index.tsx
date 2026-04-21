@@ -17,6 +17,14 @@ function slugify(text: string): string {
     .trim()
 }
 
+const COUNTRY_GROUPS = [
+  { label: 'Central Africa', items: ['Cameroon', 'Chad', 'CAR', 'Gabon', 'Equatorial Guinea', 'Congo (Brazzaville)', 'Congo (DRC)'] },
+  { label: 'West Africa',    items: ['Nigeria', 'Ghana', 'Senegal', 'Mali', 'Guinea', 'Sierra Leone', 'Liberia', 'Burkina Faso', 'Niger', 'Benin', 'Togo', 'Côte d\'Ivoire', 'Guinea-Bissau', 'Gambia'] },
+  { label: 'East Africa',    items: ['Kenya', 'Uganda', 'Tanzania', 'Rwanda', 'Ethiopia'] },
+  { label: 'Southern Africa',items: ['South Africa'] },
+  { label: 'Diaspora',       items: ['Diaspora', 'USA', 'France', 'Germany', 'United Kingdom', 'Canada', 'Europe', 'International'] },
+]
+
 const CC_AUTHORS = [
   { id: 3,  name: 'Nkemdirim Tabi' },
   { id: 4,  name: 'Ebot Ayuk' },
@@ -49,6 +57,8 @@ export function ArticleEditor({ categories, article }: Props) {
   const [saving,    setSaving]    = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [msg,       setMsg]       = useState('')
+  const [countryTags,  setCountryTags]  = useState<string[]>((article as Record<string, unknown>)?.countryTags as string[] || [])
+  const [countryOpen,  setCountryOpen]  = useState(false)
   const [tiktokScript,   setTiktokScript]   = useState('')
   const [twitterThread,  setTwitterThread]  = useState<string[]>([])
   const [whatsappMsg,    setWhatsappMsg]    = useState('')
@@ -135,6 +145,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
       title, slug, body, excerpt, categoryId: (catId && catId > 0 && categories.some(c => c.id === catId)) ? catId : (article?.categoryId && categories.some(c => c.id === article.categoryId) ? article.categoryId : (categories[0]?.id || 1)),
       featuredImage: imgUrl || null, status: publishStatus,
       isBreaking: breaking, isFeatured: featured, isLive: isLive ? 1 : 0,
+      countryTags: countryTags.length > 0 ? countryTags : null,
       metaTitle: metaT || null, metaDesc: metaD || null,
       authorId: authorId || null,
     }
@@ -412,6 +423,59 @@ if (!body.trim())  { setMsg('Body is required'); return }
                 <span style={{ fontSize: '0.78rem', color: '#C8102E' }}>🔴 Live Blog</span>
               </label>
             </div>
+          </div>
+
+          {/* Country / Region Tags */}
+          <div style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', padding: '16px' }}>
+            <button
+              type="button"
+              onClick={() => setCountryOpen(o => !o)}
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              <span style={{ ...labelStyle, margin: 0 }}>Country / Region Tags</span>
+              <span style={{ fontSize: '0.7rem', color: '#555' }}>
+                {countryTags.length > 0 ? `${countryTags.length} selected` : 'none'} {countryOpen ? '▲' : '▼'}
+              </span>
+            </button>
+            {countryTags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
+                {countryTags.map(t => (
+                  <span key={t} style={{ background: '#D4AF3720', border: '1px solid #D4AF3760', color: '#D4AF37', fontSize: '0.6rem', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+            {countryOpen && (
+              <div style={{ marginTop: '10px', maxHeight: '260px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {COUNTRY_GROUPS.map(group => (
+                  <div key={group.label}>
+                    <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#444', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '6px' }}>{group.label}</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {group.items.map(item => {
+                        const active = countryTags.includes(item)
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => setCountryTags(prev => active ? prev.filter(x => x !== item) : [...prev, item])}
+                            style={{
+                              fontSize: '0.62rem', fontWeight: 700, padding: '3px 8px', borderRadius: '4px',
+                              textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer',
+                              border: `1px solid ${active ? '#D4AF37' : '#2A2A2A'}`,
+                              background: active ? '#D4AF3722' : 'transparent',
+                              color: active ? '#D4AF37' : '#555',
+                            }}
+                          >
+                            {item}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* SEO */}

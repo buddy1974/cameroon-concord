@@ -122,6 +122,11 @@ export default async function ArticlePage({ params }: Props) {
                 {formatHitCount(article.hits)}
               </span>
             )}
+            {article.countryTags && article.countryTags.length > 0 && article.countryTags.map((t: string) => (
+              <span key={t} style={{ background: '#D4AF37', color: '#1A1A1A', fontSize: '0.58rem', fontWeight: 700, padding: '2px 7px', borderRadius: '3px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                {t}
+              </span>
+            ))}
             <PushSubscribeButton />
             <HeatScore articleId={article.id} />
             <CCScore score={article.ccScore ?? null} />

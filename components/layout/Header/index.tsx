@@ -57,6 +57,10 @@ export function Header() {
             className={`relative px-3 py-2.5 text-[0.68rem] font-bold uppercase tracking-[0.08em] whitespace-nowrap transition-all duration-150 border-l border-[#1E1E1E] ${pathname === '/my-feed' ? 'text-[#F5A623]' : 'text-[#F5A623]/60 hover:text-[#F5A623]'}`}>
             My Feed
           </Link>
+          <Link href="/topics"
+            className={`relative px-3 py-2.5 text-[0.68rem] font-bold uppercase tracking-[0.08em] whitespace-nowrap transition-all duration-150 border-l border-[#1E1E1E] ${pathname === '/topics' || pathname.startsWith('/topics/') ? 'text-[#F5A623]' : 'text-[#F5A623]/60 hover:text-[#F5A623]'}`}>
+            Topics
+          </Link>
         </div>
       </nav>
 

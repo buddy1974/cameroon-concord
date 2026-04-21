@@ -14,6 +14,7 @@ import { ReactionBar }       from '@/components/article/ReactionBar'
 import { FollowUpStories }   from '@/components/article/FollowUpStories'
 import { AudioPlayer }          from '@/components/article/AudioPlayer'
 import { PerspectiveEngine }    from '@/components/article/PerspectiveEngine'
+import { ProgressiveBody }      from '@/components/article/ProgressiveBody'
 import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
@@ -158,36 +159,9 @@ export default async function ArticlePage({ params }: Props) {
             </div>
           )}
 
-          {/* Article body — split after 3rd </p> for in-article ad */}
+          {/* Article body */}
           <div className="prose" id="article-content">
-            {article.body ? (() => {
-              const parts = article.body.split('</p>')
-              if (parts.length <= 3) {
-                return <div dangerouslySetInnerHTML={{ __html: article.body }} />
-              }
-              const first  = parts.slice(0, 3).join('</p>') + '</p>'
-              const middle = parts.slice(3, 6).join('</p>') + (parts.length > 6 ? '</p>' : '')
-              const last   = parts.length > 6 ? parts.slice(6).join('</p>') : ''
-              return (
-                <>
-                  <div dangerouslySetInnerHTML={{ __html: first }} />
-                  <div className="my-6 min-h-[250px]">
-                    <AdUnit slot="5471720771" format="auto" />
-                  </div>
-                  <div dangerouslySetInnerHTML={{ __html: middle }} />
-                  {last && (
-                    <>
-                      <div className="my-6 min-h-[250px]">
-                        <AdUnit slot="5520370976" format="rectangle" />
-                      </div>
-                      <div dangerouslySetInnerHTML={{ __html: last }} />
-                    </>
-                  )}
-                </>
-              )
-            })() : (
-              <p className="text-[#666]">Content unavailable.</p>
-            )}
+            <ProgressiveBody html={article.body || ''} />
           </div>
 
           {/* Follow-up stories */}

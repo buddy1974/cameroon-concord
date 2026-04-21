@@ -38,6 +38,7 @@ export function Footer() {
         { href: '/privacy',           label: 'Privacy Policy' },
         { href: '/editorial-policy',  label: 'Editorial Policy' },
         { href: '/topics',            label: 'Topics' },
+        { href: '/time-capsule',      label: 'Time Capsule' },
         { href: '/accountability',    label: 'Accountability Tracker' },
         { href: '/rss',               label: 'RSS Feed' },
         { href: '/search',            label: 'Search' },

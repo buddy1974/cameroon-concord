@@ -76,6 +76,7 @@ export default async function TopicHubPage({ params }: { params: Promise<{ slug:
       id:            articles.id,
       title:         articles.title,
       slug:          articles.slug,
+      body:          articles.body,
       excerpt:       articles.excerpt,
       featuredImage: articles.featuredImage,
       publishedAt:   articles.publishedAt,

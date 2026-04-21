@@ -20,6 +20,8 @@ export const articles = mysqlTable('articles', {
   status:        mysqlEnum('status', ['draft','scheduled','published','archived']).default('draft'),
   isBreaking:    boolean('is_breaking').default(false),
   isFeatured:    boolean('is_featured').default(false),
+  isLive:        tinyint('is_live').default(0),
+  liveEnded:     tinyint('live_ended').default(0),
   publishedAt:   datetime('published_at'),
   scheduledAt:   datetime('scheduled_at'),
   createdAt:     datetime('created_at').default(sql`CURRENT_TIMESTAMP`),

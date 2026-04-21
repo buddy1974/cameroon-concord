@@ -41,6 +41,7 @@ export function Footer() {
         { href: '/time-capsule',      label: 'Time Capsule' },
         { href: '/exile-voices',      label: 'Exile Voices' },
         { href: '/accountability',    label: 'Accountability Tracker' },
+        { href: '/biya-succession',   label: 'Biya Succession' },
         { href: '/rss',               label: 'RSS Feed' },
         { href: '/search',            label: 'Search' },
       ],

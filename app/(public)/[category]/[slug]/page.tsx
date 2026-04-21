@@ -12,6 +12,7 @@ import SubscribeForm        from '@/components/newsletter/SubscribeForm'
 import ShareButtons          from '@/components/article/ShareButtons'
 import { ReactionBar }       from '@/components/article/ReactionBar'
 import { FollowUpStories }   from '@/components/article/FollowUpStories'
+import { LiveBlog }             from '@/components/article/LiveBlog'
 import { AudioPlayer }          from '@/components/article/AudioPlayer'
 import { PerspectiveEngine }    from '@/components/article/PerspectiveEngine'
 import { ProgressiveBody }      from '@/components/article/ProgressiveBody'
@@ -148,6 +149,9 @@ export default async function ArticlePage({ params }: Props) {
               </ul>
             </div>
           )}
+
+          {/* Live Blog */}
+          <LiveBlog articleId={article.id} isLive={article.isLive ?? 0} liveEnded={article.liveEnded ?? 0} />
 
           {/* Audio player */}
           <AudioPlayer text={article.body} title={article.title} />

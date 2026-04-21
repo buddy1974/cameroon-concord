@@ -41,6 +41,7 @@ export function ArticleEditor({ categories, article }: Props) {
   const [status,    setStatus]    = useState(article?.status || 'draft')
   const [breaking,  setBreaking]  = useState(article?.isBreaking || false)
   const [featured,  setFeatured]  = useState(article?.isFeatured || false)
+  const [isLive,    setIsLive]    = useState(!!(article as Record<string, unknown>)?.isLive)
   const [metaT,     setMetaT]     = useState(article?.metaTitle || '')
   const [metaD,     setMetaD]     = useState(article?.metaDesc || '')
   const [authorId,  setAuthorId]  = useState<number|null>(article?.authorId ?? null)
@@ -133,7 +134,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
     const payload = {
       title, slug, body, excerpt, categoryId: (catId && catId > 0 && categories.some(c => c.id === catId)) ? catId : (article?.categoryId && categories.some(c => c.id === article.categoryId) ? article.categoryId : (categories[0]?.id || 1)),
       featuredImage: imgUrl || null, status: publishStatus,
-      isBreaking: breaking, isFeatured: featured,
+      isBreaking: breaking, isFeatured: featured, isLive: isLive ? 1 : 0,
       metaTitle: metaT || null, metaDesc: metaD || null,
       authorId: authorId || null,
     }
@@ -405,6 +406,10 @@ if (!body.trim())  { setMsg('Body is required'); return }
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input type="checkbox" checked={featured} onChange={e => setFeatured(e.target.checked)} />
                 <span style={{ fontSize: '0.78rem', color: '#EEE' }}>Featured (Hero)</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input type="checkbox" checked={isLive} onChange={e => setIsLive(e.target.checked)} />
+                <span style={{ fontSize: '0.78rem', color: '#C8102E' }}>🔴 Live Blog</span>
               </label>
             </div>
           </div>

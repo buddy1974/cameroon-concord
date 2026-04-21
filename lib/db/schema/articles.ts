@@ -1,5 +1,5 @@
 import {
-  mysqlTable, int, varchar, text, longtext,
+  mysqlTable, int, tinyint, varchar, text, longtext,
   boolean, datetime, mysqlEnum, index, json,
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
@@ -33,6 +33,7 @@ export const articles = mysqlTable('articles', {
   aiReviewed:    boolean('ai_reviewed').default(false),
   summary:       json('summary').$type<string[]>(),
   perspectives:  json('perspectives').$type<{ regime: string; opposition: string; independent: string }>(),
+  ccScore:       tinyint('cc_score', { unsigned: true }),
   lang:          varchar('lang', { length: 2 }).default('en'),
 }, (t) => ({
   categoryIdx:  index('idx_category').on(t.categoryId),

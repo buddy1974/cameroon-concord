@@ -18,6 +18,7 @@ import { ProgressiveBody }      from '@/components/article/ProgressiveBody'
 import { HeatScore }            from '@/components/article/HeatScore'
 import { FollowButton }         from '@/components/common/FollowButton'
 import { EntityReference }      from '@/components/article/EntityReference'
+import { CCScore }              from '@/components/article/CCScore'
 import { StoryTimeline }        from '@/components/article/StoryTimeline'
 import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
@@ -122,6 +123,7 @@ export default async function ArticlePage({ params }: Props) {
             )}
             <PushSubscribeButton />
             <HeatScore articleId={article.id} />
+            <CCScore score={article.ccScore ?? null} />
           </div>
 
           {/* Summary box */}

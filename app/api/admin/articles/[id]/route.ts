@@ -86,6 +86,13 @@ export async function PUT(
       revalidatePath(`/${catRes[0].slug}/${body.slug}`)
       revalidatePath(`/${catRes[0].slug}`)
 
+      if (!wasAlreadyPublished) {
+        fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/articles/score/${articleId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }).catch(() => {})
+      }
+
       if (body.isBreaking) {
         fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/push/send`, {
           method:  'POST',

@@ -11,11 +11,22 @@ export function ProgressiveBody({ html }: Props) {
   const parts   = html.split('</p>').filter(s => s.trim().length > 0)
   const preview = parts.slice(0, 3).map(p => p + '</p>').join('\n')
   const rest    = parts.slice(3).map(p => p + '</p>').join('\n')
-  const hasMore    = rest.trim().length > 0
+  const hasMore = rest.trim().length > 0
 
   return (
     <div className="article-body">
       <div dangerouslySetInnerHTML={{ __html: preview }} />
+
+      {/* Mid-article ad — always visible after para 3 */}
+      <div style={{ margin: '24px 0' }}>
+        <ins className="adsbygoogle"
+          style={{ display: 'block', textAlign: 'center' }}
+          data-ad-client="ca-pub-4965786697949561"
+          data-ad-slot="5471720771"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+      </div>
 
       {hasMore && !expanded && (
         <div style={{ position: 'relative', marginTop: '-60px' }}>
@@ -32,7 +43,19 @@ export function ProgressiveBody({ html }: Props) {
       )}
 
       {hasMore && expanded && (
-        <div dangerouslySetInnerHTML={{ __html: rest }} />
+        <>
+          <div dangerouslySetInnerHTML={{ __html: rest }} />
+          {/* Mid-article ad — after rest content */}
+          <div style={{ margin: '24px 0' }}>
+            <ins className="adsbygoogle"
+              style={{ display: 'block', textAlign: 'center' }}
+              data-ad-client="ca-pub-4965786697949561"
+              data-ad-slot="5520370976"
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            />
+          </div>
+        </>
       )}
     </div>
   )

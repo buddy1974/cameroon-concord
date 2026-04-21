@@ -75,7 +75,8 @@ export async function POST(req: NextRequest) {
     authorId?: number | null; summary?: string[] | null
   }
 
-  const validCategoryIds = [1,2,3,4,5,6,7,8];
+  const validCats = await db.select({ id: categories.id }).from(categories)
+  const validCategoryIds = validCats.map(c => c.id)
   if (!validCategoryIds.includes(Number(body.categoryId))) {
     body.categoryId = 7;
   }

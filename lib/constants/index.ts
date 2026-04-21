@@ -20,7 +20,7 @@ export const CATEGORIES = [
   { slug: 'inside-cpdm',        name: 'Biya',         color: '#8B0000' },
 ] as const
 
-export const NAV_CATEGORIES = CATEGORIES.slice(0, 8)
+export const NAV_CATEGORIES = CATEGORIES.slice(0, 9)
 
 export const ARTICLES_PER_PAGE   = 20
 export const BREAKING_NEWS_COUNT = 5

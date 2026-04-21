@@ -15,6 +15,7 @@ import { FollowUpStories }   from '@/components/article/FollowUpStories'
 import { AudioPlayer }          from '@/components/article/AudioPlayer'
 import { PerspectiveEngine }    from '@/components/article/PerspectiveEngine'
 import { ProgressiveBody }      from '@/components/article/ProgressiveBody'
+import { HeatScore }            from '@/components/article/HeatScore'
 import { PushSubscribeButton } from '@/components/pwa/PushSubscribeButton'
 import { ArticleImage }     from '@/components/article/ArticleImage'
 import { HitTracker }       from '@/components/article/HitTracker'
@@ -116,6 +117,7 @@ export default async function ArticlePage({ params }: Props) {
               </span>
             )}
             <PushSubscribeButton />
+            <HeatScore articleId={article.id} />
           </div>
 
           {/* Summary box */}

@@ -71,24 +71,35 @@ export default async function TopicHubPage({ params }: { params: Promise<{ slug:
 
   const conditions = hub.keywords.map(kw => like(articles.title, `%${kw}%`))
 
-  const hubArticles = await db
-    .select({
-      id:            articles.id,
-      title:         articles.title,
-      slug:          articles.slug,
-      body:          articles.body,
-      excerpt:       articles.excerpt,
-      featuredImage: articles.featuredImage,
-      publishedAt:   articles.publishedAt,
-      isBreaking:    articles.isBreaking,
-      isFeatured:    articles.isFeatured,
-      category:      { name: categories.name, slug: categories.slug },
-    })
-    .from(articles)
-    .innerJoin(categories, eq(articles.categoryId, categories.id))
-    .where(and(eq(articles.status, 'published'), or(...conditions)))
-    .orderBy(desc(articles.publishedAt))
-    .limit(48)
+  type HubArticle = {
+    id: number; title: string; slug: string; body: string
+    excerpt: string | null; featuredImage: string | null; publishedAt: Date | null
+    isBreaking: boolean | null; isFeatured: boolean | null
+    category: { name: string; slug: string }
+  }
+  let hubArticles: HubArticle[] = []
+  try {
+    hubArticles = await db
+      .select({
+        id:            articles.id,
+        title:         articles.title,
+        slug:          articles.slug,
+        body:          articles.body,
+        excerpt:       articles.excerpt,
+        featuredImage: articles.featuredImage,
+        publishedAt:   articles.publishedAt,
+        isBreaking:    articles.isBreaking,
+        isFeatured:    articles.isFeatured,
+        category:      { name: categories.name, slug: categories.slug },
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(and(eq(articles.status, 'published'), or(...conditions)))
+      .orderBy(desc(articles.publishedAt))
+      .limit(48)
+  } catch {
+    // DB unavailable at render time
+  }
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 20px' }}>

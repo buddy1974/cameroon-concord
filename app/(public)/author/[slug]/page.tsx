@@ -19,34 +19,42 @@ function cleanImg(url: string | null | undefined): string | null {
 }
 
 async function getAuthor(slug: string) {
-  const [author] = await db.select().from(authors).where(eq(authors.slug, slug)).limit(1)
-  return author ?? null
+  try {
+    const [author] = await db.select().from(authors).where(eq(authors.slug, slug)).limit(1)
+    return author ?? null
+  } catch {
+    return null
+  }
 }
 
 async function getArticlesByAuthor(authorId: number): Promise<ArticleWithRelations[]> {
-  const rows = await db
-    .select({
-      article:  articles,
-      category: categories,
-      author:   authors,
-      hits:     articleHits.hits,
-    })
-    .from(articles)
-    .innerJoin(categories,   eq(articles.categoryId, categories.id))
-    .leftJoin(authors,       eq(articles.authorId,   authors.id))
-    .leftJoin(articleHits,   eq(articleHits.articleId, articles.id))
-    .where(and(eq(articles.authorId, authorId), eq(articles.status, 'published')))
-    .orderBy(desc(articles.publishedAt))
-    .limit(20)
+  try {
+    const rows = await db
+      .select({
+        article:  articles,
+        category: categories,
+        author:   authors,
+        hits:     articleHits.hits,
+      })
+      .from(articles)
+      .innerJoin(categories,   eq(articles.categoryId, categories.id))
+      .leftJoin(authors,       eq(articles.authorId,   authors.id))
+      .leftJoin(articleHits,   eq(articleHits.articleId, articles.id))
+      .where(and(eq(articles.authorId, authorId), eq(articles.status, 'published')))
+      .orderBy(desc(articles.publishedAt))
+      .limit(20)
 
-  return rows.map(r => ({
-    ...r.article,
-    featuredImage: cleanImg(r.article.featuredImage),
-    category: r.category,
-    author:   r.author ?? null,
-    tags:     [],
-    hits:     r.hits ?? 0,
-  }))
+    return rows.map(r => ({
+      ...r.article,
+      featuredImage: cleanImg(r.article.featuredImage),
+      category: r.category,
+      author:   r.author ?? null,
+      tags:     [],
+      hits:     r.hits ?? 0,
+    }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

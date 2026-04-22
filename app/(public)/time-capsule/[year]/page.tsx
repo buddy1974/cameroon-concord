@@ -21,24 +21,30 @@ export default async function TimeCapsuleYearPage({ params }: { params: Promise<
   const yearNum = parseInt(year)
   if (isNaN(yearNum) || yearNum < 2014 || yearNum > new Date().getFullYear() + 1) notFound()
 
-  const yearArticles = await db
-    .select({
-      id:          articles.id,
-      title:       articles.title,
-      slug:        articles.slug,
-      publishedAt: articles.publishedAt,
-      category:    { name: categories.name, slug: categories.slug },
-    })
-    .from(articles)
-    .innerJoin(categories, eq(articles.categoryId, categories.id))
-    .where(
-      and(
-        eq(articles.status, 'published'),
-        sql`YEAR(${articles.publishedAt}) = ${yearNum}`
+  type YearArticle = { id: number; title: string; slug: string; publishedAt: Date | null; category: { name: string; slug: string } }
+  let yearArticles: YearArticle[] = []
+  try {
+    yearArticles = await db
+      .select({
+        id:          articles.id,
+        title:       articles.title,
+        slug:        articles.slug,
+        publishedAt: articles.publishedAt,
+        category:    { name: categories.name, slug: categories.slug },
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(
+        and(
+          eq(articles.status, 'published'),
+          sql`YEAR(${articles.publishedAt}) = ${yearNum}`
+        )
       )
-    )
-    .orderBy(desc(articles.publishedAt))
-    .limit(200)
+      .orderBy(desc(articles.publishedAt))
+      .limit(200)
+  } catch {
+    // DB unavailable at render time
+  }
 
   if (yearArticles.length === 0) notFound()
 

@@ -13,13 +13,17 @@ export const metadata: Metadata = {
 }
 
 export default async function TimeCapsuleIndexPage() {
-  const years = await db
-    .select({ year: sql<number>`YEAR(published_at)` })
-    .from(articles)
-    .groupBy(sql`YEAR(published_at)`)
-    .orderBy(sql`YEAR(published_at) DESC`)
-
-  const validYears = years.map(r => r.year).filter(y => y >= 2014 && y <= new Date().getFullYear())
+  let validYears: number[] = []
+  try {
+    const years = await db
+      .select({ year: sql<number>`YEAR(published_at)` })
+      .from(articles)
+      .groupBy(sql`YEAR(published_at)`)
+      .orderBy(sql`YEAR(published_at) DESC`)
+    validYears = years.map(r => r.year).filter(y => y >= 2014 && y <= new Date().getFullYear())
+  } catch {
+    // DB unavailable at render time
+  }
 
   return (
     <div style={{ maxWidth: '700px', margin: '0 auto', padding: '40px 20px' }}>

@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation'
 interface ArticleRow {
   id: number; title: string; slug: string; status: string
   publishedAt: string | null; category: string; catSlug: string; hits?: number
+  isBreaking?: boolean
 }
 
 export default function ArticlesListPage() {
@@ -143,6 +144,26 @@ export default function ArticlesListPage() {
                         style={{ fontSize: '0.68rem', color: '#555', textDecoration: 'none', padding: '3px 8px', border: '1px solid #1E1E1E', borderRadius: '4px' }}>
                         View
                       </Link>
+                      {a.isBreaking && (
+                        <button
+                          onClick={async () => {
+                            await fetch(`/api/admin/articles/${a.id}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ isBreaking: false })
+                            })
+                            window.location.reload()
+                          }}
+                          style={{
+                            background: '#7A0000', color: '#fff', border: 'none',
+                            borderRadius: '4px', padding: '4px 8px', fontSize: '0.65rem',
+                            fontWeight: 700, cursor: 'pointer', letterSpacing: '0.05em'
+                          }}
+                          title="Remove breaking news flag"
+                        >
+                          ✕ Breaking
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

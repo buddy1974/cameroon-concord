@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
       category:    categories.name,
       catSlug:     categories.slug,
       hits:        articleHits.hits,
+      isBreaking:  articles.isBreaking,
     })
     .from(articles)
     .innerJoin(categories, eq(articles.categoryId, categories.id))

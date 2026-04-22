@@ -20,10 +20,15 @@ const STATUS_CONFIG = {
 }
 
 export default async function AccountabilityPage() {
-  const promises = await db
-    .select()
-    .from(accountabilityPromises)
-    .orderBy(desc(accountabilityPromises.dateMade))
+  let promises: (typeof accountabilityPromises.$inferSelect)[] = []
+  try {
+    promises = await db
+      .select()
+      .from(accountabilityPromises)
+      .orderBy(desc(accountabilityPromises.dateMade))
+  } catch {
+    // table may not exist yet in production
+  }
 
   const broken  = promises.filter(p => p.status === 'broken').length
   const kept    = promises.filter(p => p.status === 'kept').length

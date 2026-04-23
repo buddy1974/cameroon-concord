@@ -13,3 +13,6 @@
   — same for bigint: bigint('col', { mode: 'number', unsigned: true })
 - Joomla backup (u470588398_ccbackup.sql) uses table prefix: news_
   — articles are in news_content (native Joomla, no K2 component)
+- MySQL JSON columns return raw strings via mysql2/Drizzle spread — always use Array.isArray() guard
+  or JSON.parse before .map()/.slice() on any JSON column. Never assume JSON columns are pre-parsed.
+  Weak guard `!tags || tags.length === 0` does NOT catch non-empty strings — use Array.isArray(tags).

@@ -32,6 +32,7 @@ import {
 import { buildArticleMetadata }              from '@/lib/seo/metadata'
 import { buildNewsArticleSchema, buildBreadcrumbSchema } from '@/lib/seo/schema'
 import { formatDate, readingTime, formatHitCount, depthScore } from '@/lib/utils'
+import { safeJsonArray } from '@/lib/utils/safe-json'
 import { SITE_URL } from '@/lib/constants'
 
 interface Props { params: Promise<{ category: string; slug: string }> }
@@ -122,7 +123,7 @@ export default async function ArticlePage({ params }: Props) {
                 {formatHitCount(article.hits)}
               </span>
             )}
-            {article.countryTags && article.countryTags.length > 0 && article.countryTags.map((t: string) => (
+            {safeJsonArray<string>(article.countryTags).map((t: string) => (
               <span key={t} style={{ background: '#D4AF37', color: '#1A1A1A', fontSize: '0.58rem', fontWeight: 700, padding: '2px 7px', borderRadius: '3px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 {t}
               </span>

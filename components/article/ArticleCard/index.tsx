@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Clock, Eye } from 'lucide-react'
 import type { ArticleWithRelations } from '@/lib/types'
 import { formatRelative, readingTime, formatHitCount, truncate } from '@/lib/utils'
+import { safeJsonArray } from '@/lib/utils/safe-json'
 
 interface Props {
   article: ArticleWithRelations
@@ -16,8 +17,8 @@ function cleanSrc(url: string | null | undefined): string {
   return url.split('#')[0].trim()
 }
 
-function CountryTagStrip({ tags }: { tags: string[] | null | undefined }) {
-  if (!tags || tags.length === 0) return null
+function CountryTagStrip({ tags }: { tags: string[] }) {
+  if (tags.length === 0) return null
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
       {tags.slice(0, 3).map(t => (
@@ -33,12 +34,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
   const href = `/${article.category.slug}/${article.slug}`
   const mins = readingTime(article.body)
   const src  = cleanSrc(article.featuredImage)
-  const rawTags = (article as Record<string, unknown>).countryTags
-  const tags: string[] | null = Array.isArray(rawTags)
-    ? rawTags
-    : typeof rawTags === 'string' && rawTags.startsWith('[')
-      ? (() => { try { return JSON.parse(rawTags) } catch { return null } })()
-      : null
+  const tags = safeJsonArray<string>((article as Record<string, unknown>).countryTags)
 
   /* ── HERO ── */
   if (variant === 'hero') {

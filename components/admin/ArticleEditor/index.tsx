@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Category, Article, ArticleStatus } from '@/lib/types'
+import { safeJsonArray } from '@/lib/utils/safe-json'
 
 interface Props {
   categories: Category[]
@@ -57,7 +58,7 @@ export function ArticleEditor({ categories, article }: Props) {
   const [saving,    setSaving]    = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [msg,       setMsg]       = useState('')
-  const [countryTags,  setCountryTags]  = useState<string[]>((article as Record<string, unknown>)?.countryTags as string[] || [])
+  const [countryTags,  setCountryTags]  = useState<string[]>(safeJsonArray<string>((article as Record<string, unknown>)?.countryTags))
   const [countryOpen,  setCountryOpen]  = useState(false)
   const [tiktokScript,   setTiktokScript]   = useState('')
   const [twitterThread,  setTwitterThread]  = useState<string[]>([])

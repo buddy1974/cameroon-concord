@@ -3,13 +3,12 @@ import webpush from 'web-push'
 import { db } from '@/lib/db/client'
 import { pushSubscriptions } from '@/lib/db/schema'
 
-webpush.setVapidDetails(
-  'mailto:editor@cameroon-concord.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
-
 export async function POST(req: NextRequest) {
+  webpush.setVapidDetails(
+    'mailto:editor@cameroon-concord.com',
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  )
   const apiKey = req.headers.get('x-api-key')
   if (apiKey !== process.env.NEXT_PUBLIC_AUTOMATION_API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

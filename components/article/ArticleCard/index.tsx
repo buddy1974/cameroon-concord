@@ -33,7 +33,12 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
   const href = `/${article.category.slug}/${article.slug}`
   const mins = readingTime(article.body)
   const src  = cleanSrc(article.featuredImage)
-  const tags = (article as Record<string, unknown>).countryTags as string[] | null | undefined
+  const rawTags = (article as Record<string, unknown>).countryTags
+  const tags: string[] | null = Array.isArray(rawTags)
+    ? rawTags
+    : typeof rawTags === 'string' && rawTags.startsWith('[')
+      ? (() => { try { return JSON.parse(rawTags) } catch { return null } })()
+      : null
 
   /* ── HERO ── */
   if (variant === 'hero') {

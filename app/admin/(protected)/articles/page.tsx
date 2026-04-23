@@ -21,6 +21,7 @@ export default function ArticlesListPage() {
   const [loading,      setLoading]      = useState(true)
   const [selectedIds,  setSelectedIds]  = useState<Set<number>>(new Set())
   const [deleting,     setDeleting]     = useState(false)
+  const [breakingOnly, setBreakingOnly] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -35,32 +36,65 @@ export default function ArticlesListPage() {
 
   useEffect(() => { load() }, [load])
 
+  const displayed = breakingOnly ? articles.filter(a => a.isBreaking) : articles
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <h1 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#fff', margin: 0 }}>
           {statusFilter === 'draft' ? 'Drafts' : 'Articles'} <span style={{ color: '#333', fontSize: '1rem' }}>({total.toLocaleString()})</span>
         </h1>
-        <Link href="/admin/articles/new" style={{
-          background: '#C8102E', color: '#fff', padding: '8px 16px',
-          borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700,
-          textDecoration: 'none', textTransform: 'uppercase',
-        }}>
-          + New
-        </Link>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={async () => {
+              if (!confirm('Remove breaking flag from ALL articles?')) return
+              await fetch('/api/admin/articles/kill-breaking', { method: 'POST' })
+              window.location.reload()
+            }}
+            style={{
+              background: '#7A0000', color: '#fff', border: 'none',
+              borderRadius: '6px', padding: '8px 16px',
+              fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+            }}
+          >
+            🚨 Kill All Breaking
+          </button>
+          <Link href="/admin/articles/new" style={{
+            background: '#C8102E', color: '#fff', padding: '8px 16px',
+            borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700,
+            textDecoration: 'none', textTransform: 'uppercase',
+          }}>
+            + New
+          </Link>
+        </div>
       </div>
 
-      <input
-        value={search}
-        onChange={e => { setSearch(e.target.value); setPage(1) }}
-        placeholder="Search articles..."
-        style={{
-          width: '100%', background: '#0F0F0F', border: '1px solid #1E1E1E',
-          borderRadius: '8px', padding: '10px 14px', color: '#EEE',
-          fontSize: '0.88rem', outline: 'none', marginBottom: '16px',
-          boxSizing: 'border-box',
-        }}
-      />
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <input
+          value={search}
+          onChange={e => { setSearch(e.target.value); setPage(1) }}
+          placeholder="Search articles..."
+          style={{
+            flex: 1, background: '#0F0F0F', border: '1px solid #1E1E1E',
+            borderRadius: '8px', padding: '10px 14px', color: '#EEE',
+            fontSize: '0.88rem', outline: 'none',
+            boxSizing: 'border-box',
+          }}
+        />
+        <button
+          onClick={() => setBreakingOnly(!breakingOnly)}
+          style={{
+            background: breakingOnly ? '#C8102E' : '#1A1A1A',
+            color: breakingOnly ? '#fff' : '#C8102E',
+            border: '1px solid #C8102E',
+            borderRadius: '6px', padding: '6px 14px',
+            fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          🚨 Breaking Only
+        </button>
+      </div>
 
       {selectedIds.size > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px',
@@ -91,7 +125,7 @@ export default function ArticlesListPage() {
               <tr style={{ borderBottom: '1px solid #1A1A1A' }}>
                 <th style={{ width: '40px', padding: '10px 16px' }}>
                   <input type="checkbox" onChange={e => {
-                    if (e.target.checked) setSelectedIds(new Set(articles.map(a => a.id)))
+                    if (e.target.checked) setSelectedIds(new Set(displayed.map(a => a.id)))
                     else setSelectedIds(new Set())
                   }} />
                 </th>
@@ -101,7 +135,7 @@ export default function ArticlesListPage() {
               </tr>
             </thead>
             <tbody>
-              {articles.map(a => (
+              {displayed.map(a => (
                 <tr key={a.id} style={{ borderBottom: '1px solid #0D0D0D' }}>
                   <td style={{ padding: '10px 16px' }}>
                     <input type="checkbox" checked={selectedIds.has(a.id)}

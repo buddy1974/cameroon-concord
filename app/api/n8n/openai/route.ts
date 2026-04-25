@@ -9,7 +9,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { system, prompt } = body as { system?: string; prompt: string }
+  const { system, prompt, user } = body as { system?: string; prompt?: string; user?: string }
+  const promptText = prompt ?? user ?? ''
+  if (!promptText) return NextResponse.json({ error: 'prompt or user field required' }, { status: 400 })
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
       max_tokens: 4000,
       messages: [
         ...(system ? [{ role: 'system', content: system }] : []),
-        { role: 'user', content: prompt },
+        { role: 'user', content: promptText },
       ],
     }),
   })

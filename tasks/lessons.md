@@ -16,3 +16,6 @@
 - MySQL JSON columns return raw strings via mysql2/Drizzle spread — always use Array.isArray() guard
   or JSON.parse before .map()/.slice() on any JSON column. Never assume JSON columns are pre-parsed.
   Weak guard `!tags || tags.length === 0` does NOT catch non-empty strings — use Array.isArray(tags).
+- When switching API proxy routes, verify ALL field names match between the caller (n8n) and the new
+  route. The old Claude route used {system, user}, the new OpenAI route used {system, prompt} —
+  mismatch silently broke the pipeline for 2 days. Accept both field names defensively.

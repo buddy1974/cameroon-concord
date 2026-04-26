@@ -9,9 +9,9 @@ export async function GET() {
   try {
     const rows = await db
       .select({
-        title:   articles.title,
-        slug:    articles.slug,
-        catSlug: categories.slug,
+        title:        articles.title,
+        slug:         articles.slug,
+        categorySlug: categories.slug,
       })
       .from(articles)
       .innerJoin(categories, eq(articles.categoryId, categories.id))

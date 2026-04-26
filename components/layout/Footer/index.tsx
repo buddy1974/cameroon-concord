@@ -1,14 +1,12 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { SITE_NAME, SITE_FB } from '@/lib/constants'
-import { NewsletterCTA } from '@/components/common/NewsletterCTA'
 
 export function Footer() {
   const year = new Date().getFullYear()
 
   const sections = [
     {
-      title: 'Topics',
+      title: 'Sections',
       links: [
         { href: '/politics',           label: 'Politics' },
         { href: '/society',            label: 'Society' },
@@ -20,29 +18,25 @@ export function Footer() {
       ],
     },
     {
-      title: 'Special Coverage',
+      title: 'Coverage',
       links: [
         { href: '/anglophone-crisis',  label: 'Anglophone Crisis' },
         { href: '/tag/paul-biya',      label: 'Biya Era' },
         { href: '/headlines',          label: 'Breaking News' },
-        { href: '/southern-cameroons', label: 'Ambazonia' },
-        { href: '/society',            label: 'Local News' },
+        { href: '/explains',           label: 'CC Explains' },
+        { href: '/exile-voices',       label: 'Exile Voices' },
+        { href: '/accountability',     label: 'Accountability' },
+        { href: '/time-capsule',       label: 'Time Capsule' },
       ],
     },
     {
-      title: 'Company',
+      title: 'The Concord',
       links: [
-        { href: '/explains',          label: 'CC Explains' },
-        { href: '/about',             label: 'About Us' },
+        { href: '/about',             label: 'About us' },
         { href: '/contact',           label: 'Contact' },
         { href: '/advertise',         label: 'Advertise' },
         { href: '/privacy',           label: 'Privacy Policy' },
         { href: '/editorial-policy',  label: 'Editorial Policy' },
-        { href: '/topics',            label: 'Topics' },
-        { href: '/time-capsule',      label: 'Time Capsule' },
-        { href: '/exile-voices',      label: 'Exile Voices' },
-        { href: '/accountability',    label: 'Accountability Tracker' },
-        { href: '/biya-succession',   label: 'Biya Succession' },
         { href: '/rss',               label: 'RSS Feed' },
         { href: '/search',            label: 'Search' },
       ],
@@ -50,68 +44,52 @@ export function Footer() {
   ]
 
   return (
-    <footer style={{ borderTop: '1px solid var(--border)', marginTop: '60px', background: 'var(--bg-base)' }}>
-      <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '0 24px' }}>
-        <NewsletterCTA />
-      </div>
+    <footer style={{ borderTop: '1px solid hsl(var(--border))', marginTop: 0, background: 'hsl(var(--background))' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '64px 24px 32px' }}>
 
-      {/* Main footer grid */}
-      <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '48px 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '40px' }}>
-
-          {/* Brand column */}
-          <div>
-            <Link href="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
-              <Image src="/logo.png" alt="Cameroon Concord" width={160} height={40} />
+        {/* Top: Logo + tagline + socials */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 32, marginBottom: 56, flexWrap: 'wrap' }}>
+          <div style={{ maxWidth: 400 }}>
+            {/* Text logo */}
+            <Link href="/" aria-label="Cameroon Concord home"
+              style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', marginBottom: 16 }}>
+              <span style={{ background: 'hsl(210 20% 95%)', color: 'hsl(222 15% 7%)', padding: '4px 10px', fontFamily: 'var(--font-fraunces)', fontWeight: 900, fontSize: '0.9rem', letterSpacing: '0.06em', lineHeight: 1.4 }}>CAMEROON</span>
+              <span style={{ background: 'hsl(var(--primary))', color: '#fff', padding: '4px 10px', fontFamily: 'var(--font-fraunces)', fontWeight: 900, fontSize: '0.9rem', letterSpacing: '0.06em', lineHeight: 1.4 }}>CONCORD</span>
             </Link>
-            <p style={{ color: '#444', fontSize: '0.8rem', marginTop: '12px', lineHeight: 1.7, maxWidth: '240px' }}>
-              Independent English-language news covering Cameroon and Southern Cameroons since 2014.
+            <p style={{ fontSize: '0.88rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.7 }}>
+              Cameroon Concord is the country&apos;s premier independent newsroom — delivering measured reporting, deep analysis and original storytelling from across the two Cameroons and the diaspora.
             </p>
-
-            {/* Social links */}
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-              <a href={SITE_FB} target="_blank" rel="noopener noreferrer"
-                className="hover:text-[#EEE] transition-colors"
-                style={{ background: '#111', border: '1px solid #1E1E1E', color: '#888', padding: '8px 14px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 700, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Facebook
-              </a>
-              <a href="https://twitter.com/CameroonC" target="_blank" rel="noopener noreferrer"
-                className="hover:text-[#EEE] transition-colors"
-                style={{ background: '#111', border: '1px solid #1E1E1E', color: '#888', padding: '8px 14px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 700, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Twitter/X
-              </a>
-              <a href="https://www.tiktok.com/@cameroonconcord" target="_blank" rel="noopener noreferrer"
-                className="hover:text-[#EEE] transition-colors"
-                style={{ background: '#111', border: '1px solid #1E1E1E', color: '#888', padding: '8px 14px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 700, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                TikTok
-              </a>
-            </div>
-
-            {/* Newsletter CTA */}
-            <div style={{ marginTop: '24px', background: '#111', border: '1px solid #1E1E1E', borderRadius: '10px', padding: '16px' }}>
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#EEE', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Newsletter</p>
-              <p style={{ fontSize: '0.72rem', color: '#555', marginBottom: '12px', lineHeight: 1.5 }}>Cameroon news in your inbox</p>
-              <a href="mailto:info@cameroon-concord.com?subject=Newsletter Subscription"
-                style={{ display: 'block', background: '#C8102E', color: '#fff', padding: '8px 14px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 700, textDecoration: 'none', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Subscribe
-              </a>
-            </div>
           </div>
 
-          {/* Link sections */}
+          {/* Social links */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[
+              { href: SITE_FB, label: 'Facebook' },
+              { href: 'https://twitter.com/CameroonC', label: 'Twitter/X' },
+              { href: 'https://www.tiktok.com/@cameroonconcord', label: 'TikTok' },
+            ].map(s => (
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))', padding: '8px 14px', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.08em', transition: 'color 0.15s, border-color 0.15s' }}
+                className="hover:text-white hover:border-primary">
+                {s.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* 3-column link grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '32px 48px', paddingBottom: 48, borderBottom: '1px solid hsl(var(--border))' }}>
           {sections.map(section => (
             <div key={section.title}>
-              <p style={{ fontSize: '0.58rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#2A2A2A', marginBottom: '16px' }}>
+              <h4 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '0.9rem', fontWeight: 600, color: 'hsl(var(--foreground))', marginBottom: 16 }}>
                 {section.title}
-              </p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              </h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {section.links.map(link => (
                   <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="hover:text-[#EEE] transition-colors"
-                      style={{ fontSize: '0.82rem', color: '#555', textDecoration: 'none' }}
-                    >
+                    <Link href={link.href}
+                      style={{ fontSize: '0.85rem', color: 'hsl(var(--muted-foreground))', textDecoration: 'none', transition: 'color 0.15s' }}
+                      className="hover:text-white">
                       {link.label}
                     </Link>
                   </li>
@@ -119,17 +97,12 @@ export function Footer() {
               </ul>
             </div>
           ))}
-
         </div>
-      </div>
 
-      {/* Explore / tag cloud */}
-      <div style={{ borderTop: '1px solid #111' }}>
-        <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '24px' }}>
-          <p style={{ fontSize: '0.58rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#2A2A2A', marginBottom: '16px' }}>
-            Explore
-          </p>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        {/* Tag cloud */}
+        <div style={{ padding: '24px 0', borderBottom: '1px solid hsl(var(--border))' }}>
+          <p style={{ fontSize: '0.58rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'hsl(var(--border))', marginBottom: 14 }}>Explore</p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {[
               { label: 'Paul Biya',          href: '/tag/paul-biya' },
               { label: 'Anglophone Crisis',  href: '/tag/anglophone-crisis' },
@@ -142,44 +115,36 @@ export function Footer() {
               { label: 'Cameroon Economy',   href: '/tag/cameroon-economy' },
               { label: 'African Politics',   href: '/tag/african-politics' },
             ].map(tag => (
-              <Link
-                key={tag.href}
-                href={tag.href}
-                className="hover:text-[#EEE] hover:border-[#333] transition-colors"
-                style={{ background: '#111', border: '1px solid #1E1E1E', color: '#555', padding: '6px 12px', borderRadius: '20px', fontSize: '0.72rem', textDecoration: 'none', whiteSpace: 'nowrap' }}
-              >
+              <Link key={tag.href} href={tag.href}
+                style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))', padding: '5px 12px', borderRadius: 20, fontSize: '0.72rem', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'all 0.15s' }}
+                className="hover:text-white hover:border-primary">
                 {tag.label}
               </Link>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Bottom bar */}
-      <div style={{ borderTop: '1px solid #0E0E0E' }}>
-        <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-          <p style={{ fontSize: '0.65rem', color: '#2A2A2A' }}>
-            © {year} {SITE_NAME}. All Rights Reserved.
+        {/* Bottom bar */}
+        <div style={{ paddingTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <p style={{ fontSize: '0.72rem', color: 'hsl(var(--border))' }}>
+            © {year} {SITE_NAME}. All rights reserved. Independent journalism.
           </p>
-          <div style={{ display: 'flex', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: 20 }}>
             {[
               { href: '/privacy',   label: 'Privacy' },
               { href: '/advertise', label: 'Advertise' },
               { href: '/contact',   label: 'Contact' },
             ].map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="hover:text-[#666] transition-colors"
-                style={{ fontSize: '0.65rem', color: '#2A2A2A', textDecoration: 'none' }}
-              >
+              <Link key={link.href} href={link.href}
+                style={{ fontSize: '0.72rem', color: 'hsl(var(--border))', textDecoration: 'none', transition: 'color 0.15s' }}
+                className="hover:text-white">
                 {link.label}
               </Link>
             ))}
           </div>
         </div>
-      </div>
 
+      </div>
     </footer>
   )
 }

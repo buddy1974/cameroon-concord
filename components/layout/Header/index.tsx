@@ -50,7 +50,7 @@ export function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav style={{ display: 'none' }} className="lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1">
             {NAV_CATEGORIES.map(cat => {
               const active = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`)
               return (

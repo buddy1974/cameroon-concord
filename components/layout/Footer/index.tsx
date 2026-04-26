@@ -148,16 +148,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Advertise banner — right-aligned above copyright */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24 }}>
-          <a href="/advertise" style={{ display: 'block', maxWidth: '760px', width: '100%', borderRadius: '12px', overflow: 'hidden' }}>
-            <img
-              src="/advertise-banner.png"
-              alt="Advertise on Cameroon Concord"
-              style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '12px' }}
-            />
-          </a>
-        </div>
 
         {/* Bottom bar */}
         <div style={{ paddingTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>

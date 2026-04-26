@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { SITE_NAME, SITE_FB } from '@/lib/constants'
 
 export function Footer() {
@@ -47,34 +48,44 @@ export function Footer() {
     <footer style={{ borderTop: '1px solid hsl(var(--border))', marginTop: 0, background: 'hsl(var(--background))' }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '64px 24px 32px' }}>
 
-        {/* Top: Logo + tagline + socials */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 32, marginBottom: 56, flexWrap: 'wrap' }}>
+        {/* Top: Logo + tagline + socials | Advertise banner */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 40, marginBottom: 56, flexWrap: 'wrap' }}>
+          {/* LEFT: logo + tagline + socials */}
           <div style={{ maxWidth: 400 }}>
-            {/* Text logo */}
             <Link href="/" aria-label="Cameroon Concord home"
               style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', marginBottom: 16 }}>
               <span style={{ background: 'hsl(210 20% 95%)', color: 'hsl(222 15% 7%)', padding: '4px 10px', fontFamily: 'var(--font-fraunces)', fontWeight: 900, fontSize: '0.9rem', letterSpacing: '0.06em', lineHeight: 1.4 }}>CAMEROON</span>
               <span style={{ background: 'hsl(var(--primary))', color: '#fff', padding: '4px 10px', fontFamily: 'var(--font-fraunces)', fontWeight: 900, fontSize: '0.9rem', letterSpacing: '0.06em', lineHeight: 1.4 }}>CONCORD</span>
             </Link>
-            <p style={{ fontSize: '0.88rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.7 }}>
+            <p style={{ fontSize: '0.88rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.7, marginBottom: 20 }}>
               Cameroon Concord is the country&apos;s premier independent newsroom — delivering measured reporting, deep analysis and original storytelling from across the two Cameroons and the diaspora.
             </p>
+            {/* Social links */}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {[
+                { href: SITE_FB, label: 'Facebook' },
+                { href: 'https://twitter.com/CameroonC', label: 'Twitter/X' },
+                { href: 'https://www.tiktok.com/@cameroonconcord', label: 'TikTok' },
+              ].map(s => (
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                  style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))', padding: '8px 14px', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.08em', transition: 'color 0.15s, border-color 0.15s' }}
+                  className="hover:text-white hover:border-primary">
+                  {s.label}
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Social links */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {[
-              { href: SITE_FB, label: 'Facebook' },
-              { href: 'https://twitter.com/CameroonC', label: 'Twitter/X' },
-              { href: 'https://www.tiktok.com/@cameroonconcord', label: 'TikTok' },
-            ].map(s => (
-              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
-                style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))', padding: '8px 14px', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.08em', transition: 'color 0.15s, border-color 0.15s' }}
-                className="hover:text-white hover:border-primary">
-                {s.label}
-              </a>
-            ))}
-          </div>
+          {/* RIGHT: Advertise banner */}
+          <Link href="/advertise" style={{ display: 'block', flexShrink: 0, borderRadius: 12, overflow: 'hidden', transition: 'opacity 0.2s' }} className="hover:opacity-90">
+            <Image
+              src="/advertise-banner.png"
+              alt="Advertise on Cameroon Concord"
+              width={480}
+              height={160}
+              style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
+            />
+          </Link>
         </div>
 
         {/* 3-column link grid */}

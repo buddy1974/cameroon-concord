@@ -100,6 +100,26 @@ export default async function HomePage() {
   const cameroonFeatured  = cameroonRows[0]
   const trendingArticles  = cameroonRows.slice(1, 6)
 
+  // Top stories — one article per category column
+  const topStorySelect = {
+    id:           articles.id,
+    title:        articles.title,
+    slug:         articles.slug,
+    excerpt:      articles.excerpt,
+    featuredImage:articles.featuredImage,
+    publishedAt:  articles.publishedAt,
+    body:         articles.body,
+    category:     { name: categories.name, slug: categories.slug },
+    author:       { name: authors.name },
+  }
+  const [tsH, tsP, tsB, tsS] = await Promise.all([
+    db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'headlines'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
+    db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'politics'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
+    db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'business'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
+    db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'sportsnews'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
+  ]).catch(() => [undefined, undefined, undefined, undefined] as const)
+  const topStories = [tsH, tsP, tsB, tsS].filter((x): x is NonNullable<typeof tsH> => x != null)
+
   const heroSrc = hero ? cleanImg(hero.featuredImage) : ''
   const heroMins = hero ? readingTime(hero.body) : 0
 
@@ -181,23 +201,65 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* ── EDITOR'S PICKS ── */}
-      {picks.length > 0 && (
+      {/* ── TOP STORIES (4 cols by category) ── */}
+      {topStories.length > 0 && (
         <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '80px 24px 0' }}>
-          <div style={{ marginBottom: 40, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16 }}>
-            <div>
-              <div className="kicker">Editor&apos;s Picks</div>
-              <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 12, lineHeight: 1.1, color: 'hsl(var(--foreground))' }}>
+          {/* Header — single line */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 28 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ fontSize: '0.58rem', fontWeight: 800, color: 'hsl(var(--primary))', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                Editor&apos;s Picks
+              </span>
+              <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 900, lineHeight: 1.1, color: 'hsl(var(--foreground))', margin: 0 }}>
                 Our Top Stories on Cameroon Concord This Week
               </h2>
             </div>
             <Link href="/headlines" className="hidden md:inline-flex link-underline"
-              style={{ fontSize: '0.85rem', color: 'hsl(var(--muted-foreground))', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              style={{ fontSize: '0.82rem', color: 'hsl(var(--muted-foreground))', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
               All headlines →
             </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 32 }}>
-            {picks.map(a => <ArticleCard key={a.id} article={a} />)}
+
+          {/* 4-column grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+            {topStories.map(a => (
+              <Link key={a.id} href={`/${a.category.slug}/${a.slug}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', borderRadius: 16, overflow: 'hidden', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', height: '100%' }} className="card-lift">
+                {/* Image */}
+                <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', background: 'hsl(220 14% 14%)', flexShrink: 0 }}>
+                  {cleanImg(a.featuredImage) && (
+                    <img src={cleanImg(a.featuredImage) ?? ''} alt={a.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 600ms ease' }} />
+                  )}
+                  {/* Category badge — bottom-left */}
+                  <div style={{ position: 'absolute', bottom: 8, left: 8 }}>
+                    <span style={{ fontSize: '0.58rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'hsl(var(--primary))', color: '#fff', padding: '2px 8px', borderRadius: 4 }}>
+                      {a.category.name}
+                    </span>
+                  </div>
+                </div>
+                {/* Title */}
+                <div style={{ padding: '16px 16px 4px', flex: 1 }}>
+                  <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '1rem', fontWeight: 700, color: 'hsl(var(--card-foreground))', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>
+                    {a.title}
+                  </h3>
+                </div>
+                {/* Excerpt */}
+                {a.excerpt && (
+                  <p style={{ fontSize: '0.78rem', color: 'hsl(var(--muted-foreground))', padding: '0 16px', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>
+                    {a.excerpt}
+                  </p>
+                )}
+                {/* Footer */}
+                <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid hsl(var(--border))', marginTop: 'auto' }}>
+                  <span style={{ fontSize: '0.72rem', color: 'hsl(var(--muted-foreground))', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>
+                    {a.author?.name || 'Cameroon Concord'}
+                  </span>
+                  <span style={{ fontSize: '0.68rem', color: 'hsl(var(--muted-foreground))', display: 'inline-flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                    <Clock size={10} /> {readingTime(a.body)} min
+                  </span>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       )}

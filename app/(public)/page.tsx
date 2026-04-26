@@ -355,44 +355,6 @@ export default async function HomePage() {
         <InstallBanner />
       </div>
 
-      {/* ── SUBSCRIBE BLOCK ── */}
-      <section style={{ position: 'relative', margin: '80px 0', overflow: 'hidden' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
-          <div className="grain" style={{ position: 'relative', overflow: 'hidden', borderRadius: 24, border: '1px solid hsl(var(--border))', background: 'hsl(220 14% 10%)', padding: 'clamp(32px, 6vw, 64px)', boxShadow: '0 30px 60px hsl(0 0% 0% / 0.4)' }}>
-            {/* Glow blobs */}
-            <div style={{ position: 'absolute', top: -128, right: -128, width: 320, height: 320, borderRadius: '50%', background: 'hsl(354 78% 50% / 0.15)', filter: 'blur(48px)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: -128, left: -128, width: 320, height: 320, borderRadius: '50%', background: 'hsl(43 74% 60% / 0.08)', filter: 'blur(48px)', pointerEvents: 'none' }} />
-
-            <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="md:grid-cols-2 md:items-center">
-              <div>
-                <div className="kicker">The Concord Daily</div>
-                <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 16, lineHeight: 1.15, color: 'hsl(var(--foreground))' }}>
-                  The story of Cameroon, before the rest of the world wakes up.
-                </h2>
-                <p style={{ marginTop: 20, fontSize: '1.05rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.7 }}>
-                  Six stories. Hand-picked by our editors. Delivered every morning at 6 a.m. WAT. No fluff, no spam — just the country, in focus.
-                </p>
-                <ul style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[
-                    "In-depth analysis you won't find anywhere else",
-                    "Exclusive newsletters from the field",
-                    "Free for life — supported by readers like you",
-                  ].map(b => (
-                    <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: '0.9rem', color: 'hsl(var(--secondary-foreground))' }}>
-                      <span style={{ color: 'hsl(var(--primary))', flexShrink: 0, marginTop: 2 }}>✓</span>
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <NewsletterCTA />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── AD UNIT ── */}
       <div style={{ maxWidth: '728px', margin: '0 auto 48px', padding: '0 24px' }}>
         <AdUnit slot="9844142257" format="horizontal" />
@@ -430,6 +392,43 @@ export default async function HomePage() {
         </section>
       ))}
 
+      {/* ── SUBSCRIBE BLOCK ── */}
+      <section style={{ position: 'relative', margin: '80px 0', overflow: 'hidden' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+          <div className="grain" style={{ position: 'relative', overflow: 'hidden', borderRadius: 24, border: '1px solid hsl(var(--border))', background: 'hsl(220 14% 10%)', padding: 'clamp(32px, 6vw, 64px)', boxShadow: '0 30px 60px hsl(0 0% 0% / 0.4)' }}>
+            {/* Glow blobs */}
+            <div style={{ position: 'absolute', top: -128, right: -128, width: 320, height: 320, borderRadius: '50%', background: 'hsl(354 78% 50% / 0.15)', filter: 'blur(48px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -128, left: -128, width: 320, height: 320, borderRadius: '50%', background: 'hsl(43 74% 60% / 0.08)', filter: 'blur(48px)', pointerEvents: 'none' }} />
+
+            <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="md:grid-cols-2 md:items-center">
+              <div>
+                <div className="kicker">The Concord Daily</div>
+                <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 16, lineHeight: 1.15, color: 'hsl(var(--foreground))' }}>
+                  The story of Cameroon, before the rest of the world wakes up.
+                </h2>
+                <p style={{ marginTop: 20, fontSize: '1.05rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.7 }}>
+                  Six stories. Hand-picked by our editors. Delivered every morning at 6 a.m. WAT. No fluff, no spam — just the country, in focus.
+                </p>
+                <ul style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {[
+                    "In-depth analysis you won't find anywhere else",
+                    "Exclusive newsletters from the field",
+                    "Free for life — supported by readers like you",
+                  ].map(b => (
+                    <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: '0.9rem', color: 'hsl(var(--secondary-foreground))' }}>
+                      <span style={{ color: 'hsl(var(--primary))', flexShrink: 0, marginTop: 2 }}>✓</span>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <NewsletterCTA />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   )
 }

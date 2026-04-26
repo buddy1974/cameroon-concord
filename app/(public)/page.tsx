@@ -11,7 +11,7 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import { NewsletterCTA } from '@/components/common/NewsletterCTA'
 import {
   getFeaturedArticles, getLatestArticles,
-  getMostRead, getArticlesByCategory, getAllCategories,
+  getArticlesByCategory, getAllCategories,
 } from '@/lib/db/queries'
 import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema } from '@/lib/seo/schema'
@@ -29,16 +29,14 @@ function cleanImg(url: string | null | undefined): string {
 }
 
 export default async function HomePage() {
-  let featured:     ArticleWithRelations[] = []
-  let latest:       ArticleWithRelations[] = []
-  let mostRead:     ArticleWithRelations[] = []
-  let allCats:      Category[]             = []
+  let featured: ArticleWithRelations[] = []
+  let latest:   ArticleWithRelations[] = []
+  let allCats:  Category[]             = []
 
   try {
-    ;[featured, latest, mostRead, allCats] = await Promise.all([
+    ;[featured, latest, allCats] = await Promise.all([
       getFeaturedArticles(7),
       getLatestArticles(18),
-      getMostRead(5),
       getAllCategories(),
     ])
   } catch (err) {
@@ -432,17 +430,6 @@ export default async function HomePage() {
         </section>
       ))}
 
-      {/* ── MOST READ (sidebar content, now inline) ── */}
-      {mostRead.length > 0 && (
-        <section style={{ maxWidth: '1400px', margin: '64px auto 0', padding: '0 24px 80px' }}>
-          <div className="kicker" style={{ marginBottom: 24 }}>Most Read</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {mostRead.map((a, i) => (
-              <ArticleCard key={a.id} article={a} variant="list" index={i} />
-            ))}
-          </div>
-        </section>
-      )}
     </>
   )
 }

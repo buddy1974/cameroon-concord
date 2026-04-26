@@ -36,6 +36,9 @@ import { formatDate, readingTime, formatHitCount, depthScore } from '@/lib/utils
 import { safeJsonArray } from '@/lib/utils/safe-json'
 import { SITE_URL } from '@/lib/constants'
 import type { ArticleWithRelations } from '@/lib/types'
+import { db } from '@/lib/db/client'
+import { articles, categories } from '@/lib/db/schema'
+import { eq, desc } from 'drizzle-orm'
 
 interface Props { params: Promise<{ category: string; slug: string }> }
 
@@ -52,6 +55,22 @@ export default async function ArticlePage({ params }: Props) {
   if (!article) notFound()
 
   const related = await getRelatedArticles(article.id, article.categoryId, 4)
+
+  const mostRead = await db
+    .select({
+      id:          articles.id,
+      title:       articles.title,
+      slug:        articles.slug,
+      body:        articles.body,
+      publishedAt: articles.publishedAt,
+      category:    { name: categories.name, slug: categories.slug },
+    })
+    .from(articles)
+    .innerJoin(categories, eq(articles.categoryId, categories.id))
+    .where(eq(articles.status, 'published'))
+    .orderBy(desc(articles.legacyHits))
+    .limit(10)
+    .catch(() => [])
 
   const minutes    = readingTime(article.body)
   const depth      = depthScore(article.body)
@@ -304,6 +323,32 @@ export default async function ArticlePage({ params }: Props) {
             <AdUnit slot="5520370976" format="rectangle" />
             <StoryTimeline articleId={article.id} />
             <SubscribeForm source="article" />
+            {mostRead.length > 0 && (
+              <div style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 16, overflow: 'hidden' }}>
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid hsl(var(--border))', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: '0.9rem' }}>📈</span>
+                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'hsl(var(--primary))', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Most Read</span>
+                </div>
+                <div style={{ padding: '8px 0' }}>
+                  {mostRead.map((a, i) => (
+                    <a key={a.id} href={`/${a.category.slug}/${a.slug}`}
+                      style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px 20px', textDecoration: 'none', borderBottom: i < mostRead.length - 1 ? '1px solid hsl(var(--border))' : 'none' }}>
+                      <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'hsl(354 78% 50% / 0.35)', fontFamily: 'var(--font-fraunces)', minWidth: 24, flexShrink: 0, lineHeight: 1.3 }}>
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'hsl(var(--card-foreground))', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: 3 }}>
+                          {a.title}
+                        </div>
+                        <div style={{ fontSize: '0.62rem', color: 'hsl(var(--muted-foreground))' }}>
+                          {readingTime(a.body)} min read
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

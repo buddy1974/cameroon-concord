@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono, Fraunces, Roboto } from 'next/font/google'
+import { Inter, Fraunces, Roboto } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/react'
 import { buildSiteMetadata } from '@/lib/seo/metadata'
@@ -10,9 +10,8 @@ import { ReadingStreak } from '@/components/common/ReadingStreak'
 import { GeoTracker }    from '@/components/common/GeoTracker'
 import './globals.css'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
-const fraunces   = Fraunces({ variable: '--font-fraunces', subsets: ['latin'], display: 'swap', weight: ['400', '700', '900'] })
+const inter    = Inter({ variable: '--font-inter', subsets: ['latin'], display: 'swap' })
+const fraunces = Fraunces({ variable: '--font-fraunces', subsets: ['latin'], display: 'swap', weight: ['400', '700', '900'] })
 const roboto     = Roboto({ variable: '--font-roboto', subsets: ['latin'], weight: ['400', '700', '900'], display: 'swap' })
 
 export const metadata: Metadata = {
@@ -68,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           });
         `}} />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${roboto.variable} antialiased`}>
+      <body className={`${inter.variable} ${fraunces.variable} ${roboto.variable} antialiased`}>
         <AdSenseLoader />
         {children}
         <ServiceWorkerRegistration />

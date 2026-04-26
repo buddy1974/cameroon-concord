@@ -47,7 +47,7 @@ export default async function HomePage() {
   const picks = featured.length >= 4 ? featured.slice(1, 4) : latest.slice(0, 3)
   const longRead = latest[0]
   const trending = latest.slice(0, 5)
-  const grid = latest.slice(5, 11)
+  const grid = latest.slice(5, 13)
 
   const targetSlugs = ['politics', 'society', 'sportsnews', 'southern-cameroons', 'health', 'business']
   const availableSlugs = targetSlugs.filter(s => allCats.some(c => c.slug === s))
@@ -402,12 +402,12 @@ export default async function HomePage() {
       {grid.length > 0 && (
         <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px 32px' }}>
           <div style={{ marginBottom: 40 }}>
-            <div className="kicker">More from the Concord</div>
+            <div className="kicker">Across the World</div>
             <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 12, lineHeight: 1.1, color: 'hsl(var(--foreground))' }}>
-              Across the country
+              Stories From Cameroon and Beyond
             </h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 32 }}>
             {grid.map(a => <ArticleCard key={a.id} article={a} />)}
           </div>
         </section>

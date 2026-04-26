@@ -254,24 +254,6 @@ export default async function ArticlePage({ params }: Props) {
               {/* Reaction bar */}
               <ReactionBar articleId={article.id} />
 
-              {/* Inline newsletter CTA — Lovable style */}
-              <div style={{
-                marginTop: 48, borderRadius: 16,
-                border: '1px solid hsla(354,78%,50%,0.3)',
-                background: 'hsla(354,78%,50%,0.05)',
-                padding: '40px 32px', textAlign: 'center',
-              }}>
-                <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8, lineHeight: 1.2 }}>
-                  Enjoyed this story?
-                </h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: 24, lineHeight: 1.6 }}>
-                  Get The Concord Daily — six hand-picked stories every morning. Free.
-                </p>
-                <a href="#newsletter" style={{ display: 'inline-block', background: 'var(--brand)', color: '#fff', borderRadius: 24, padding: '12px 32px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-                  Subscribe to the newsletter →
-                </a>
-              </div>
-
               {/* Discussion teaser */}
               <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border)', paddingTop: 24 }}>
                 <span>💬</span>

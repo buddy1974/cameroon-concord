@@ -131,7 +131,7 @@ export default async function ArticlePage({ params }: Props) {
           {/* Title */}
           <h1 style={{
             fontFamily: 'var(--font-roboto)',
-            fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
             fontWeight: 900,
             color: '#fff',
             lineHeight: 1.05,

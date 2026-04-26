@@ -13,7 +13,7 @@ import './globals.css'
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 const fraunces   = Fraunces({ variable: '--font-fraunces', subsets: ['latin'], display: 'swap', weight: ['400', '700', '900'] })
-const roboto     = Roboto({ variable: '--font-roboto', subsets: ['latin'], weight: ['900'], display: 'swap' })
+const roboto     = Roboto({ variable: '--font-roboto', subsets: ['latin'], weight: ['400', '700', '900'], display: 'swap' })
 
 export const metadata: Metadata = {
   ...buildSiteMetadata(),

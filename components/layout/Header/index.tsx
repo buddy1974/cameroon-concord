@@ -1,208 +1,189 @@
 'use client'
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Search, Menu, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { NAV_CATEGORIES } from '@/lib/constants'
-import { ThemeToggle } from '@/components/common/ThemeToggle'
-
-interface BreakingItem { title: string; slug: string; catSlug: string }
 
 export function Header() {
-  const [open,     setOpen]     = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [breaking, setBreaking] = useState<BreakingItem[]>([])
-  const pathname = usePathname()
+  const pathname                      = usePathname()
+  const [mobileOpen, setMobileOpen]   = useState(false)
+  const [scrolled,   setScrolled]     = useState(false)
+  const [breaking,   setBreaking]     = useState<string[]>([])
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 30)
-    window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => { setOpen(false) }, [pathname])
+  useEffect(() => { setMobileOpen(false) }, [pathname])
 
   useEffect(() => {
     fetch('/api/articles/breaking')
       .then(r => r.json())
-      .then((d: unknown) => { if (Array.isArray(d)) setBreaking(d as BreakingItem[]) })
+      .then(d => { if (Array.isArray(d)) setBreaking(d.map((a: { title: string }) => a.title)) })
       .catch(() => {})
   }, [])
 
   return (
-    <header style={{ position: 'sticky', top: 0, zIndex: 50 }}>
+    <header style={{
+      position: 'sticky', top: 0, zIndex: 50,
+      padding: scrolled ? '8px 16px' : '16px 16px',
+      transition: 'padding 500ms ease',
+    }}>
 
-      {/* Main nav bar */}
-      <div style={{
-        transition: 'all 0.3s ease',
-        background: scrolled ? 'var(--bg-glass)' : 'var(--bg-base)',
-        backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none',
-        borderBottom: '1px solid var(--border)',
-        boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.4)' : 'none',
+      {/* ── GLASS PILL ── */}
+      <div className="glass shadow-elegant" style={{
+        maxWidth: '1400px', margin: '0 auto',
+        borderRadius: '16px',
+        padding: '10px 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: '16px',
       }}>
-        <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
 
-          {/* Logo */}
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
-            <Image src="/logo.png" alt="Cameroon Concord" width={180} height={32} priority className="h-8 w-auto" />
+        {/* LEFT: Logo + Desktop Nav */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+
+          {/* Two-block text logo */}
+          <Link href="/" aria-label="Cameroon Concord home" style={{
+            display: 'inline-flex', alignItems: 'center',
+            fontFamily: 'var(--font-fraunces)', fontWeight: 900,
+            textDecoration: 'none', flexShrink: 0, letterSpacing: '0.04em',
+          }}>
+            <span style={{ background: '#F0F0F0', color: '#0A0A0A', padding: '4px 8px', lineHeight: 1, fontSize: '0.82rem' }}>
+              CAMEROON
+            </span>
+            <span style={{ background: 'var(--brand)', color: '#fff', padding: '4px 8px', lineHeight: 1, fontSize: '0.82rem' }}>
+              CONCORD
+            </span>
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex" style={{ alignItems: 'center', gap: '20px' }}>
             {NAV_CATEGORIES.map(cat => {
               const active = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`)
               return (
-                <Link key={cat.slug} href={`/${cat.slug}`} style={{
-                  position: 'relative',
-                  padding: '6px 12px',
-                  fontSize: '0.67rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  whiteSpace: 'nowrap',
-                  textDecoration: 'none',
-                  color: active ? 'var(--brand)' : 'var(--text-muted)',
-                  transition: 'color 0.15s ease',
-                }}>
-                  {active && (
-                    <span style={{ position: 'absolute', bottom: 0, left: '12px', right: '12px', height: 2, background: 'var(--brand)', borderRadius: 1 }} />
-                  )}
+                <Link
+                  key={cat.slug}
+                  href={`/${cat.slug}`}
+                  className="link-underline"
+                  style={{
+                    fontSize: '0.82rem',
+                    fontWeight: active ? 600 : 400,
+                    color: active ? '#fff' : 'hsl(0 0% 65%)',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    transition: 'color 0.2s',
+                  }}
+                >
                   {cat.name}
                 </Link>
               )
             })}
-            <Link href="/my-feed" style={{
-              padding: '6px 12px',
-              fontSize: '0.67rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: pathname === '/my-feed' ? 'var(--gold)' : 'color-mix(in srgb, var(--gold) 60%, transparent)',
-              textDecoration: 'none',
-              marginLeft: 4,
-              borderLeft: '1px solid var(--border)',
-              paddingLeft: 14,
-              transition: 'color 0.15s ease',
-            }}>
-              My Feed
-            </Link>
           </nav>
+        </div>
 
-          {/* Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Link href="/search" aria-label="Search" style={{
-              width: 36, height: 36, display: 'grid', placeItems: 'center',
-              borderRadius: 8, color: 'var(--text-muted)', transition: 'all 0.15s ease',
-              textDecoration: 'none',
+        {/* RIGHT: Search + Subscribe + Hamburger */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+
+          <Link href="/search" aria-label="Search"
+            style={{ color: 'hsl(0 0% 65%)', textDecoration: 'none', lineHeight: 1, fontSize: '1.05rem' }}
+            className="hidden md:inline-flex">
+            🔍
+          </Link>
+
+          <Link href="/newsletter" className="hidden md:inline-flex animate-glow-pulse"
+            style={{
+              background: 'var(--brand)', color: '#fff',
+              borderRadius: '24px', padding: '8px 20px',
+              fontSize: '0.8rem', fontWeight: 700,
+              textDecoration: 'none', whiteSpace: 'nowrap',
+            }}>
+            Subscribe
+          </Link>
+
+          <button
+            className="lg:hidden"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: '#fff', fontSize: '1.2rem', padding: '4px', lineHeight: 1,
             }}
-              className="hover:text-white hover:bg-[#181818]">
-              <Search size={16} strokeWidth={2.5} />
-            </Link>
-            <ThemeToggle />
-            <button onClick={() => setOpen(!open)} aria-label={open ? 'Close menu' : 'Open menu'}
-              style={{
-                width: 36, height: 36, display: 'grid', placeItems: 'center',
-                borderRadius: 8, color: 'var(--text-muted)', background: 'none',
-                border: 'none', cursor: 'pointer', transition: 'all 0.15s ease',
-              }}
-              className="lg:hidden hover:text-white hover:bg-[#181818]">
-              {open ? <X size={17} /> : <Menu size={17} />}
-            </button>
-          </div>
+          >
+            {mobileOpen ? '✕' : '☰'}
+          </button>
         </div>
       </div>
 
-      {/* Breaking ticker */}
-      {breaking.length > 0 && (
-        <div style={{
-          background: 'var(--brand)',
-          borderBottom: '1px solid rgba(0,0,0,0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          overflow: 'hidden',
-          height: 32,
+      {/* ── MOBILE DROPDOWN ── */}
+      {mobileOpen && (
+        <div className="glass animate-fade-up shadow-elegant lg:hidden" style={{
+          maxWidth: '1400px', margin: '8px auto 0',
+          borderRadius: '16px', padding: '20px',
         }}>
-          <div style={{
-            flexShrink: 0,
-            padding: '0 14px',
-            fontSize: '0.6rem',
-            fontWeight: 900,
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            color: '#fff',
-            borderRight: '1px solid rgba(255,255,255,0.3)',
-            whiteSpace: 'nowrap',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            background: 'rgba(0,0,0,0.15)',
-          }}>
-            ⚡ Breaking
-          </div>
-          <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-            <div className="animate-marquee" style={{ display: 'flex', gap: '40px', whiteSpace: 'nowrap', paddingLeft: 20 }}>
-              {[...breaking, ...breaking].map((item, i) => (
-                <Link key={i} href={`/${item.catSlug}/${item.slug}`} style={{
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  color: '#fff',
-                  textDecoration: 'none',
-                  flexShrink: 0,
-                  opacity: 0.9,
-                  transition: 'opacity 0.15s',
-                }}
-                  className="hover:opacity-100">
-                  {item.title}
-                  <span style={{ marginLeft: 40, color: 'rgba(255,255,255,0.4)' }}>·</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile nav */}
-      {open && (
-        <nav style={{
-          position: 'fixed',
-          inset: '0 0 0 0',
-          top: 56,
-          bottom: 0,
-          background: 'var(--bg-base)',
-          zIndex: 50,
-          overflowY: 'auto',
-          padding: 16,
-          borderTop: '1px solid var(--border)',
-        }}
-          className="lg:hidden">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            <Link href="/" style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '12px 16px', background: 'var(--bg-elevated)',
-              border: '1px solid var(--brand)', borderRadius: 12,
-              fontSize: '0.875rem', fontWeight: 600, color: '#fff',
-              textDecoration: 'none', gridColumn: '1 / -1',
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', flexShrink: 0 }} />
-              Home
-            </Link>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
             {NAV_CATEGORIES.map(cat => (
-              <Link key={cat.slug} href={`/${cat.slug}`} style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '12px 16px', background: 'var(--bg-elevated)',
-                border: '1px solid var(--border)', borderRadius: 12,
-                fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)',
-                textDecoration: 'none', transition: 'all 0.15s ease',
-              }}
-                className="hover:text-white hover:border-brand">
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', flexShrink: 0 }} />
+              <Link
+                key={cat.slug}
+                href={`/${cat.slug}`}
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  padding: '10px 14px', borderRadius: '10px',
+                  background: 'hsl(0 0% 10%)',
+                  color: 'hsl(0 0% 75%)', fontSize: '0.82rem', fontWeight: 500,
+                  textDecoration: 'none',
+                }}
+              >
                 {cat.name}
               </Link>
             ))}
           </div>
-        </nav>
+          <Link
+            href="/newsletter"
+            onClick={() => setMobileOpen(false)}
+            style={{
+              display: 'block', textAlign: 'center',
+              background: 'var(--brand)', color: '#fff',
+              borderRadius: '12px', padding: '12px',
+              fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none',
+            }}
+          >
+            Subscribe Free
+          </Link>
+        </div>
+      )}
+
+      {/* ── BREAKING TICKER ── */}
+      {breaking.length > 0 && (
+        <div style={{
+          maxWidth: '1400px', margin: '8px auto 0',
+          background: 'hsl(354 78% 50% / 0.12)',
+          border: '1px solid hsl(354 78% 50% / 0.25)',
+          borderRadius: '10px',
+          display: 'flex', alignItems: 'center',
+          overflow: 'hidden', height: '32px',
+        }}>
+          <div style={{
+            background: 'var(--brand)', color: '#fff',
+            padding: '0 14px', height: '100%',
+            display: 'flex', alignItems: 'center',
+            fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.12em',
+            whiteSpace: 'nowrap', flexShrink: 0,
+          }}>
+            ⚡ LIVE
+          </div>
+          <div style={{ overflow: 'hidden', flex: 1 }}>
+            <div className="animate-marquee" style={{ display: 'flex', gap: '48px', whiteSpace: 'nowrap', padding: '0 24px' }}>
+              {[...breaking, ...breaking].map((title, i) => (
+                <span key={i} style={{ fontSize: '0.72rem', color: 'hsl(0 0% 75%)', flexShrink: 0 }}>
+                  {title}
+                  <span style={{ color: 'var(--brand)', margin: '0 16px' }}>·</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </header>
   )

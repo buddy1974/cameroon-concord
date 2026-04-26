@@ -92,11 +92,44 @@ body {
 
 /* ── Glass surface ── */
 .glass {
-  background: var(--bg-glass);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--border);
+  background: hsl(0 0% 5% / 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid hsl(0 0% 100% / 0.08);
 }
+
+/* ── Elegant shadow ── */
+.shadow-elegant {
+  box-shadow: 0 8px 32px hsl(0 0% 0% / 0.4), 0 1px 0 hsl(0 0% 100% / 0.06) inset;
+}
+
+/* ── Link underline hover animation ── */
+.link-underline { position: relative; text-decoration: none; }
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 100%; height: 1px;
+  background: var(--brand);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-underline:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* ── Glow pulse (Subscribe button) ── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(354 78% 50% / 0.6); }
+  50%       { box-shadow: 0 0 0 12px hsl(354 78% 50% / 0); }
+}
+.animate-glow-pulse { animation: glow-pulse 2.4s ease-out infinite; }
+
+/* ── Fade up (mobile dropdown) ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 /* ── Card hover lift ── */
 .card-lift {

@@ -151,7 +151,7 @@ export default async function HomePage() {
                 </div>
 
                 {/* Title */}
-                <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(2.2rem, 5vw, 4.2rem)', fontWeight: 900, lineHeight: 1.02, letterSpacing: '-0.02em', marginBottom: 20, color: '#fff' }}>
+                <h1 style={{ fontFamily: 'var(--font-roboto)', fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', fontWeight: 900, lineHeight: 1.02, letterSpacing: '-0.02em', marginBottom: 20, color: '#fff' }}>
                   {hero.title}
                 </h1>
 
@@ -208,7 +208,7 @@ export default async function HomePage() {
               <span style={{ fontSize: '0.58rem', fontWeight: 800, color: 'hsl(var(--primary))', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
                 Editor&apos;s Picks
               </span>
-              <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 900, lineHeight: 1.1, color: 'hsl(var(--foreground))', margin: 0 }}>
+              <h2 style={{ fontFamily: 'var(--font-roboto)', fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 900, lineHeight: 1.1, color: 'hsl(var(--foreground))', margin: 0 }}>
                 Our Top Stories on Cameroon Concord This Week
               </h2>
             </div>
@@ -268,7 +268,7 @@ export default async function HomePage() {
           {/* Section header */}
           <div style={{ marginBottom: 40 }}>
             <div className="kicker">Cameroon Focus</div>
-            <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, marginTop: 12, lineHeight: 1.15, color: 'hsl(var(--foreground))' }}>
+            <h2 style={{ fontFamily: 'var(--font-roboto)', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, marginTop: 12, lineHeight: 1.15, color: 'hsl(var(--foreground))' }}>
               Minute by Minute: News Across Cameroon
             </h2>
           </div>
@@ -365,7 +365,7 @@ export default async function HomePage() {
         <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px 32px' }}>
           <div style={{ marginBottom: 40 }}>
             <div className="kicker">Across the World</div>
-            <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 12, lineHeight: 1.1, color: 'hsl(var(--foreground))' }}>
+            <h2 style={{ fontFamily: 'var(--font-roboto)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 12, lineHeight: 1.1, color: 'hsl(var(--foreground))' }}>
               Stories From Cameroon and Beyond
             </h2>
           </div>
@@ -403,7 +403,7 @@ export default async function HomePage() {
             <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="md:grid-cols-2 md:items-center">
               <div>
                 <div className="kicker">The Concord Daily</div>
-                <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 16, lineHeight: 1.15, color: 'hsl(var(--foreground))' }}>
+                <h2 style={{ fontFamily: 'var(--font-roboto)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 16, lineHeight: 1.15, color: 'hsl(var(--foreground))' }}>
                   The story of Cameroon, before the rest of the world wakes up.
                 </h2>
                 <p style={{ marginTop: 20, fontSize: '1.05rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.7 }}>

@@ -172,7 +172,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
         </div>
         {/* Content */}
         <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
-          <h3 style={{ fontFamily: 'var(--font-roboto)', fontSize: '1rem', fontWeight: 900, color: 'hsl(var(--card-foreground))', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
+          <h3 style={{ fontFamily: 'var(--font-roboto)', fontSize: '1.1rem', fontWeight: 900, color: 'hsl(var(--card-foreground))', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
             {article.title}
           </h3>
           {article.excerpt && (

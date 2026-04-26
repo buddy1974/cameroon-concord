@@ -53,7 +53,7 @@ export function Header() {
               const active = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`)
               return (
                 <Link key={cat.slug} href={`/${cat.slug}`} className="link-underline"
-                  style={{ fontSize: '0.72rem', fontWeight: active ? 600 : 400, color: active ? '#fff' : 'hsl(220 8% 62%)', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s', fontFamily: 'var(--font-roboto)' }}>
+                  style={{ fontSize: '1rem', fontWeight: 700, color: active ? '#fff' : 'hsl(220 8% 62%)', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s', fontFamily: 'var(--font-roboto)' }}>
                   {cat.name}
                 </Link>
               )

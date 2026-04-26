@@ -152,7 +152,7 @@ export default async function HomePage() {
             <div>
               <div className="kicker">Editor&apos;s Picks</div>
               <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, marginTop: 12, lineHeight: 1.1, color: 'hsl(var(--foreground))' }}>
-                The stories shaping Cameroon this week
+                Our Top Stories on Cameroon Concord This Week
               </h2>
             </div>
             <Link href="/headlines" className="hidden md:inline-flex link-underline"
@@ -160,7 +160,7 @@ export default async function HomePage() {
               All headlines →
             </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 32 }}>
             {picks.map(a => <ArticleCard key={a.id} article={a} />)}
           </div>
         </section>

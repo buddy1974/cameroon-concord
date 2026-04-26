@@ -15,6 +15,7 @@ import {
 import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema } from '@/lib/seo/schema'
 import type { ArticleWithRelations, Category } from '@/lib/types'
+import { NewsletterCTA } from '@/components/common/NewsletterCTA'
 
 export const metadata: Metadata = buildSiteMetadata()
 
@@ -91,6 +92,9 @@ export default async function HomePage() {
 
           </div>
         )}
+
+        {/* ── NEWSLETTER CTA ── */}
+        <NewsletterCTA />
 
         {/* ── APP INSTALL BANNER ── */}
         <InstallBanner />

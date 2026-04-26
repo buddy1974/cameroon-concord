@@ -34,6 +34,7 @@ import { buildNewsArticleSchema, buildBreadcrumbSchema } from '@/lib/seo/schema'
 import { formatDate, readingTime, formatHitCount, depthScore } from '@/lib/utils'
 import { safeJsonArray } from '@/lib/utils/safe-json'
 import { SITE_URL } from '@/lib/constants'
+import { NewsletterCTA } from '@/components/common/NewsletterCTA'
 
 interface Props { params: Promise<{ category: string; slug: string }> }
 
@@ -92,7 +93,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl md:text-4xl font-black text-[#F5A623] leading-[1.1] tracking-[-0.03em] mb-3">
+          <h1 className="text-2xl md:text-4xl font-black text-[#F5A623] leading-[1.1] tracking-[-0.03em] mb-3" style={{ fontFamily: 'var(--font-fraunces)' }}>
             {article.title}
           </h1>
           {article.subtitle && (
@@ -178,7 +179,7 @@ export default async function ArticlePage({ params }: Props) {
           )}
 
           {/* Article body */}
-          <div className="prose" id="article-content">
+          <div className="prose prose-editorial" id="article-content">
             <ProgressiveBody html={article.body || ''} />
           </div>
 
@@ -221,6 +222,9 @@ export default async function ArticlePage({ params }: Props) {
               </div>
             </div>
           )}
+
+          {/* Newsletter CTA */}
+          <NewsletterCTA />
 
           {/* Related articles */}
           {related.length > 0 && (

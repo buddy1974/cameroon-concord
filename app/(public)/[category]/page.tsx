@@ -51,17 +51,18 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       <div style={{ paddingTop: '32px', paddingBottom: '48px' }}>
 
         {/* Category header */}
-        <div style={{ marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid #1E1E1E' }}>
-          <nav className="text-[0.65rem] text-[#444] mb-3 flex items-center gap-1.5">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+        <div style={{ marginBottom: '40px', paddingBottom: '28px', borderBottom: '1px solid var(--border)' }}>
+          <nav style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }} className="hover:text-white transition-colors">Home</Link>
             <span>›</span>
-            <span className="text-[#C8102E] font-semibold">{category.name}</span>
+            <span style={{ color: 'var(--brand)', fontWeight: 600 }}>{category.name}</span>
           </nav>
-          <div className="flex items-baseline gap-4 flex-wrap">
-            <h1 className="text-[2.5rem] md:text-[3.5rem] font-black uppercase tracking-[-0.03em] text-white leading-none">
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
+            <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(2.5rem, 6vw, 4rem)', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1, position: 'relative', display: 'inline-block' }}>
               {category.name}
+              <span style={{ position: 'absolute', bottom: -6, left: 0, width: '55%', height: 3, background: 'var(--brand)', borderRadius: 2 }} />
             </h1>
-            <span className="text-[#333] text-sm">{total.toLocaleString()} articles</span>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{total.toLocaleString()} articles</span>
             <FollowButton topicSlug={slug} topicName={category.name} />
           </div>
         </div>

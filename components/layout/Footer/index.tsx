@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { SITE_NAME, SITE_FB } from '@/lib/constants'
+import { NewsletterCTA } from '@/components/common/NewsletterCTA'
 
 export function Footer() {
   const year = new Date().getFullYear()
@@ -49,7 +50,10 @@ export function Footer() {
   ]
 
   return (
-    <footer style={{ borderTop: '1px solid #1A1A1A', marginTop: '60px', background: '#080808' }}>
+    <footer style={{ borderTop: '1px solid var(--border)', marginTop: '60px', background: 'var(--bg-base)' }}>
+      <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '0 24px' }}>
+        <NewsletterCTA />
+      </div>
 
       {/* Main footer grid */}
       <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '48px 24px' }}>

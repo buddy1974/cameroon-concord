@@ -42,6 +42,19 @@ export function Footer() {
         { href: '/search',            label: 'Search' },
       ],
     },
+    {
+      title: 'Follow Us',
+      links: [
+        { href: 'https://www.facebook.com/cameroonconcord', label: 'Facebook' },
+        { href: 'https://twitter.com/CameroonC',            label: 'Twitter / X' },
+        { href: 'https://www.tiktok.com/@cameroonconcord',  label: 'TikTok' },
+        { href: 'https://wa.me/cameroonconcord',            label: 'WhatsApp Channel' },
+        { href: '/newsletter',                              label: 'Newsletter' },
+        { href: '/my-feed',                                 label: 'My Feed' },
+        { href: '/topics',                                  label: 'Topics' },
+        { href: '/time-capsule',                            label: 'Time Capsule' },
+      ],
+    },
   ]
 
   return (
@@ -88,8 +101,8 @@ export function Footer() {
           </Link>
         </div>
 
-        {/* 3-column link grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '32px 48px', paddingBottom: 48, borderBottom: '1px solid hsl(var(--border))' }}>
+        {/* 4-column link grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '32px 48px', paddingBottom: 48, borderBottom: '1px solid hsl(var(--border))' }}>
           {sections.map(section => (
             <div key={section.title}>
               <h4 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '0.9rem', fontWeight: 600, color: 'hsl(var(--foreground))', marginBottom: 16 }}>

@@ -167,6 +167,9 @@ h1, h2, h3, h4 { font-family: var(--font-fraunces), Georgia, serif; }
 nav a, .nav-link {
   font-family: var(--font-roboto-mono), monospace;
 }
+header nav a {
+  font-family: var(--font-roboto-mono), monospace !important;
+}
 
 /* ── Kicker label ── */
 .kicker {

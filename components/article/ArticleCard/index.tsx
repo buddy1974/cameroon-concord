@@ -35,7 +35,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
             <span className="cat-pill">{article.category.name.toUpperCase()}</span>
             {tags.slice(0, 2).map(t => <span key={t} style={{ background: 'hsl(43 40% 30%)', color: 'hsl(43 74% 60%)', fontSize: '0.52rem', fontWeight: 700, padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t}</span>)}
           </div>
-          <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.4rem, 3vw, 2.4rem)', fontWeight: 900, lineHeight: 1.08, color: '#fff', letterSpacing: '-0.02em', marginBottom: 10 }}>
+          <h2 style={{ fontFamily: 'var(--font-roboto)', fontSize: 'clamp(1.4rem, 3vw, 2.4rem)', fontWeight: 900, lineHeight: 1.08, color: '#fff', letterSpacing: '-0.02em', marginBottom: 10 }}>
             {article.title}
           </h2>
           {article.excerpt && <p style={{ fontSize: '0.9rem', color: 'hsl(0 0% 72%)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: 10 }}>{truncate(article.excerpt, 160)}</p>}
@@ -62,7 +62,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
             </div>
           </div>
           <div style={{ padding: 24 }}>
-            <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.2rem, 2vw, 1.5rem)', fontWeight: 700, color: 'hsl(var(--card-foreground))', lineHeight: 1.3, marginBottom: 12 }}>
+            <h3 style={{ fontFamily: 'var(--font-roboto)', fontSize: 'clamp(1.2rem, 2vw, 1.5rem)', fontWeight: 900, color: 'hsl(var(--card-foreground))', lineHeight: 1.3, marginBottom: 12 }}>
               {article.title}
             </h3>
             {article.excerpt && <p style={{ fontSize: '0.88rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: 16 }}>{article.excerpt}</p>}
@@ -86,7 +86,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
           </div>
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h4 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '0.82rem', fontWeight: 600, color: 'hsl(var(--card-foreground))', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <h4 style={{ fontFamily: 'var(--font-roboto)', fontSize: '0.82rem', fontWeight: 900, color: 'hsl(var(--card-foreground))', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {article.title}
           </h4>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: '0.62rem', color: 'hsl(var(--muted-foreground))' }}>
@@ -109,7 +109,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="kicker" style={{ fontSize: '0.52rem', marginBottom: 4 }}>{article.category.name}</div>
-          <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '0.88rem', fontWeight: 600, color: 'hsl(var(--foreground))', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <h3 style={{ fontFamily: 'var(--font-roboto)', fontSize: '0.88rem', fontWeight: 900, color: 'hsl(var(--foreground))', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {article.title}
           </h3>
           <div style={{ fontSize: '0.62rem', color: 'hsl(var(--muted-foreground))', marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -128,7 +128,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
           {((index ?? 0) + 1).toString().padStart(2, '0')}
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h4 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '0.88rem', fontWeight: 600, color: 'hsl(var(--foreground))', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <h4 style={{ fontFamily: 'var(--font-roboto)', fontSize: '0.88rem', fontWeight: 900, color: 'hsl(var(--foreground))', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {article.title}
           </h4>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, fontSize: '0.62rem', color: 'hsl(var(--muted-foreground))' }}>
@@ -172,7 +172,7 @@ export function ArticleCard({ article, variant = 'default', priority = false, in
         </div>
         {/* Content */}
         <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
-          <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '1rem', fontWeight: 700, color: 'hsl(var(--card-foreground))', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
+          <h3 style={{ fontFamily: 'var(--font-roboto)', fontSize: '1rem', fontWeight: 900, color: 'hsl(var(--card-foreground))', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
             {article.title}
           </h3>
           {article.excerpt && (

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono, Fraunces, Roboto_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Fraunces, Roboto } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/react'
 import { buildSiteMetadata } from '@/lib/seo/metadata'
@@ -13,7 +13,7 @@ import './globals.css'
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 const fraunces   = Fraunces({ variable: '--font-fraunces', subsets: ['latin'], display: 'swap', weight: ['400', '700', '900'] })
-const robotoMono = Roboto_Mono({ variable: '--font-roboto-mono', subsets: ['latin'], display: 'swap' })
+const roboto     = Roboto({ variable: '--font-roboto', subsets: ['latin'], weight: ['900'], display: 'swap' })
 
 export const metadata: Metadata = {
   ...buildSiteMetadata(),
@@ -68,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           });
         `}} />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${robotoMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${roboto.variable} antialiased`}>
         <AdSenseLoader />
         {children}
         <ServiceWorkerRegistration />

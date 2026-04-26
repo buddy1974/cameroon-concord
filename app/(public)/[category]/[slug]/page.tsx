@@ -138,6 +138,8 @@ export default async function ArticlePage({ params }: Props) {
             letterSpacing: '-0.02em',
             maxWidth: 900,
             marginBottom: 16,
+            wordBreak: 'normal',
+            overflowWrap: 'break-word',
           }}>
             {article.title}
           </h1>
@@ -152,11 +154,11 @@ export default async function ArticlePage({ params }: Props) {
       </div>
 
       {/* ── MAIN CONTENT AREA ── */}
-      <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '48px 24px 80px', display: 'flex', gap: '48px', alignItems: 'flex-start' }}>
+      <div className="article-layout-grid" style={{ maxWidth: '1380px', margin: '0 auto', padding: '48px 24px 80px', display: 'flex', gap: '48px', alignItems: 'flex-start' }}>
 
         {/* ── LEFT: share rail + article body ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '64px 1fr', gap: '32px', maxWidth: '860px' }}>
+          <div className="article-body-grid" style={{ display: 'grid', gridTemplateColumns: '64px 1fr', gap: '32px', maxWidth: '860px' }}>
 
             {/* Sticky share rail — desktop only */}
             <div className="hidden md:block">
@@ -318,7 +320,7 @@ export default async function ArticlePage({ params }: Props) {
         </div>
 
         {/* ── RIGHT SIDEBAR — desktop only ── */}
-        <div className="hidden lg:block w-[300px] shrink-0">
+        <div className="article-sidebar hidden lg:block w-[300px] shrink-0">
           <div className="sticky top-4 flex flex-col gap-4">
             <AdUnit slot="5520370976" format="rectangle" />
             <StoryTimeline articleId={article.id} />

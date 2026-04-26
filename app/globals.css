@@ -334,3 +334,74 @@ h1.article-headline {
 }
 .page-btn:hover { border-color: hsl(var(--primary)); color: hsl(var(--primary)); }
 .page-btn.active { background: hsl(var(--primary)); border-color: hsl(var(--primary)); color: #fff; }
+
+/* ═══ TABLET: article sidebar hidden, layout stacks ═══ */
+@media (max-width: 1024px) {
+  .article-layout-grid {
+    flex-direction: column !important;
+  }
+  .article-sidebar {
+    display: none !important;
+  }
+  .article-body-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ═══ MOBILE: comprehensive fixes ═══ */
+@media (max-width: 768px) {
+  * {
+    word-break: normal;
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .prose-editorial {
+    font-size: 1rem !important;
+    line-height: 1.75 !important;
+  }
+
+  .prose-editorial p {
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    hyphens: auto;
+  }
+
+  .prose-editorial p:first-of-type::first-letter {
+    font-size: 3rem !important;
+    margin-right: 0.08em !important;
+  }
+
+  .article-hero {
+    min-height: 50vh !important;
+    padding-bottom: 32px !important;
+  }
+
+  header .glass {
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+  }
+
+  .animate-marquee span {
+    font-size: 0.7rem !important;
+  }
+
+  h2 {
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .card-lift {
+    border-radius: 12px !important;
+  }
+
+  .comment-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

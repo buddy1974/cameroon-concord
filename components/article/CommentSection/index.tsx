@@ -97,7 +97,7 @@ export default function CommentsSection({ articleId }: { articleId: number }) {
   const CommentForm = ({ parentId }: { parentId?: number }) => (
     <form onSubmit={submit} style={{ marginTop: parentId ? '12px' : '0' }}>
       {!parentId && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+        <div className="comment-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
           <input placeholder="Your name *" value={form.authorName}
             onChange={e => setForm(f => ({ ...f, authorName: e.target.value }))}
             style={{ background: '#111', border: '1px solid #333', borderRadius: '6px', padding: '10px 14px', color: '#fff', fontSize: '0.9rem', outline: 'none' }} />

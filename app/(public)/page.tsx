@@ -219,7 +219,7 @@ export default async function HomePage() {
           </div>
 
           {/* 4-column grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 20 }}>
             {topStories.map(a => (
               <Link key={a.id} href={`/${a.category.slug}/${a.slug}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', borderRadius: 16, overflow: 'hidden', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', height: '100%' }} className="card-lift">
                 {/* Image */}

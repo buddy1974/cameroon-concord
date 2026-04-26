@@ -45,8 +45,8 @@ export function Header() {
         {/* LEFT: Logo + Nav */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '32px', minWidth: 0 }}>
           <Link href="/" aria-label="Cameroon Concord" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
-            <span style={{ background: 'hsl(210 20% 95%)', color: 'hsl(222 15% 7%)', padding: '3px 8px', fontFamily: 'var(--font-fraunces)', fontWeight: 900, fontSize: '0.82rem', letterSpacing: '0.06em', lineHeight: 1.4 }}>CAMEROON</span>
-            <span style={{ background: 'hsl(354 78% 50%)', color: '#fff', padding: '3px 8px', fontFamily: 'var(--font-fraunces)', fontWeight: 900, fontSize: '0.82rem', letterSpacing: '0.06em', lineHeight: 1.4 }}>CONCORD</span>
+            <span style={{ background: 'hsl(210 20% 95%)', color: 'hsl(222 15% 7%)', padding: '3px 8px', fontFamily: 'var(--font-fraunces)', fontWeight: 900, fontSize: 'clamp(0.65rem, 2.5vw, 0.82rem)', letterSpacing: '0.06em', lineHeight: 1.4 }}>CAMEROON</span>
+            <span style={{ background: 'hsl(354 78% 50%)', color: '#fff', padding: '3px 8px', fontFamily: 'var(--font-fraunces)', fontWeight: 900, fontSize: 'clamp(0.65rem, 2.5vw, 0.82rem)', letterSpacing: '0.06em', lineHeight: 1.4 }}>CONCORD</span>
           </Link>
           <nav className="hidden lg:flex" style={{ alignItems: 'center', gap: '24px' }}>
             {NAV_CATEGORIES.map(cat => {

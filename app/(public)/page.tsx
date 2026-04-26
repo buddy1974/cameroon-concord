@@ -16,7 +16,10 @@ import {
 import { buildSiteMetadata } from '@/lib/seo/metadata'
 import { buildOrganizationSchema } from '@/lib/seo/schema'
 import type { ArticleWithRelations, Category } from '@/lib/types'
-import { readingTime, formatHitCount } from '@/lib/utils'
+import { readingTime, formatHitCount, formatDate } from '@/lib/utils'
+import { db } from '@/lib/db/client'
+import { articles, categories, authors } from '@/lib/db/schema'
+import { eq, and, or, like, desc, inArray } from 'drizzle-orm'
 
 export const metadata: Metadata = buildSiteMetadata()
 
@@ -63,6 +66,39 @@ export default async function HomePage() {
   } catch (err) {
     console.error('Category rows DB error:', err)
   }
+
+  // Cameroon Focus section — fetch once, split into main + trending
+  const cameroonRows = await db
+    .select({
+      id:           articles.id,
+      title:        articles.title,
+      slug:         articles.slug,
+      excerpt:      articles.excerpt,
+      featuredImage:articles.featuredImage,
+      publishedAt:  articles.publishedAt,
+      body:         articles.body,
+      category:     { name: categories.name, slug: categories.slug },
+      author:       { name: authors.name },
+    })
+    .from(articles)
+    .innerJoin(categories, eq(articles.categoryId, categories.id))
+    .leftJoin(authors, eq(articles.authorId, authors.id))
+    .where(
+      and(
+        eq(articles.status, 'published'),
+        or(
+          like(articles.title,   '%ameroon%'),
+          like(articles.excerpt, '%ameroon%'),
+          inArray(categories.slug, ['headlines', 'politics', 'society', 'southern-cameroons']),
+        ),
+      )
+    )
+    .orderBy(desc(articles.publishedAt))
+    .limit(6)
+    .catch(() => [])
+
+  const cameroonFeatured  = cameroonRows[0]
+  const trendingArticles  = cameroonRows.slice(1, 6)
 
   const heroSrc = hero ? cleanImg(hero.featuredImage) : ''
   const heroMins = hero ? readingTime(hero.body) : 0
@@ -166,40 +202,89 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── LONG READ + TRENDING ── */}
-      {(longRead || trending.length > 0) && (
+      {/* ── CAMEROON FOCUS ── */}
+      {(cameroonFeatured || trendingArticles.length > 0) && (
         <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '96px 24px 0' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48 }} className="lg:grid-cols-3">
+          {/* Section header */}
+          <div style={{ marginBottom: 40 }}>
+            <div className="kicker">Cameroon Focus</div>
+            <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, marginTop: 12, lineHeight: 1.15, color: 'hsl(var(--foreground))' }}>
+              Minute by Minute: News Across Cameroon
+            </h2>
+          </div>
 
-            {/* Long read */}
-            {longRead && (
-              <div style={{ gridColumn: 'span 2' }}>
-                <div className="kicker">Long Read</div>
-                <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.4rem, 2.5vw, 2rem)', fontWeight: 900, marginTop: 12, marginBottom: 32, lineHeight: 1.2, color: 'hsl(var(--foreground))' }}>
-                  In-depth analysis from the newsroom
-                </h2>
-                <ArticleCard article={longRead} variant="featured" />
+          {/* Equal-height grid: main card | trending list */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32, alignItems: 'stretch' }}
+            className="lg:grid-cols-[1fr_380px]">
+
+            {/* LEFT — main article */}
+            {cameroonFeatured && (
+              <div style={{ display: 'flex', flexDirection: 'column', borderRadius: 16, overflow: 'hidden', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}>
+                {cleanImg(cameroonFeatured.featuredImage) && (
+                  <div style={{ position: 'relative', aspectRatio: '16/10', overflow: 'hidden', background: 'hsl(220 14% 14%)', flexShrink: 0 }}>
+                    <img src={cleanImg(cameroonFeatured.featuredImage) ?? ''} alt={cameroonFeatured.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, hsl(220 14% 10% / 0.7) 0%, transparent 50%)' }} />
+                    <div style={{ position: 'absolute', top: 12, left: 12 }}>
+                      <span className="kicker" style={{ background: 'hsl(222 15% 7% / 0.8)', backdropFilter: 'blur(8px)', padding: '3px 10px', borderRadius: 9999 }}>
+                        {cameroonFeatured.category.name}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <h3 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 'clamp(1.2rem, 2vw, 1.6rem)', fontWeight: 700, color: 'hsl(var(--card-foreground))', lineHeight: 1.3 }}>
+                    {cameroonFeatured.title}
+                  </h3>
+                  {cameroonFeatured.excerpt && (
+                    <p style={{ fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {cameroonFeatured.excerpt}
+                    </p>
+                  )}
+                  <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid hsl(var(--border))' }}>
+                    <Link href={`/${cameroonFeatured.category.slug}/${cameroonFeatured.slug}`}
+                      style={{ background: 'hsl(var(--primary))', color: '#fff', borderRadius: 9999, padding: '10px 22px', fontWeight: 600, textDecoration: 'none', fontSize: '0.82rem' }}>
+                      Read story →
+                    </Link>
+                    <span style={{ fontSize: '0.72rem', color: 'hsl(var(--muted-foreground))', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <Clock size={12} /> {readingTime(cameroonFeatured.body)} min read
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Trending sidebar */}
-            {trending.length > 0 && (
-              <aside>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
-                  <span>🔥</span>
-                  <div className="kicker">Trending Now</div>
+            {/* RIGHT — trending list */}
+            {trendingArticles.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 16, overflow: 'hidden', padding: '20px' }}>
+                <div style={{ marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid hsl(var(--border))', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: '0.9rem' }}>🔥</span>
+                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'hsl(var(--primary))', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Trending Now</span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  {trending.map((a, i) => (
-                    <div key={a.id} style={{ display: 'flex', gap: 16 }}>
-                      <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: '1.8rem', fontWeight: 900, color: 'hsl(354 78% 50% / 0.6)', lineHeight: 1, width: 32, flexShrink: 0, paddingTop: 4 }}>
-                        {String(i + 1).padStart(2, '0')}
+                {trendingArticles.map((a, i) => (
+                  <Link key={a.id} href={`/${a.category.slug}/${a.slug}`}
+                    style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 0', borderBottom: i < trendingArticles.length - 1 ? '1px solid hsl(var(--border))' : 'none', textDecoration: 'none', flex: 1 }}>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'hsl(354 78% 50% / 0.4)', fontFamily: 'var(--font-fraunces)', minWidth: 28, flexShrink: 0 }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.62rem', fontWeight: 700, color: 'hsl(var(--primary))', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+                        {a.category.name}
                       </div>
-                      <ArticleCard article={a} variant="horizontal" />
+                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'hsl(var(--card-foreground))', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {a.title}
+                      </div>
+                      <div style={{ fontSize: '0.65rem', color: 'hsl(var(--muted-foreground))', marginTop: 4 }}>
+                        {readingTime(a.body)} min · {a.publishedAt ? formatDate(a.publishedAt) : ''}
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </aside>
+                    {cleanImg(a.featuredImage) && (
+                      <img src={cleanImg(a.featuredImage) ?? ''} alt=""
+                        style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+                    )}
+                  </Link>
+                ))}
+              </div>
             )}
           </div>
         </section>

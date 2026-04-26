@@ -99,18 +99,24 @@ export function Header() {
 
       {/* ── BREAKING TICKER ── */}
       {breaking.length > 0 && (
-        <div style={{ maxWidth: '1400px', margin: '8px auto 0', background: 'hsl(354 78% 50% / 0.1)', border: '1px solid hsl(354 78% 50% / 0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', overflow: 'hidden', height: '34px' }}>
-          <div style={{ background: 'hsl(354 78% 50%)', color: '#fff', padding: '0 16px', height: '100%', display: 'flex', alignItems: 'center', fontSize: '0.58rem', fontWeight: 800, letterSpacing: '0.15em', whiteSpace: 'nowrap', flexShrink: 0 }}>
-            ⚡ LIVE
-          </div>
+        <div className="glass" style={{ maxWidth: '1400px', margin: '8px auto 0', borderRadius: '10px', overflow: 'hidden', height: '36px', display: 'flex', alignItems: 'center' }}>
           <div style={{ overflow: 'hidden', flex: 1 }}>
-            <div className="animate-marquee" style={{ display: 'flex', gap: '48px', whiteSpace: 'nowrap', padding: '0 24px' }}>
+            <div className="animate-marquee" style={{ display: 'flex', whiteSpace: 'nowrap', padding: '0 24px' }}>
               {[...breaking, ...breaking].map((a, i) => (
-                <Link key={i} href={`/${a.categorySlug}/${a.slug}`}
-                  style={{ fontSize: '0.72rem', color: 'hsl(220 8% 72%)', flexShrink: 0, textDecoration: 'none' }}>
-                  {a.title}
-                  <span style={{ color: 'hsl(354 78% 50%)', margin: '0 16px' }}>·</span>
-                </Link>
+                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'hsl(354 78% 55%)', letterSpacing: '0.15em', textTransform: 'uppercase', flexShrink: 0 }}>
+                    LIVE
+                  </span>
+                  <Link
+                    href={`/${a.categorySlug}/${a.slug}`}
+                    style={{ fontSize: '0.76rem', color: 'hsl(220 8% 72%)', textDecoration: 'none', fontWeight: 400 }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#fff' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'hsl(220 8% 72%)' }}
+                  >
+                    {a.title}
+                  </Link>
+                  <span style={{ color: 'hsl(220 8% 35%)', fontSize: '0.65rem', flexShrink: 0, margin: '0 16px 0 6px' }}>·</span>
+                </span>
               ))}
             </div>
           </div>

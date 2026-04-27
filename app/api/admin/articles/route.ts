@@ -66,7 +66,10 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies()
     const token = cookieStore.get('admin_token')?.value
     const admin = token ? await verifyToken(token) : null
-    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!admin) {
+      console.error('[POST /api/admin/articles] Auth failed — key received:', apiKey?.slice(0, 8))
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
   }
 
   const body = await req.json() as {
@@ -96,26 +99,35 @@ export async function POST(req: NextRequest) {
   if (isBadImage(body.featuredImage)) body.featuredImage = undefined
 
   const now = new Date()
-  const result = await db.insert(articles).values({
-    title:         body.title,
-    slug:          body.slug,
-    body:          sanitizeArticleBody(body.body || ''),
-    excerpt:       body.excerpt || null,
-    categoryId:    body.categoryId,
-    featuredImage: body.featuredImage || null,
-    status:        body.status as 'draft' | 'published',
-    isBreaking:    body.isBreaking || false,
-    isFeatured:    body.isFeatured || false,
-    metaTitle:     body.metaTitle || null,
-    metaDesc:      body.metaDesc || null,
-    authorId:      body.authorId || null,
-    summary:       body.summary || null,
-    publishedAt:   body.status === 'published' ? now : null,
-    createdAt:     now,
-    updatedAt:     now,
-  }).$returningId()
-
-  const newId = result[0].id
+  let newId: number
+  try {
+    const result = await db.insert(articles).values({
+      title:         body.title,
+      slug:          body.slug,
+      body:          sanitizeArticleBody(body.body || ''),
+      excerpt:       body.excerpt || null,
+      categoryId:    body.categoryId,
+      featuredImage: body.featuredImage || null,
+      status:        body.status as 'draft' | 'published',
+      isBreaking:    body.isBreaking || false,
+      isFeatured:    body.isFeatured || false,
+      metaTitle:     body.metaTitle || null,
+      metaDesc:      body.metaDesc || null,
+      authorId:      body.authorId || null,
+      summary:       body.summary || null,
+      publishedAt:   body.status === 'published' ? now : null,
+      createdAt:     now,
+      updatedAt:     now,
+    }).$returningId()
+    newId = result[0].id
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[POST /api/admin/articles] DB insert failed:', msg)
+    if (msg.includes('Duplicate entry')) {
+      return NextResponse.json({ error: 'Duplicate slug', detail: msg }, { status: 422 })
+    }
+    return NextResponse.json({ error: 'DB insert failed', detail: msg }, { status: 500 })
+  }
 
   revalidateTag('articles', {})
 

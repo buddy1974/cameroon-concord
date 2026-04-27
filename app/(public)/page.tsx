@@ -110,13 +110,16 @@ export default async function HomePage() {
     category:     { name: categories.name, slug: categories.slug },
     author:       { name: authors.name },
   }
-  const [tsH, tsP, tsB, tsS] = await Promise.all([
+  const [tsH, tsP, tsB, tsS, tsSoc, tsSC, tsL] = await Promise.all([
     db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'headlines'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
     db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'politics'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
     db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'business'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
     db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'sportsnews'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
-  ]).catch(() => [undefined, undefined, undefined, undefined] as const)
-  const topStories = [tsH, tsP, tsB, tsS].filter((x): x is NonNullable<typeof tsH> => x != null)
+    db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'society'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
+    db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'southern-cameroons'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
+    db.select(topStorySelect).from(articles).innerJoin(categories, eq(articles.categoryId, categories.id)).leftJoin(authors, eq(articles.authorId, authors.id)).where(and(eq(articles.status, 'published'), eq(categories.slug, 'lifestyle'))).orderBy(desc(articles.publishedAt)).limit(1).then(r => r[0]),
+  ]).catch(() => [undefined, undefined, undefined, undefined, undefined, undefined, undefined] as const)
+  const topStories = [tsH, tsP, tsB, tsS, tsSoc, tsSC, tsL].filter((x): x is NonNullable<typeof tsH> => x != null)
 
   const heroSrc = hero ? cleanImg(hero.featuredImage) : ''
   const heroMins = hero ? readingTime(hero.body) : 0
@@ -219,7 +222,7 @@ export default async function HomePage() {
           </div>
 
           {/* 4-column grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 20 }}>
             {topStories.map(a => (
               <Link key={a.id} href={`/${a.category.slug}/${a.slug}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', borderRadius: 16, overflow: 'hidden', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', height: '100%' }} className="card-lift">
                 {/* Image */}

@@ -161,7 +161,7 @@ export default async function ArticlePage({ params }: Props) {
           <div className="article-body-grid" style={{ display: 'grid', gridTemplateColumns: '64px 1fr', gap: '32px', maxWidth: '860px' }}>
 
             {/* Sticky share rail — desktop only */}
-            <div className="hidden md:block">
+            <div className="hidden md:block" style={{ position: 'sticky', top: '80px', alignSelf: 'flex-start' }}>
               <ShareRail articleId={article.id} title={article.title} url={articleUrl} />
             </div>
 

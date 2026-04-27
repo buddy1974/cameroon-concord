@@ -343,12 +343,6 @@ h1.article-headline {
   .article-sidebar {
     display: none !important;
   }
-  .article-body-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .article-body-grid > div:first-child {
-    display: none !important;
-  }
 }
 
 /* ═══ MOBILE: comprehensive fixes ═══ */

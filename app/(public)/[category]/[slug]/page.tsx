@@ -158,15 +158,15 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* ── LEFT: share rail + article body ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="article-body-grid" style={{ display: 'grid', gridTemplateColumns: '64px 1fr', gap: '32px', maxWidth: '860px' }}>
+          <div style={{ display: 'flex', gap: '32px', maxWidth: '860px', alignItems: 'flex-start' }}>
 
             {/* Sticky share rail — desktop only */}
-            <div className="hidden md:block" style={{ position: 'sticky', top: '80px', alignSelf: 'flex-start' }}>
+            <div className="hidden md:flex" style={{ position: 'sticky', top: '80px', alignSelf: 'flex-start', flexShrink: 0, width: '48px', flexDirection: 'column' }}>
               <ShareRail articleId={article.id} title={article.title} url={articleUrl} />
             </div>
 
             {/* Content column */}
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
 
               {/* Author + meta header */}
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, paddingBottom: 24, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>

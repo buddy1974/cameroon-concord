@@ -396,7 +396,7 @@ export default async function HomePage() {
       ))}
 
       {/* ── SUBSCRIBE BLOCK ── */}
-      <section style={{ position: 'relative', margin: '80px 0', overflow: 'hidden' }}>
+      <section id="newsletter" style={{ position: 'relative', margin: '80px 0', overflow: 'hidden' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
           <div className="grain" style={{ position: 'relative', overflow: 'hidden', borderRadius: 24, border: '1px solid hsl(var(--border))', background: 'hsl(220 14% 10%)', padding: 'clamp(32px, 6vw, 64px)', boxShadow: '0 30px 60px hsl(0 0% 0% / 0.4)' }}>
             {/* Glow blobs */}

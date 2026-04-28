@@ -68,7 +68,7 @@ export function Header() {
             className="hidden md:inline-flex">
             🔍
           </Link>
-          <Link href="/newsletter" className="hidden md:inline-flex animate-glow-pulse"
+          <Link href="/#newsletter" className="hidden md:inline-flex animate-glow-pulse"
             style={{ background: 'hsl(354 78% 50%)', color: '#fff', borderRadius: '24px', padding: '8px 22px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', lineHeight: 1 }}>
             Subscribe
           </Link>
@@ -90,7 +90,7 @@ export function Header() {
               </Link>
             ))}
           </div>
-          <Link href="/newsletter" onClick={() => setMobileOpen(false)}
+          <Link href="/#newsletter" onClick={() => setMobileOpen(false)}
             style={{ display: 'block', textAlign: 'center', background: 'hsl(354 78% 50%)', color: '#fff', borderRadius: '12px', padding: '12px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
             Subscribe Free
           </Link>

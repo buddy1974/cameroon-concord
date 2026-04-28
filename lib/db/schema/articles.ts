@@ -38,6 +38,8 @@ export const articles = mysqlTable('articles', {
   countryTags:   json('country_tags').$type<string[]>(),
   ccScore:       tinyint('cc_score', { unsigned: true }),
   lang:          varchar('lang', { length: 2 }).default('en'),
+  fbPostedAt:      datetime('fb_posted_at'),
+  twitterPostedAt: datetime('twitter_posted_at'),
 }, (t) => ({
   categoryIdx:  index('idx_category').on(t.categoryId),
   statusPubIdx: index('idx_status_pub').on(t.status, t.publishedAt),

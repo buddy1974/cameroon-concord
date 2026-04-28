@@ -37,7 +37,7 @@ async function postToFacebook(article: SocialArticle): Promise<void> {
   console.log(`[social] FB success id=${article.id}`)
 }
 
-async function postToTwitter(article: SocialArticle): Promise<void> {
+export async function postToTwitter(article: SocialArticle): Promise<void> {
   const client = new TwitterApi({
     appKey:      process.env.TWITTER_API_KEY!,
     appSecret:   process.env.TWITTER_API_SECRET!,

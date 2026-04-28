@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { articles, categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { postArticleToSocial } from '@/server/lib/social'
+import { postToTwitter } from '@/server/lib/social'
 
 export async function POST(req: NextRequest) {
   const apiKey = req.headers.get('x-api-key')
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Already posted to Twitter' }, { status: 409 })
     }
 
-    await postArticleToSocial({
+    await postToTwitter({
       id:            article.id,
       title:         article.title,
       slug:          article.slug,

@@ -401,4 +401,9 @@ h1.article-headline {
   .comment-form-grid {
     grid-template-columns: 1fr !important;
   }
+
+  /* Share rail — belt-and-suspenders: never bleed through on any mobile browser */
+  .share-rail-desktop {
+    display: none !important;
+  }
 }

@@ -161,7 +161,7 @@ export default async function ArticlePage({ params }: Props) {
           <div style={{ display: 'flex', gap: '32px', maxWidth: '860px', alignItems: 'flex-start' }}>
 
             {/* Sticky share rail — desktop only */}
-            <div className="hidden md:flex" style={{ position: 'sticky', top: '80px', alignSelf: 'flex-start', flexShrink: 0, width: '48px', flexDirection: 'column' }}>
+            <div className="hidden md:flex share-rail-desktop" style={{ position: 'sticky', top: '80px', alignSelf: 'flex-start', flexShrink: 0, width: '48px', flexDirection: 'column' }}>
               <ShareRail articleId={article.id} title={article.title} url={articleUrl} />
             </div>
 

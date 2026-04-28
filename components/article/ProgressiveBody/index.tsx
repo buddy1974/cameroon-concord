@@ -21,11 +21,12 @@ export function ProgressiveBody({ html }: Props) {
       <div style={{ margin: '24px 0' }}>
         <ins className="adsbygoogle"
           style={{ display: 'block', textAlign: 'center' }}
-          data-ad-client="ca-pub-4965786697949561"
+          data-ad-client="ca-pub-0554291063972402"
           data-ad-slot="5471720771"
           data-ad-format="auto"
           data-full-width-responsive="true"
         />
+        <script dangerouslySetInnerHTML={{ __html: '(adsbygoogle = window.adsbygoogle || []).push({})' }} />
       </div>
 
       {hasMore && !expanded && (
@@ -49,11 +50,12 @@ export function ProgressiveBody({ html }: Props) {
           <div style={{ margin: '24px 0' }}>
             <ins className="adsbygoogle"
               style={{ display: 'block', textAlign: 'center' }}
-              data-ad-client="ca-pub-4965786697949561"
-              data-ad-slot="5520370976"
+              data-ad-client="ca-pub-0554291063972402"
+              data-ad-slot="6360192811"
               data-ad-format="auto"
               data-full-width-responsive="true"
             />
+            <script dangerouslySetInnerHTML={{ __html: '(adsbygoogle = window.adsbygoogle || []).push({})' }} />
           </div>
         </>
       )}

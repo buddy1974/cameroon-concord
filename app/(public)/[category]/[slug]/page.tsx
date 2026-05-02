@@ -136,7 +136,7 @@ export default async function ArticlePage({ params }: Props) {
             color: '#fff',
             lineHeight: 1.05,
             letterSpacing: '-0.02em',
-            maxWidth: 900,
+            maxWidth: '100%',
             marginBottom: 16,
             wordBreak: 'normal',
             overflowWrap: 'break-word',
@@ -154,19 +154,19 @@ export default async function ArticlePage({ params }: Props) {
       </div>
 
       {/* ── MAIN CONTENT AREA ── */}
-      <div className="article-layout-grid" style={{ maxWidth: '1380px', margin: '0 auto', padding: '48px 24px 80px', display: 'flex', gap: '48px', alignItems: 'flex-start' }}>
+      <div className="article-layout-grid" style={{ maxWidth: '1380px', margin: '0 auto', padding: '48px 24px 80px', display: 'flex', gap: '48px', alignItems: 'flex-start', overflowX: 'hidden' }}>
 
         {/* ── LEFT: share rail + article body ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', gap: '32px', maxWidth: '860px', alignItems: 'flex-start' }}>
 
             {/* Sticky share rail — desktop only */}
-            <div className="hidden md:flex share-rail-desktop" style={{ position: 'sticky', top: '80px', alignSelf: 'flex-start', flexShrink: 0, width: '48px', flexDirection: 'column' }}>
+            <div className="share-rail-desktop" style={{ position: 'sticky', top: '80px', alignSelf: 'flex-start', flexShrink: 0, width: '48px', flexDirection: 'column' }}>
               <ShareRail articleId={article.id} title={article.title} url={articleUrl} />
             </div>
 
             {/* Content column */}
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ flex: 1, minWidth: 0, maxWidth: '100%', overflowX: 'hidden' }}>
 
               {/* Author + meta header */}
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, paddingBottom: 24, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>

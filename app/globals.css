@@ -371,8 +371,11 @@ h1.article-headline {
   }
 
   .prose-editorial p:first-of-type::first-letter {
-    font-size: 3rem !important;
-    margin-right: 0.08em !important;
+    font-size: 2.8rem !important;
+    float: left !important;
+    line-height: 0.85 !important;
+    margin-right: 0.12em !important;
+    margin-top: 0.08em !important;
   }
 
   .article-hero {
@@ -402,8 +405,24 @@ h1.article-headline {
     grid-template-columns: 1fr !important;
   }
 
-  /* Share rail — belt-and-suspenders: never bleed through on any mobile browser */
+  .prose-editorial * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .prose-editorial img {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* Share rail — CSS-only show/hide, no Tailwind dependency */
+.share-rail-desktop {
+  display: none !important;
+}
+@media (min-width: 768px) {
   .share-rail-desktop {
-    display: none !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 }

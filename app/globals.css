@@ -265,8 +265,41 @@ h1.article-headline {
 .prose ol { padding-left: 1.5rem; }
 .prose li { margin-bottom: 0.4rem; color: hsl(210 10% 72%); }
 
+/* ── Article body — constrains raw editor HTML on all screen sizes ── */
+.article-body {
+  max-width: 100%;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.article-body * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.article-body img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+/* Tables scroll horizontally instead of breaking layout */
+.article-body table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  border-collapse: collapse;
+}
+/* Pre/code blocks scroll instead of overflowing */
+.article-body pre,
+.article-body code {
+  white-space: pre-wrap;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
 /* ── Editorial prose ── */
-.prose-editorial { font-size: 1.05rem; line-height: 1.8; color: hsl(210 15% 82%); }
+.prose-editorial { font-size: 1.05rem; line-height: 1.8; color: hsl(210 15% 82%); overflow-x: hidden; }
 .prose-editorial p { margin-bottom: 1.5rem; }
 .prose-editorial p:first-of-type::first-letter {
   font-family: var(--font-fraunces), Georgia, serif;
@@ -348,8 +381,8 @@ h1.article-headline {
 /* ═══ MOBILE: comprehensive fixes ═══ */
 @media (max-width: 768px) {
   * {
-    word-break: normal;
-    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: anywhere;
     min-width: 0;
   }
 
@@ -364,8 +397,8 @@ h1.article-headline {
   }
 
   .prose-editorial p {
-    word-break: normal !important;
-    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
     white-space: normal !important;
     hyphens: auto;
   }
@@ -393,8 +426,8 @@ h1.article-headline {
   }
 
   h2 {
-    word-break: normal !important;
-    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
   }
 
   .card-lift {
@@ -424,5 +457,15 @@ h1.article-headline {
   .share-rail-desktop {
     display: flex !important;
     flex-direction: column !important;
+  }
+}
+
+/* Mobile share bar — visible only below 768px */
+.share-rail-mobile {
+  display: block;
+}
+@media (min-width: 768px) {
+  .share-rail-mobile {
+    display: none !important;
   }
 }

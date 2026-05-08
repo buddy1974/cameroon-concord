@@ -64,6 +64,10 @@ export function ArticleEditor({ categories, article }: Props) {
   const [twitterThread,  setTwitterThread]  = useState<string[]>([])
   const [whatsappMsg,    setWhatsappMsg]    = useState('')
   const [fbPost,         setFbPost]         = useState('')
+  // UI-only: hashtags for social posts (not persisted to DB — copy from here into social assets)
+  const [hashtags,       setHashtags]       = useState('')
+  const [kwCopied,       setKwCopied]       = useState(false)
+  const [htCopied,       setHtCopied]       = useState(false)
 
   // Pre-fill from Quick Publish "Review in Full Editor" flow
   useEffect(() => {
@@ -489,6 +493,9 @@ if (!body.trim())  { setMsg('Body is required'); return }
               placeholder="SEO title (max 60 chars)"
               style={{ ...inputStyle, marginBottom: '12px', fontSize: '0.78rem' }}
             />
+            <div style={{ fontSize: '0.62rem', color: metaT.length > 60 ? '#C8102E' : '#444', marginBottom: '12px', marginTop: '-8px' }}>
+              {metaT.length}/60
+            </div>
             <label style={labelStyle}>SEO Meta Description</label>
             <textarea
               value={metaD}
@@ -497,9 +504,53 @@ if (!body.trim())  { setMsg('Body is required'); return }
               rows={3}
               style={{ ...inputStyle, resize: 'vertical', fontSize: '0.78rem', lineHeight: 1.5 }}
             />
-            <div style={{ fontSize: '0.62rem', color: metaD.length > 155 ? '#C8102E' : '#444', marginTop: '4px' }}>
+            <div style={{ fontSize: '0.62rem', color: metaD.length > 155 ? '#C8102E' : '#444', marginTop: '4px', marginBottom: '14px' }}>
               {metaD.length}/155
             </div>
+
+            {/* Meta Keywords — auto-generated from category + article context (read-only preview) */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <label style={{ ...labelStyle, margin: 0 }}>Meta Keywords</label>
+              <button
+                type="button"
+                onClick={() => {
+                  const kw = [
+                    categories.find(c => c.id === catId)?.name ?? '',
+                    'Cameroon', 'Cameroon news', 'Southern Cameroons', 'Africa news',
+                  ].filter(Boolean).join(', ')
+                  navigator.clipboard.writeText(kw).then(() => { setKwCopied(true); setTimeout(() => setKwCopied(false), 1800) })
+                }}
+                style={{ fontSize: '0.62rem', color: kwCopied ? '#22C55E' : '#F5A623', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                {kwCopied ? '✓ Copied' : 'Copy'}
+              </button>
+            </div>
+            <div style={{ ...inputStyle, fontSize: '0.72rem', color: '#555', lineHeight: 1.5, background: '#080808', cursor: 'default', marginBottom: '14px' }}>
+              {[categories.find(c => c.id === catId)?.name ?? '', 'Cameroon', 'Cameroon news', 'Southern Cameroons', 'Africa news'].filter(Boolean).join(', ')}
+              <span style={{ marginLeft: 6, fontSize: '0.58rem', color: '#333' }}>(auto-generated · DB migration needed to customise)</span>
+            </div>
+
+            {/* Hashtags — UI-only copy helper, not saved to DB */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <label style={{ ...labelStyle, margin: 0 }}>Hashtags <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: '#444' }}>(for social posts)</span></label>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!hashtags.trim()) return
+                  navigator.clipboard.writeText(hashtags).then(() => { setHtCopied(true); setTimeout(() => setHtCopied(false), 1800) })
+                }}
+                style={{ fontSize: '0.62rem', color: htCopied ? '#22C55E' : '#F5A623', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                {htCopied ? '✓ Copied' : 'Copy'}
+              </button>
+            </div>
+            <input
+              value={hashtags}
+              onChange={e => setHashtags(e.target.value)}
+              placeholder="#Cameroon #Politics #SouthernCameroons"
+              style={{ ...inputStyle, fontSize: '0.78rem' }}
+            />
+            <div style={{ fontSize: '0.58rem', color: '#333', marginTop: '4px' }}>Not saved to DB — copy into your social post</div>
           </div>
 
           {/* Social Assets */}

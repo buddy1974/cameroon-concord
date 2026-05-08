@@ -282,10 +282,9 @@ export default async function ArticlePage({ params }: Props) {
               </div>
 
               {/* Mobile share row */}
-              <div className="md:hidden" style={{ marginTop: 32, borderTop: '1px solid var(--border)', paddingTop: 24 }}>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  <ShareRail articleId={article.id} title={article.title} url={articleUrl} />
-                </div>
+              <div className="share-rail-mobile" style={{ marginTop: 32, borderTop: '1px solid var(--border)', paddingTop: 20 }}>
+                <p style={{ fontSize: '0.58rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 12 }}>Share this story</p>
+                <ShareRail articleId={article.id} title={article.title} url={articleUrl} horizontal />
               </div>
 
               {/* Author card */}

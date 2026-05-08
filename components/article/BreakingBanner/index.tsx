@@ -5,7 +5,7 @@ import type { ArticleWithRelations } from '@/lib/types'
 
 export function BreakingBanner({ articles }: { articles: ArticleWithRelations[] }) {
   if (!articles.length) return null
-  const items = [...articles, ...articles, ...articles]
+  const items = [...articles, ...articles]
   return (
     <div className="bg-[#C8102E] h-8 flex items-center overflow-hidden">
       <div className="flex-shrink-0 flex items-center gap-1.5 px-4 bg-[#8B0000] h-full z-10">

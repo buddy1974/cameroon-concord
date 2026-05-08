@@ -62,7 +62,9 @@ export function buildSiteMetadata(): Metadata {
 export function buildArticleMetadata(article: ArticleWithRelations): Metadata {
   const title       = article.metaTitle  || truncate(article.title, 60)
   const description = article.metaDesc   || article.excerpt || SITE_DESCRIPTION
-  const image       = article.featuredImage || `${SITE_URL}/icons/og-default.jpg`
+  // Strip URL fragments (#...) — Facebook's scraper rejects fragment URLs as og:image
+  const rawImage    = article.featuredImage?.split('#')[0].trim()
+  const image       = rawImage || `${SITE_URL}/icons/og-default.jpg`
   const url         = absoluteUrl(`/${article.category.slug}/${article.slug}`)
 
   return {

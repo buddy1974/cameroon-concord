@@ -31,8 +31,8 @@ export function ProgressiveBody({ html }: Props) {
 
       {hasMore && !expanded && (
         <div style={{ position: 'relative', marginTop: '-60px' }}>
-          <div style={{ height: '80px', background: 'linear-gradient(to bottom, transparent, #0A0A0A)', pointerEvents: 'none' }} />
-          <div style={{ textAlign: 'center', paddingTop: '8px', paddingBottom: '16px', background: '#0A0A0A' }}>
+          <div style={{ height: '80px', background: 'linear-gradient(to bottom, transparent, var(--bg-base))', pointerEvents: 'none' }} />
+          <div style={{ textAlign: 'center', paddingTop: '8px', paddingBottom: '16px', background: 'var(--bg-base)' }}>
             <button
               onClick={() => setExpanded(true)}
               style={{ padding: '10px 28px', background: '#C8102E', color: '#fff', border: 'none', borderRadius: '24px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.03em' }}

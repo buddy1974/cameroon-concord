@@ -128,6 +128,16 @@ export function QuickPublish({ categories }: Props) {
   return (
     <div style={{ maxWidth: '960px' }}>
 
+      {/* Responsive grid CSS */}
+      <style>{`
+        .qp-grid { display: grid; grid-template-columns: 60% 1fr; gap: 24px; align-items: start; }
+        .qp-process-btn { align-self: flex-start; }
+        @media (max-width: 768px) {
+          .qp-grid { grid-template-columns: 1fr !important; }
+          .qp-process-btn { width: 100% !important; align-self: stretch !important; }
+        }
+      `}</style>
+
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
@@ -137,14 +147,16 @@ export function QuickPublish({ categories }: Props) {
           </p>
         </div>
         {msg && (
-          <span style={{ fontSize: '0.75rem', color: msg.startsWith('✓') ? '#007A3D' : '#C8102E' }}>
-            {msg}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: msg.startsWith('✓') ? 'rgba(0,122,61,0.12)' : 'rgba(200,16,46,0.12)', border: `1px solid ${msg.startsWith('✓') ? '#007A3D' : '#C8102E'}`, borderRadius: 8 }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: msg.startsWith('✓') ? '#007A3D' : '#C8102E' }}>
+              {msg}
+            </span>
+          </div>
         )}
       </div>
 
-      {/* Two-column layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '60% 1fr', gap: '24px', alignItems: 'start' }}>
+      {/* Responsive two-column → single-column grid */}
+      <div className="qp-grid">
 
         {/* LEFT — Input */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -168,17 +180,19 @@ export function QuickPublish({ categories }: Props) {
             />
           </div>
           <button
+            className="qp-process-btn"
             onClick={handleProcess}
             disabled={processing || !rawText.trim()}
             style={{
               background: '#C8102E', color: '#fff', border: 'none',
-              padding: '12px 24px', borderRadius: '8px', fontSize: '0.82rem',
-              fontWeight: 700, alignSelf: 'flex-start',
+              padding: '14px 24px', borderRadius: '8px', fontSize: '0.88rem',
+              fontWeight: 900,
               cursor: processing || !rawText.trim() ? 'not-allowed' : 'pointer',
               opacity: !rawText.trim() ? 0.5 : 1,
+              letterSpacing: '0.04em',
             }}
           >
-            {processing ? '⏳ Processing...' : '⚡ AI Process'}
+            {processing ? '⏳ Processing...' : '⚡ AI Process →'}
           </button>
         </div>
 

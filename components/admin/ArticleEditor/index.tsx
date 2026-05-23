@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Category, Article, ArticleStatus } from '@/lib/types'
@@ -97,7 +98,7 @@ export function ArticleEditor({ categories, article }: Props) {
       setAuthorId(random.id)
       setAuthorName(random.name)
     }
-  }, [])
+  }, [authorId])
 
   const handleTitleChange = useCallback((val: string) => {
     setTitle(val)
@@ -111,6 +112,7 @@ export function ArticleEditor({ categories, article }: Props) {
     try {
       const res  = await fetch('/api/admin/ai/enhance', {
         method:  'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ title, body, type: 'full' }),
       })
@@ -158,7 +160,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
     try {
       const res  = await fetch(
         isEdit ? `/api/admin/articles/${article!.id}` : '/api/admin/articles',
-        { method: isEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+        { method: isEdit ? 'PUT' : 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
       )
       const data = await res.json() as { ok?: boolean; id?: number; error?: string }
       if (data.ok) {
@@ -182,7 +184,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
     setMsg('')
     try {
       const res  = await fetch(`/api/admin/articles/${article.id}`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'draft' }),
       })
       const data = await res.json() as { ok?: boolean; error?: string }
@@ -392,21 +394,34 @@ if (!body.trim())  { setMsg('Body is required'); return }
                   onChange={async e => {
                     const file = e.target.files?.[0]
                     if (!file) return
-                    const form = new FormData()
-                    form.append('file', file)
-                    const res = await fetch('/api/admin/upload', { method: 'POST', body: form, credentials: 'include' })
-                    const data = await res.json()
-                    if (data.url) setImgUrl(data.url)
+                    setMsg('Uploading image...')
+                    try {
+                      const form = new FormData()
+                      form.append('file', file)
+                      const res = await fetch('/api/admin/upload', { method: 'POST', body: form, credentials: 'include' })
+                      const data = await res.json().catch(() => ({})) as { url?: string; error?: string; detail?: string }
+                      if (!res.ok || !data.url) {
+                        throw new Error(data.error || data.detail || `Image upload failed (${res.status})`)
+                      }
+                      setImgUrl(data.url)
+                      setMsg('Image uploaded.')
+                    } catch (err) {
+                      setMsg(err instanceof Error ? err.message : 'Image upload failed.')
+                    } finally {
+                      e.currentTarget.value = ''
+                    }
                   }}
                 />
               </label>
               <span style={{ color: '#444', fontSize: '0.75rem' }}>or paste URL above</span>
             </div>
             {imgUrl && (
-              <img
+              <Image
                 src={imgUrl}
                 alt=""
-                style={{ width: '100%', borderRadius: '6px', marginTop: '10px', aspectRatio: '16/9', objectFit: 'cover' }}
+                width={1200}
+                height={675}
+                style={{ width: '100%', height: 'auto', borderRadius: '6px', marginTop: '10px', aspectRatio: '16/9', objectFit: 'cover' }}
                 onError={e => { e.currentTarget.style.display = 'none' }}
               />
             )}

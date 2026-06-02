@@ -1,6 +1,7 @@
 export const revalidate = 3600
 
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { notFound }      from 'next/navigation'
 import Link              from 'next/link'
 import { Eye, Clock, Calendar } from 'lucide-react'
@@ -158,7 +159,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* ── LEFT: share rail + article body ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', gap: '32px', maxWidth: '860px', alignItems: 'flex-start' }}>
+          <div className="article-content-shell" style={{ display: 'flex', gap: '32px', maxWidth: '860px', width: '100%', minWidth: 0, alignItems: 'flex-start' }}>
 
             {/* Sticky share rail — desktop only */}
             <div className="share-rail-desktop" style={{ position: 'sticky', top: '80px', alignSelf: 'flex-start', flexShrink: 0, width: '48px', flexDirection: 'column' }}>
@@ -166,7 +167,7 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             {/* Content column */}
-            <div style={{ flex: 1, minWidth: 0, maxWidth: '100%', overflowX: 'hidden' }}>
+            <div className="article-content-column" style={{ flex: 1, minWidth: 0, maxWidth: '100%' }}>
 
               {/* Author + meta header */}
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, paddingBottom: 24, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>
@@ -219,19 +220,19 @@ export default async function ArticlePage({ params }: Props) {
 
               {/* Summary excerpt */}
               {article.excerpt && (
-                <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderLeft: '4px solid var(--brand)', borderRadius: '0 8px 8px 0', padding: '16px 20px', marginBottom: 24 }}>
+                <div className="article-summary-card" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderLeft: '4px solid var(--brand)', borderRadius: '0 8px 8px 0', padding: '16px 20px', marginBottom: 24, maxWidth: '100%', overflow: 'hidden' }}>
                   <p style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--brand)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 6 }}>Summary</p>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{article.excerpt}</p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, wordBreak: 'normal', overflowWrap: 'break-word', whiteSpace: 'normal' }}>{article.excerpt}</p>
                 </div>
               )}
 
               {/* Quick summary bullets */}
               {article.summary && Array.isArray(article.summary) && article.summary.length > 0 && (
-                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderLeft: '4px solid var(--brand)', borderRadius: '0 8px 8px 0', padding: '16px 20px', marginBottom: 24 }}>
+                <div className="article-summary-card" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderLeft: '4px solid var(--brand)', borderRadius: '0 8px 8px 0', padding: '16px 20px', marginBottom: 24, maxWidth: '100%', overflow: 'hidden' }}>
                   <div style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--brand)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>Quick Summary</div>
                   <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {article.summary.map((point: string, i: number) => (
-                      <li key={i} style={{ display: 'flex', gap: 8, fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      <li key={i} style={{ display: 'flex', gap: 8, fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5, minWidth: 0, wordBreak: 'normal', overflowWrap: 'break-word' }}>
                         <span style={{ color: 'var(--brand)', fontWeight: 700, flexShrink: 0 }}>•</span>
                         {point}
                       </li>
@@ -251,7 +252,7 @@ export default async function ArticlePage({ params }: Props) {
 
               {/* Featured image — only rendered if NOT used as hero (no featuredImage = card fallback is hero) */}
               {article.featuredImage && (
-                <div style={{ marginBottom: 24 }}>
+                <div className="article-featured-image" style={{ marginBottom: 24, maxWidth: '100%', overflow: 'hidden' }}>
                   <ArticleImage
                     src={article.featuredImage}
                     alt={article.imageAlt || article.title}
@@ -293,7 +294,7 @@ export default async function ArticlePage({ params }: Props) {
                   <p style={{ fontSize: '0.58rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--text-muted)', marginBottom: 12 }}>About the Author</p>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                     {article.author.avatarUrl ? (
-                      <img src={article.author.avatarUrl} alt={article.author.name} width={40} height={40} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                      <Image src={article.author.avatarUrl} alt={article.author.name} width={40} height={40} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                     ) : (
                       <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '0.9rem', flexShrink: 0 }}>
                         {article.author.name.charAt(0)}

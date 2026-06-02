@@ -16,7 +16,7 @@ export function AudioPlayer({ text, title }: Props) {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      setSupported(true)
+      queueMicrotask(() => setSupported(true))
     }
     return () => { window.speechSynthesis?.cancel() }
   }, [])
@@ -55,10 +55,11 @@ export function AudioPlayer({ text, title }: Props) {
   if (!supported) return null
 
   return (
-    <div style={{
+    <div className="article-audio-player" style={{
       display: 'flex', alignItems: 'center', gap: '12px',
       padding: '12px 16px', background: '#0F0F0F',
       border: '1px solid #1A1A1A', borderRadius: '10px', margin: '16px 0',
+      width: '100%', maxWidth: '100%', overflow: 'hidden',
     }}>
       <button
         onClick={handlePlay}
@@ -73,7 +74,7 @@ export function AudioPlayer({ text, title }: Props) {
         {playing ? '⏹' : '▶'}
       </button>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '0.72rem', color: '#777', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div className="article-audio-title" style={{ fontSize: '0.72rem', color: '#777', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {playing ? 'Now reading...' : 'Listen to article'} — {title}
         </div>
         <div style={{ height: '3px', background: '#1A1A1A', borderRadius: '2px', overflow: 'hidden' }}>

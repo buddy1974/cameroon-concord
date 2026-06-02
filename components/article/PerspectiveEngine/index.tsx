@@ -15,6 +15,14 @@ const VIEWS = [
 
 const POLITICAL_CATEGORIES = ['politics', 'headlines', 'southern-cameroons', 'inside-cpdm']
 
+function isPerspectives(value: unknown): value is Perspectives {
+  if (!value || typeof value !== 'object') return false
+  const data = value as Record<string, unknown>
+  return typeof data.regime === 'string' &&
+    typeof data.opposition === 'string' &&
+    typeof data.independent === 'string'
+}
+
 export function PerspectiveEngine({ articleId, categorySlug }: { articleId: number; categorySlug: string }) {
   const [data, setData]       = useState<Perspectives | null>(null)
   const [loading, setLoading] = useState(false)
@@ -28,8 +36,10 @@ export function PerspectiveEngine({ articleId, categorySlug }: { articleId: numb
     setLoading(true)
     try {
       const res  = await fetch(`/api/articles/perspectives/${articleId}`)
-      const json = await res.json()
-      setData(json)
+      if (res.ok) {
+        const json = await res.json() as unknown
+        if (isPerspectives(json)) setData(json)
+      }
       setLoaded(true)
     } finally {
       setLoading(false)
@@ -37,8 +47,8 @@ export function PerspectiveEngine({ articleId, categorySlug }: { articleId: numb
   }
 
   return (
-    <div style={{ margin: '32px 0', background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', overflow: 'hidden' }}>
-      <div style={{ padding: '14px 16px', borderBottom: '1px solid #1A1A1A', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="perspective-engine" style={{ margin: '32px 0', background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', overflow: 'hidden', width: '100%', maxWidth: '100%' }}>
+      <div className="perspective-engine-header" style={{ padding: '14px 16px', borderBottom: '1px solid #1A1A1A', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, minWidth: 0 }}>
         <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#F5A623', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
           🔭 3 Perspectives
         </div>
@@ -46,7 +56,7 @@ export function PerspectiveEngine({ articleId, categorySlug }: { articleId: numb
           <button
             onClick={load}
             disabled={loading}
-            style={{ fontSize: '0.7rem', color: '#555', background: 'none', border: '1px solid #1A1A1A', borderRadius: '6px', padding: '4px 10px', cursor: loading ? 'wait' : 'pointer' }}
+            style={{ fontSize: '0.7rem', color: '#555', background: 'none', border: '1px solid #1A1A1A', borderRadius: '6px', padding: '4px 10px', cursor: loading ? 'wait' : 'pointer', flexShrink: 0 }}
           >
             {loading ? 'Loading...' : 'Show perspectives'}
           </button>
@@ -55,7 +65,7 @@ export function PerspectiveEngine({ articleId, categorySlug }: { articleId: numb
 
       {loaded && data && (
         <>
-          <div style={{ display: 'flex', borderBottom: '1px solid #1A1A1A' }}>
+          <div className="perspective-tabs" style={{ display: 'flex', borderBottom: '1px solid #1A1A1A' }}>
             {VIEWS.map(v => (
               <button
                 key={v.key}

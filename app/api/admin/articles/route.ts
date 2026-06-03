@@ -2,15 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { articles, categories, authors, articleHits } from '@/lib/db/schema'
 import { desc, eq, like, sql, and } from 'drizzle-orm'
-import { cookies } from 'next/headers'
-import { verifyToken } from '@/lib/auth'
 import { postArticleToSocial } from '@/server/lib/social'
 import { sanitizeArticleBody } from '@/lib/sanitize'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
+import { requireAutomation } from '@/lib/auth/require-automation'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
+
   const { searchParams } = new URL(req.url)
   const page    = Math.max(1, parseInt(searchParams.get('page') || '1'))
   const limit   = 20
@@ -59,16 +62,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   // Auth: API key (n8n / automation) or JWT cookie (admin UI)
-  const apiKey = req.headers.get('x-api-key')
-  if (apiKey && apiKey === process.env.NEXT_PUBLIC_AUTOMATION_API_KEY) {
-    // authenticated via API key — continue
+  if (req.headers.get('x-api-key')) {
+    const automation = requireAutomation(req)
+    if (!automation.ok) return automation.response
   } else {
-    const cookieStore = await cookies()
-    const token = cookieStore.get('admin_token')?.value
-    const admin = token ? await verifyToken(token) : null
-    if (!admin) {
-      console.error('[POST /api/admin/articles] Auth failed — key received:', apiKey?.slice(0, 8))
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = await requireAdmin()
+    if (!auth.ok) {
+      return auth.response
     }
   }
 
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'DB insert failed', detail: msg }, { status: 500 })
   }
 
-  revalidateTag('articles', {})
+  revalidatePath('/', 'layout')
 
   // Fire-and-forget social post for published articles
   if (body.status === 'published') {
@@ -148,4 +148,27 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, id: newId })
+}
+
+export async function DELETE(req: NextRequest) {
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
+
+  const { searchParams } = new URL(req.url)
+  const status = searchParams.get('status')
+  const confirm = searchParams.get('confirm')
+
+  if (status !== 'draft' || confirm !== 'delete-drafts') {
+    return NextResponse.json(
+      { error: 'Bulk delete is only allowed for drafts with confirmation.' },
+      { status: 400 }
+    )
+  }
+
+  await db.delete(articles).where(eq(articles.status, 'draft'))
+
+  revalidatePath('/', 'layout')
+  revalidatePath('/admin/articles')
+
+  return NextResponse.json({ ok: true })
 }

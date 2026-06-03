@@ -34,6 +34,7 @@ export default function ArticlesListPage() {
   const [loading,     setLoading]     = useState(true)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [deleting,    setDeleting]    = useState(false)
+  const [bulkDeletingDrafts, setBulkDeletingDrafts] = useState(false)
   const [breaking,    setBreaking]    = useState(false)
   const [viewMode,    setViewMode]    = useState<'card' | 'table'>('card')
 
@@ -48,13 +49,49 @@ export default function ArticlesListPage() {
     setLoading(false)
   }, [page, search, statusFilter])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { queueMicrotask(load) }, [load])
 
   const displayed = breaking ? articles.filter(a => a.isBreaking) : articles
+  const displayedIds = displayed.map(a => a.id)
+  const allDisplayedSelected = displayedIds.length > 0 && displayedIds.every(id => selectedIds.has(id))
   const totalPages = Math.ceil(total / 20) || 1
 
   const heading = statusFilter === 'draft' ? '📝 Drafts' : '📰 Articles'
   const statusC = STATUS_COLORS
+
+  function toggleDisplayedSelection() {
+    if (allDisplayedSelected) {
+      const next = new Set(selectedIds)
+      displayedIds.forEach(id => next.delete(id))
+      setSelectedIds(next)
+      return
+    }
+
+    setSelectedIds(new Set([...selectedIds, ...displayedIds]))
+  }
+
+  async function deleteAllDrafts() {
+    if (!confirm(`Delete ALL ${total.toLocaleString()} draft article(s)? This cannot be undone.`)) return
+    if (!confirm('Final confirmation: permanently delete every draft article?')) return
+
+    setBulkDeletingDrafts(true)
+    try {
+      const res = await fetch('/api/admin/articles?status=draft&confirm=delete-drafts', {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { error?: string }
+        alert(data.error || 'Failed to delete drafts.')
+        return
+      }
+      setSelectedIds(new Set())
+      setPage(1)
+      await load()
+    } finally {
+      setBulkDeletingDrafts(false)
+    }
+  }
 
   return (
     <div>
@@ -125,6 +162,41 @@ export default function ArticlesListPage() {
             {s || 'All'}
           </a>
         ))}
+        {statusFilter === 'draft' && displayed.length > 0 && (
+          <>
+            <button
+              onClick={toggleDisplayedSelection}
+              style={{
+                background: allDisplayedSelected ? '#181818' : '#111',
+                color: allDisplayedSelected ? '#888' : '#fff',
+                border: '1px solid #333',
+                borderRadius: 7,
+                padding: '8px 14px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+              }}
+            >
+              {allDisplayedSelected ? 'Clear Page' : 'Select Page'}
+            </button>
+            <button
+              disabled={bulkDeletingDrafts}
+              onClick={deleteAllDrafts}
+              style={{
+                background: '#3A0000',
+                color: '#fff',
+                border: '1px solid #C8102E',
+                borderRadius: 7,
+                padding: '8px 14px',
+                fontSize: '0.72rem',
+                fontWeight: 900,
+                cursor: bulkDeletingDrafts ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {bulkDeletingDrafts ? 'Deleting Drafts…' : `Delete All Drafts (${total.toLocaleString()})`}
+            </button>
+          </>
+        )}
       </div>
 
       {/* ── Bulk action bar ── */}
@@ -172,7 +244,11 @@ export default function ArticlesListPage() {
                 <button
                   onClick={() => {
                     const n = new Set(selectedIds)
-                    selected ? n.delete(a.id) : n.add(a.id)
+                    if (selected) {
+                      n.delete(a.id)
+                    } else {
+                      n.add(a.id)
+                    }
                     setSelectedIds(n)
                   }}
                   style={{
@@ -258,7 +334,11 @@ export default function ArticlesListPage() {
                     <td style={{ padding: '10px 14px' }}>
                       <input type="checkbox" checked={selectedIds.has(a.id)} onChange={e => {
                         const n = new Set(selectedIds)
-                        e.target.checked ? n.add(a.id) : n.delete(a.id)
+                        if (e.target.checked) {
+                          n.add(a.id)
+                        } else {
+                          n.delete(a.id)
+                        }
                         setSelectedIds(n)
                       }} />
                     </td>

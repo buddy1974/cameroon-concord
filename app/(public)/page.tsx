@@ -7,6 +7,7 @@ import { Clock } from 'lucide-react'
 import AdUnit from '@/components/ads/AdUnit'
 import { ArticleCard } from '@/components/article/ArticleCard'
 import InstallBanner from '@/components/pwa/InstallBanner'
+import { WorldCupSection } from '@/components/home/WorldCupSection'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { NewsletterCTA } from '@/components/common/NewsletterCTA'
 import {
@@ -352,6 +353,10 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── WORLD CUP SPECIAL ── */}
+      {/* Visibility controlled by siteSpecials.worldCup in lib/site-specials.ts */}
+      <WorldCupSection />
 
       {/* ── INSTALL BANNER ── */}
       <div style={{ maxWidth: '1400px', margin: '80px auto 0', padding: '0 24px' }}>

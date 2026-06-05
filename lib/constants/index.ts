@@ -8,16 +8,18 @@ export const SITE_LOGO     = `${SITE_URL}/icons/logo.png`
 export const ADSENSE_ID    = 'ca-pub-0554291063972402'
 
 export const CATEGORIES = [
-  { slug: 'headlines',          name: 'Headlines',    color: '#C8102E' },
-  { slug: 'politics',           name: 'Politics',     color: '#C8102E' },
-  { slug: 'society',            name: 'Society',      color: '#007A3D' },
-  { slug: 'southern-cameroons', name: 'S. Cameroons', color: '#F5A623' },
-  { slug: 'health',             name: 'Health',       color: '#007A3D' },
-  { slug: 'business',           name: 'Business',     color: '#F5A623' },
-  { slug: 'sportsnews',         name: 'Sports',       color: '#C8102E' },
-  { slug: 'lifestyle',          name: 'Lifestyle',    color: '#007A3D' },
-  { slug: 'editorial',          name: 'Editorial',    color: '#C8102E' },
-  { slug: 'inside-cpdm',        name: 'Biya',         color: '#8B0000' },
+  { slug: 'headlines',          name: 'Headlines',         color: '#C8102E' },
+  { slug: 'politics',           name: 'Politics',          color: '#C8102E' },
+  { slug: 'society',            name: 'Society',           color: '#007A3D' },
+  { slug: 'southern-cameroons', name: 'S. Cameroons',      color: '#F5A623' },
+  { slug: 'health',             name: 'Health',            color: '#007A3D' },
+  { slug: 'business',           name: 'Business',          color: '#F5A623' },
+  { slug: 'sportsnews',         name: 'Sports',            color: '#C8102E' },
+  { slug: 'lifestyle',          name: 'Lifestyle',         color: '#007A3D' },
+  { slug: 'editorial',          name: 'Editorial',         color: '#C8102E' },
+  { slug: 'inside-cpdm',        name: 'Biya',              color: '#8B0000' },
+  // World Cup special -- visibility controlled via lib/site-specials.ts
+  { slug: 'world-cup',          name: 'World Cup Special', color: '#006233' },
 ] as const
 
 export const NAV_CATEGORIES = CATEGORIES.slice(0, 9)
@@ -26,5 +28,4 @@ export const ARTICLES_PER_PAGE   = 20
 export const BREAKING_NEWS_COUNT = 5
 export const FEATURED_COUNT      = 3
 export const RELATED_COUNT       = 4
-
-export const READING_SPEED_WPM = 200
+export const READING_SPEED_WPM   = 200

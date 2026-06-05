@@ -207,7 +207,8 @@ if (!body.trim())  { setMsg('Body is required'); return }
   const mainSlugs = [
     'politics', 'society', 'sportsnews', 'southern-cameroons',
     'health', 'business', 'lifestyle', 'editorial',
-    'headlines', 'inside-cpdm', 'technology', 'religion', 'poetry'
+    'headlines', 'inside-cpdm', 'technology', 'religion', 'poetry',
+    'world-cup',
   ]
   const filteredCats = categories.filter(c => mainSlugs.includes(c.slug))
 

@@ -8,10 +8,12 @@ import { usePathname, useSearchParams } from 'next/navigation'
    Navigation items
 ───────────────────────────────────────── */
 const CONTENT_NAV = [
-  { href: '/admin',                       icon: '📊', label: 'Dashboard'    },
-  { href: '/admin/articles/new',          icon: '✏️', label: 'New Article'  },
-  { href: '/admin/articles',              icon: '📰', label: 'All Articles' },
-  { href: '/admin/articles?status=draft', icon: '📝', label: 'Drafts'       },
+  { href: '/admin',                                           icon: '📊',  label: 'Dashboard'         },
+  { href: '/admin/articles/new',                              icon: '✏️',  label: 'New Article'        },
+  { href: '/admin/articles',                                  icon: '📰',  label: 'All Articles'       },
+  { href: '/admin/articles?status=draft',                     icon: '📝',  label: 'Drafts'             },
+  { href: '/admin/articles?category=world-cup',               icon: '⚽',  label: 'World Cup Special'  },
+  { href: '/admin/articles?category=world-cup&status=draft',  icon: '🟡',  label: 'WC Drafts'          },
 ]
 const MANAGE_NAV = [
   { href: '/admin/comments',       icon: '💬', label: 'Comments'       },
@@ -31,15 +33,26 @@ const BOTTOM_NAV = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const pathname     = usePathname()
-  const searchParams = useSearchParams()
-  const statusParam  = searchParams.get('status')
+  const pathname      = usePathname()
+  const searchParams  = useSearchParams()
+  const statusParam   = searchParams.get('status')
+  const categoryParam = searchParams.get('category')
 
   function isActive(href: string | null): boolean {
     if (!href) return false
-    if (href === '/admin/articles?status=draft') return pathname === '/admin/articles' && statusParam === 'draft'
-    if (href === '/admin/articles')              return pathname === '/admin/articles' && statusParam !== 'draft'
-    if (href === '/admin')                       return pathname === '/admin'
+    const [hPath, hQuery] = href.split('?')
+    const hParams   = new URLSearchParams(hQuery || '')
+    const hStatus   = hParams.get('status')
+    const hCategory = hParams.get('category')
+
+    if (pathname !== hPath) return false
+
+    if (hCategory) {
+      return categoryParam === hCategory && (hStatus ? statusParam === hStatus : !statusParam)
+    }
+    if (href === '/admin/articles?status=draft') return pathname === '/admin/articles' && statusParam === 'draft' && !categoryParam
+    if (href === '/admin/articles') return pathname === '/admin/articles' && !statusParam && !categoryParam
+    if (href === '/admin')          return pathname === '/admin'
     return pathname.startsWith(href) && href !== '/admin' && href !== '/'
   }
 

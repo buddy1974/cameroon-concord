@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { Category, Article, ArticleStatus } from '@/lib/types'
 import { safeJsonArray } from '@/lib/utils/safe-json'
 
@@ -39,14 +39,21 @@ const CC_AUTHORS = [
 ]
 
 export function ArticleEditor({ categories, article }: Props) {
-  const router = useRouter()
-  const isEdit = !!article
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const isEdit       = !!article
+
+  // Preselect category from ?category=slug on new article pages (e.g. /admin/articles/new?category=world-cup)
+  const urlCategorySlug = !isEdit ? (searchParams.get('category') || '') : ''
+  const urlCategoryId   = urlCategorySlug
+    ? (categories.find(c => c.slug === urlCategorySlug)?.id ?? 0)
+    : 0
 
   const [title,     setTitle]     = useState(article?.title || '')
   const [slug,      setSlug]      = useState(article?.slug || '')
   const [body,      setBody]      = useState(article?.body || '')
   const [excerpt,   setExcerpt]   = useState(article?.excerpt || '')
-  const [catId,     setCatId]     = useState<number>(article?.categoryId || categories[0]?.id || 0)
+  const [catId,     setCatId]     = useState<number>(article?.categoryId || urlCategoryId || categories[0]?.id || 0)
   const [imgUrl,    setImgUrl]    = useState(article?.featuredImage || '')
   const [status,    setStatus]    = useState(article?.status || 'draft')
   const [breaking,  setBreaking]  = useState(article?.isBreaking || false)

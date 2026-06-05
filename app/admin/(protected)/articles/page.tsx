@@ -15,6 +15,19 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   archived:  { bg: 'rgba(100,100,100,0.12)',  text: '#555'    },
 }
 
+// Category filter options — add new categories here when created
+const CATEGORY_FILTERS = [
+  { slug: '',           label: 'All Categories' },
+  { slug: 'world-cup',  label: '⚽ World Cup Special' },
+  { slug: 'headlines',  label: 'Headlines' },
+  { slug: 'politics',   label: 'Politics' },
+  { slug: 'society',    label: 'Society' },
+  { slug: 'southern-cameroons', label: 'S. Cameroons' },
+  { slug: 'sportsnews', label: 'Sports' },
+  { slug: 'business',   label: 'Business' },
+  { slug: 'health',     label: 'Health' },
+]
+
 function timeAgo(d: string | null): string {
   if (!d) return '—'
   const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000)
@@ -23,9 +36,18 @@ function timeAgo(d: string | null): string {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
+/** Build a URL preserving current category when switching status, and vice versa */
+function buildUrl(base: string, params: Record<string, string>): string {
+  const p = new URLSearchParams()
+  Object.entries(params).forEach(([k, v]) => { if (v) p.set(k, v) })
+  const qs = p.toString()
+  return qs ? `${base}?${qs}` : base
+}
+
 export default function ArticlesListPage() {
-  const urlParams    = useSearchParams()
-  const statusFilter = urlParams.get('status') || ''
+  const urlParams      = useSearchParams()
+  const statusFilter   = urlParams.get('status')   || ''
+  const categoryFilter = urlParams.get('category') || ''
 
   const [articles,    setArticles]    = useState<ArticleRow[]>([])
   const [total,       setTotal]       = useState(0)
@@ -38,162 +60,150 @@ export default function ArticlesListPage() {
   const [breaking,    setBreaking]    = useState(false)
   const [viewMode,    setViewMode]    = useState<'card' | 'table'>('card')
 
+  const isWC = categoryFilter === 'world-cup'
+
   const load = useCallback(async () => {
     setLoading(true)
     const params = new URLSearchParams({ page: String(page), q: search })
-    if (statusFilter) params.set('status', statusFilter)
-    const res  = await fetch(`/api/admin/articles?${params}`)
+    if (statusFilter)   params.set('status',   statusFilter)
+    if (categoryFilter) params.set('category', categoryFilter)
+    const res  = await fetch(`/api/admin/articles?${params}`, { credentials: 'include' })
     const data = await res.json() as { articles: ArticleRow[]; total: number }
     setArticles(data.articles)
     setTotal(data.total)
     setLoading(false)
-  }, [page, search, statusFilter])
+  }, [page, search, statusFilter, categoryFilter])
 
   useEffect(() => { queueMicrotask(load) }, [load])
 
-  const displayed = breaking ? articles.filter(a => a.isBreaking) : articles
-  const displayedIds = displayed.map(a => a.id)
+  const displayed     = breaking ? articles.filter(a => a.isBreaking) : articles
+  const displayedIds  = displayed.map(a => a.id)
   const allDisplayedSelected = displayedIds.length > 0 && displayedIds.every(id => selectedIds.has(id))
-  const totalPages = Math.ceil(total / 20) || 1
+  const totalPages    = Math.ceil(total / 20) || 1
 
-  const heading = statusFilter === 'draft' ? '📝 Drafts' : '📰 Articles'
-  const statusC = STATUS_COLORS
+  // Dynamic heading
+  const wcLabel   = 'World Cup Special'
+  const catLabel  = isWC ? wcLabel : (CATEGORY_FILTERS.find(c => c.slug === categoryFilter)?.label || '')
+  const heading   = statusFilter === 'draft'
+    ? (isWC ? `⚽ ${wcLabel} · Drafts` : '📝 Drafts')
+    : (isWC ? `⚽ ${wcLabel}` : '📰 Articles')
 
   function toggleDisplayedSelection() {
     if (allDisplayedSelected) {
-      const next = new Set(selectedIds)
-      displayedIds.forEach(id => next.delete(id))
-      setSelectedIds(next)
+      const next = new Set(selectedIds); displayedIds.forEach(id => next.delete(id)); setSelectedIds(next)
       return
     }
-
     setSelectedIds(new Set([...selectedIds, ...displayedIds]))
   }
 
   async function deleteAllDrafts() {
     if (!confirm(`Delete ALL ${total.toLocaleString()} draft article(s)? This cannot be undone.`)) return
     if (!confirm('Final confirmation: permanently delete every draft article?')) return
-
     setBulkDeletingDrafts(true)
     try {
-      const res = await fetch('/api/admin/articles?status=draft&confirm=delete-drafts', {
-        method: 'DELETE',
-        credentials: 'include',
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { error?: string }
-        alert(data.error || 'Failed to delete drafts.')
-        return
-      }
-      setSelectedIds(new Set())
-      setPage(1)
-      await load()
-    } finally {
-      setBulkDeletingDrafts(false)
-    }
+      const params = new URLSearchParams({ status: 'draft', confirm: 'delete-drafts' })
+      if (categoryFilter) params.set('category', categoryFilter)
+      const res = await fetch(`/api/admin/articles?${params}`, { method: 'DELETE', credentials: 'include' })
+      if (!res.ok) { const d = await res.json().catch(() => ({})) as { error?: string }; alert(d.error || 'Failed'); return }
+      setSelectedIds(new Set()); setPage(1); await load()
+    } finally { setBulkDeletingDrafts(false) }
   }
+
+  // New article URL — preselects category if one is active
+  const newArticleHref = isWC
+    ? '/admin/articles/new?category=world-cup'
+    : '/admin/articles/new'
 
   return (
     <div>
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 18 }}>
-        <h1 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', margin: 0, flex: 1 }}>
-          {heading} <span style={{ color: '#2A2A2A', fontSize: '0.9rem' }}>({total.toLocaleString()})</span>
+        <h1 style={{ fontSize: '1.2rem', fontWeight: 900, color: isWC ? '#4ade80' : '#fff', margin: 0, flex: 1 }}>
+          {heading}
+          <span style={{ color: '#2A2A2A', fontSize: '0.9rem', fontWeight: 400, marginLeft: 8 }}>
+            ({total.toLocaleString()})
+          </span>
         </h1>
         <button
           onClick={() => setViewMode(v => v === 'card' ? 'table' : 'card')}
-          title="Toggle view"
           style={{ background: '#111', border: '1px solid #222', color: '#555', padding: '7px 12px', borderRadius: 7, cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700 }}
         >
           {viewMode === 'card' ? '⊟ Table' : '⊞ Cards'}
         </button>
         <button
-          onClick={async () => {
-            if (!confirm('Remove breaking flag from ALL articles?')) return
-            await fetch('/api/admin/articles/kill-breaking', { method: 'POST' })
-            load()
-          }}
+          onClick={async () => { if (!confirm('Remove breaking flag from ALL articles?')) return; await fetch('/api/admin/articles/kill-breaking', { method: 'POST', credentials: 'include' }); load() }}
           style={{ background: '#1A0000', color: '#C8102E', border: '1px solid #C8102E', padding: '7px 12px', borderRadius: 7, fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}
         >
           🚨 Kill Breaking
         </button>
-        <Link href="/admin/articles/new" style={{
-          background: '#C8102E', color: '#fff', padding: '9px 18px',
-          borderRadius: 8, fontSize: '0.78rem', fontWeight: 900,
-          textDecoration: 'none',
-        }}>
-          + New
+        <Link href={newArticleHref} style={{ background: isWC ? '#166534' : '#C8102E', color: '#fff', padding: '9px 18px', borderRadius: 8, fontSize: '0.78rem', fontWeight: 900, textDecoration: 'none' }}>
+          {isWC ? '⚽ + WC Article' : '+ New'}
         </Link>
       </div>
 
-      {/* ── Search + filter bar ── */}
+      {/* ── Category filter pills ── */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+        {CATEGORY_FILTERS.map(cf => {
+          const active = categoryFilter === cf.slug
+          const href = buildUrl('/admin/articles', { category: cf.slug, status: statusFilter })
+          return (
+            <a key={cf.slug} href={href} style={{
+              padding: '6px 12px', borderRadius: 20,
+              background: active ? (cf.slug === 'world-cup' ? '#166534' : '#C8102E') : '#0D0D0D',
+              color: active ? '#fff' : (cf.slug === 'world-cup' ? '#4ade80' : '#555'),
+              border: `1px solid ${active ? 'transparent' : (cf.slug === 'world-cup' ? '#166534' : '#1A1A1A')}`,
+              fontSize: '0.68rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap',
+            }}>
+              {cf.label}
+            </a>
+          )
+        })}
+      </div>
+
+      {/* ── Search + status filter bar ── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
         <input
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
-          placeholder="🔍 Search articles..."
-          style={{
-            flex: 1, minWidth: 160,
-            background: '#0D0D0D', border: '1px solid #1E1E1E',
-            borderRadius: 8, padding: '10px 14px', color: '#EEE',
-            fontSize: '0.88rem', outline: 'none',
-          }}
+          placeholder={isWC ? '🔍 Search World Cup articles…' : '🔍 Search articles…'}
+          style={{ flex: 1, minWidth: 160, background: '#0D0D0D', border: `1px solid ${isWC ? '#166534' : '#1E1E1E'}`, borderRadius: 8, padding: '10px 14px', color: '#EEE', fontSize: '0.88rem', outline: 'none' }}
         />
         <button
           onClick={() => setBreaking(!breaking)}
-          style={{
-            background: breaking ? '#C8102E' : '#0D0D0D',
-            color: breaking ? '#fff' : '#C8102E',
-            border: '1px solid #C8102E', borderRadius: 7,
-            padding: '8px 14px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer',
-          }}
+          style={{ background: breaking ? '#C8102E' : '#0D0D0D', color: breaking ? '#fff' : '#C8102E', border: '1px solid #C8102E', borderRadius: 7, padding: '8px 14px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}
         >
           🚨 Breaking
         </button>
-        {['', 'draft', 'published', 'archived'].map(s => (
-          <a key={s} href={s ? `/admin/articles?status=${s}` : '/admin/articles'} style={{
-            padding: '8px 12px', borderRadius: 7,
-            background: statusFilter === s ? '#C8102E' : '#0D0D0D',
-            color: statusFilter === s ? '#fff' : '#555',
-            border: '1px solid #1A1A1A',
-            fontSize: '0.68rem', fontWeight: 700, textDecoration: 'none',
-            display: 'inline-block',
-          }}>
-            {s || 'All'}
-          </a>
-        ))}
+        {/* Status filters — preserve category param */}
+        {['', 'draft', 'published', 'archived'].map(s => {
+          const href = buildUrl('/admin/articles', { category: categoryFilter, status: s })
+          const active = statusFilter === s
+          return (
+            <a key={s} href={href} style={{
+              padding: '8px 12px', borderRadius: 7,
+              background: active ? '#C8102E' : '#0D0D0D',
+              color: active ? '#fff' : '#555',
+              border: '1px solid #1A1A1A',
+              fontSize: '0.68rem', fontWeight: 700, textDecoration: 'none', display: 'inline-block',
+            }}>
+              {s || 'All'}
+            </a>
+          )
+        })}
         {statusFilter === 'draft' && displayed.length > 0 && (
           <>
             <button
               onClick={toggleDisplayedSelection}
-              style={{
-                background: allDisplayedSelected ? '#181818' : '#111',
-                color: allDisplayedSelected ? '#888' : '#fff',
-                border: '1px solid #333',
-                borderRadius: 7,
-                padding: '8px 14px',
-                fontSize: '0.72rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
+              style={{ background: allDisplayedSelected ? '#181818' : '#111', color: allDisplayedSelected ? '#888' : '#fff', border: '1px solid #333', borderRadius: 7, padding: '8px 14px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
             >
               {allDisplayedSelected ? 'Clear Page' : 'Select Page'}
             </button>
             <button
               disabled={bulkDeletingDrafts}
               onClick={deleteAllDrafts}
-              style={{
-                background: '#3A0000',
-                color: '#fff',
-                border: '1px solid #C8102E',
-                borderRadius: 7,
-                padding: '8px 14px',
-                fontSize: '0.72rem',
-                fontWeight: 900,
-                cursor: bulkDeletingDrafts ? 'not-allowed' : 'pointer',
-              }}
+              style={{ background: '#3A0000', color: '#fff', border: '1px solid #C8102E', borderRadius: 7, padding: '8px 14px', fontSize: '0.72rem', fontWeight: 900, cursor: bulkDeletingDrafts ? 'not-allowed' : 'pointer' }}
             >
-              {bulkDeletingDrafts ? 'Deleting Drafts…' : `Delete All Drafts (${total.toLocaleString()})`}
+              {bulkDeletingDrafts ? 'Deleting…' : `Delete All Drafts (${total.toLocaleString()})`}
             </button>
           </>
         )}
@@ -223,41 +233,50 @@ export default function ArticlesListPage() {
       {loading ? (
         <div style={{ padding: '60px', textAlign: 'center', color: '#2A2A2A', fontSize: '0.9rem' }}>Loading…</div>
       ) : displayed.length === 0 ? (
-        <div style={{ padding: '60px 20px', textAlign: 'center', color: '#2A2A2A', fontSize: '0.85rem', background: '#0D0D0D', borderRadius: 12, border: '1px solid #111' }}>
-          No articles found
+        /* ── Empty state ── */
+        <div style={{ padding: '48px 24px', textAlign: 'center', background: '#0D0D0D', borderRadius: 12, border: `1px solid ${isWC ? '#166534' : '#111'}` }}>
+          {isWC ? (
+            <>
+              <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>⚽</div>
+              <p style={{ fontSize: '1rem', fontWeight: 700, color: '#4ade80', marginBottom: 8 }}>
+                No World Cup Special articles found
+                {statusFilter === 'draft' ? ' (drafts)' : ''}
+              </p>
+              <p style={{ fontSize: '0.82rem', color: '#3A3A3A', marginBottom: 24, maxWidth: 420, margin: '0 auto 24px' }}>
+                Drafts from the World Cup automation will appear here after ingestion. You can also create articles manually.
+              </p>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link href="/admin/articles/new?category=world-cup" style={{ background: '#166534', color: '#fff', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none' }}>
+                  ⚽ Create World Cup Article
+                </Link>
+                <a href="/admin/articles" style={{ background: '#111', color: '#555', border: '1px solid #1E1E1E', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none' }}>
+                  View All Articles
+                </a>
+              </div>
+            </>
+          ) : (
+            <p style={{ color: '#2A2A2A', fontSize: '0.85rem' }}>No articles found</p>
+          )}
         </div>
       ) : viewMode === 'card' ? (
 
-        /* ══════════ CARD VIEW (mobile-first) ══════════ */
+        /* ══════════ CARD VIEW ══════════ */
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {displayed.map(a => {
-            const sc = statusC[a.status] ?? statusC.archived
+            const sc = STATUS_COLORS[a.status] ?? STATUS_COLORS.archived
             const selected = selectedIds.has(a.id)
+            const isWCArticle = a.catSlug === 'world-cup'
             return (
               <div key={a.id} style={{
                 background: selected ? '#1A0A0A' : '#0D0D0D',
-                border: `1px solid ${selected ? '#C8102E' : '#1A1A1A'}`,
+                border: `1px solid ${selected ? '#C8102E' : (isWCArticle ? '#166534' : '#1A1A1A')}`,
                 borderRadius: 12, overflow: 'hidden',
                 display: 'flex', alignItems: 'stretch',
               }}>
                 {/* Select strip */}
                 <button
-                  onClick={() => {
-                    const n = new Set(selectedIds)
-                    if (selected) {
-                      n.delete(a.id)
-                    } else {
-                      n.add(a.id)
-                    }
-                    setSelectedIds(n)
-                  }}
-                  style={{
-                    width: 36, flexShrink: 0,
-                    background: selected ? '#C8102E' : 'transparent',
-                    border: 'none', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: selected ? '#fff' : '#252525', fontSize: '0.7rem',
-                  }}
+                  onClick={() => { const n = new Set(selectedIds); if (selected) { n.delete(a.id) } else { n.add(a.id) } setSelectedIds(n) }}
+                  style={{ width: 36, flexShrink: 0, background: selected ? '#C8102E' : 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: selected ? '#fff' : '#252525', fontSize: '0.7rem' }}
                   title="Select"
                 >
                   {selected ? '✓' : '◻'}
@@ -266,43 +285,26 @@ export default function ArticlesListPage() {
                 {/* Main content */}
                 <div style={{ flex: 1, padding: '12px 12px 12px 10px', minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 5 }}>
-                    {a.isBreaking && (
-                      <span style={{ fontSize: '0.48rem', background: '#C8102E', color: '#fff', padding: '2px 6px', borderRadius: 3, fontWeight: 900, letterSpacing: '0.1em', flexShrink: 0, marginTop: 2 }}>BREAKING</span>
-                    )}
-                    <Link href={`/admin/articles/${a.id}/edit`} style={{
-                      fontSize: '0.85rem', fontWeight: 700, color: '#ddd',
-                      textDecoration: 'none', lineHeight: 1.35,
-                      display: '-webkit-box', WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                    }}>
+                    {a.isBreaking && <span style={{ fontSize: '0.48rem', background: '#C8102E', color: '#fff', padding: '2px 6px', borderRadius: 3, fontWeight: 900, letterSpacing: '0.1em', flexShrink: 0, marginTop: 2 }}>BREAKING</span>}
+                    {isWCArticle && <span style={{ fontSize: '0.48rem', background: '#166534', color: '#4ade80', padding: '2px 6px', borderRadius: 3, fontWeight: 900, letterSpacing: '0.1em', flexShrink: 0, marginTop: 2 }}>⚽ WC</span>}
+                    <Link href={`/admin/articles/${a.id}/edit`} style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ddd', textDecoration: 'none', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {a.title}
                     </Link>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '0.58rem', background: sc.bg, color: sc.text, padding: '2px 7px', borderRadius: 20, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{a.status}</span>
-                    <span style={{ fontSize: '0.62rem', color: '#333' }}>{a.category}</span>
+                    <span style={{ fontSize: '0.62rem', color: isWCArticle ? '#4ade80' : '#333' }}>{a.category}</span>
                     <span style={{ fontSize: '0.62rem', color: '#252525' }}>{timeAgo(a.publishedAt)}</span>
                     {(a.hits ?? 0) > 0 && <span style={{ fontSize: '0.62rem', color: '#F5A623' }}>👁 {a.hits?.toLocaleString()}</span>}
                   </div>
                 </div>
 
-                {/* Action buttons */}
+                {/* Actions */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 1, padding: 8, flexShrink: 0 }}>
-                  <Link href={`/admin/articles/${a.id}/edit`} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: '#C8102E', color: '#fff',
-                    padding: '8px 16px', borderRadius: 8,
-                    fontSize: '0.72rem', fontWeight: 900, textDecoration: 'none',
-                    letterSpacing: '0.04em',
-                  }}>
+                  <Link href={`/admin/articles/${a.id}/edit`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#C8102E', color: '#fff', padding: '8px 16px', borderRadius: 8, fontSize: '0.72rem', fontWeight: 900, textDecoration: 'none', letterSpacing: '0.04em' }}>
                     EDIT
                   </Link>
-                  <Link href={`/${a.catSlug}/${a.slug}`} target="_blank" style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: '#151515', color: '#444',
-                    padding: '6px 12px', borderRadius: 6,
-                    fontSize: '0.65rem', fontWeight: 700, textDecoration: 'none',
-                  }}>
+                  <Link href={`/${a.catSlug}/${a.slug}`} target="_blank" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#151515', color: '#444', padding: '6px 12px', borderRadius: 6, fontSize: '0.65rem', fontWeight: 700, textDecoration: 'none' }}>
                     ↗ View
                   </Link>
                 </div>
@@ -313,7 +315,7 @@ export default function ArticlesListPage() {
 
       ) : (
 
-        /* ══════════ TABLE VIEW (desktop) ══════════ */
+        /* ══════════ TABLE VIEW ══════════ */
         <div style={{ background: '#0D0D0D', border: '1px solid #1A1A1A', borderRadius: 12, overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
             <thead>
@@ -328,27 +330,21 @@ export default function ArticlesListPage() {
             </thead>
             <tbody>
               {displayed.map(a => {
-                const sc = statusC[a.status] ?? statusC.archived
+                const sc = STATUS_COLORS[a.status] ?? STATUS_COLORS.archived
+                const isWCArticle = a.catSlug === 'world-cup'
                 return (
                   <tr key={a.id} style={{ borderBottom: '1px solid #080808' }}>
                     <td style={{ padding: '10px 14px' }}>
-                      <input type="checkbox" checked={selectedIds.has(a.id)} onChange={e => {
-                        const n = new Set(selectedIds)
-                        if (e.target.checked) {
-                          n.add(a.id)
-                        } else {
-                          n.delete(a.id)
-                        }
-                        setSelectedIds(n)
-                      }} />
+                      <input type="checkbox" checked={selectedIds.has(a.id)} onChange={e => { const n = new Set(selectedIds); if (e.target.checked) { n.add(a.id) } else { n.delete(a.id) } setSelectedIds(n) }} />
                     </td>
                     <td style={{ padding: '10px 14px', maxWidth: 380 }}>
                       <Link href={`/admin/articles/${a.id}/edit`} style={{ color: '#bbb', textDecoration: 'none', fontSize: '0.8rem', fontWeight: 600 }}>
                         {a.isBreaking && <span style={{ fontSize: '0.5rem', background: '#C8102E', color: '#fff', padding: '1px 5px', borderRadius: 3, marginRight: 6, fontWeight: 900 }}>BREAKING</span>}
+                        {isWCArticle && <span style={{ fontSize: '0.5rem', background: '#166534', color: '#4ade80', padding: '1px 5px', borderRadius: 3, marginRight: 6, fontWeight: 900 }}>⚽</span>}
                         {a.title}
                       </Link>
                     </td>
-                    <td style={{ padding: '10px 14px', fontSize: '0.7rem', color: '#444', whiteSpace: 'nowrap' }}>{a.category}</td>
+                    <td style={{ padding: '10px 14px', fontSize: '0.7rem', color: isWCArticle ? '#4ade80' : '#444', whiteSpace: 'nowrap' }}>{a.category}</td>
                     <td style={{ padding: '10px 14px' }}>
                       <span style={{ fontSize: '0.58rem', fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: sc.bg, color: sc.text, textTransform: 'uppercase' }}>{a.status}</span>
                     </td>
@@ -359,7 +355,7 @@ export default function ArticlesListPage() {
                         <Link href={`/admin/articles/${a.id}/edit`} style={{ fontSize: '0.65rem', background: '#C8102E', color: '#fff', padding: '4px 10px', borderRadius: 5, textDecoration: 'none', fontWeight: 700 }}>Edit</Link>
                         <Link href={`/${a.catSlug}/${a.slug}`} target="_blank" style={{ fontSize: '0.65rem', background: '#181818', color: '#555', padding: '4px 8px', borderRadius: 5, textDecoration: 'none', border: '1px solid #1E1E1E' }}>↗</Link>
                         {a.isBreaking && (
-                          <button onClick={async () => { await fetch(`/api/admin/articles/${a.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isBreaking: false }) }); load() }}
+                          <button onClick={async () => { await fetch(`/api/admin/articles/${a.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ isBreaking: false }) }); load() }}
                             style={{ fontSize: '0.6rem', background: '#7A0000', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer', fontWeight: 700 }}>
                             ✕ Brk
                           </button>
@@ -381,9 +377,7 @@ export default function ArticlesListPage() {
             ← Prev
           </button>
         )}
-        <span style={{ padding: '8px 14px', fontSize: '0.72rem', color: '#333' }}>
-          {page} / {totalPages}
-        </span>
+        <span style={{ padding: '8px 14px', fontSize: '0.72rem', color: '#333' }}>{page} / {totalPages}</span>
         {page < totalPages && (
           <button onClick={() => setPage(p => p + 1)} style={{ background: '#0D0D0D', border: '1px solid #1E1E1E', color: '#888', padding: '8px 18px', borderRadius: 7, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700 }}>
             Next →

@@ -53,6 +53,17 @@ function filterByTag(articles: ArticleWithRelations[], keywords: string[]): Arti
   })
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// EDITORIAL FACT RULE — DO NOT REMOVE
+// Cameroon did NOT qualify for the 2026 World Cup finals.
+// Cameroon coverage in this section is strictly:
+//   - accountability / absence analysis
+//   - FECAFOOT governance failures
+//   - why the Indomitable Lions failed to qualify
+//   - diaspora reaction
+//   - verified Cameroonian-origin players representing other nations
+// Do NOT write copy implying Cameroon has a 2026 World Cup campaign or group stage.
+// ─────────────────────────────────────────────────────────────────────────────
 export default async function WorldCupPage() {
   let allArticles: ArticleWithRelations[] = []
   let total = 0
@@ -268,15 +279,15 @@ export default async function WorldCupPage() {
         {/* ── Cameroon Watch ── */}
         <SubSection
           title="Cameroon Watch"
-          subtitle="The Indomitable Lions, FECAFOOT, and Cameroon's World Cup journey."
+          subtitle="Cameroon's absence from 2026, FECAFOOT accountability, diaspora reactions, and the wider questions facing the Indomitable Lions."
           articles={dedupe(cameroon)}
-          emptyText="No Cameroon-specific stories yet. Check back as coverage develops."
+          emptyText="No Cameroon Watch stories yet. Coverage focuses on Cameroon's absence from 2026, FECAFOOT accountability, diaspora reaction, and verified Cameroonian-origin players in the tournament."
         />
 
         {/* ── African Teams ── */}
         <SubSection
           title="African Teams"
-          subtitle="All 6 African nations at the World Cup — results, analysis, and reaction."
+          subtitle="Africa's qualified nations at the 2026 World Cup — results, analysis, and reaction."
           articles={dedupe(africa)}
           emptyText="African teams coverage will appear here."
         />

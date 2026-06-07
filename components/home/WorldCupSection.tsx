@@ -161,7 +161,6 @@ export async function WorldCupSection() {
                           src={src} alt={a.title} fill
                           sizes="(max-width: 768px) 100vw, 25vw"
                           style={{ objectFit: 'cover' }}
-                          onError={(e) => { e.currentTarget.style.display = 'none' }}
                         />
                       ) : (
                         <div style={{

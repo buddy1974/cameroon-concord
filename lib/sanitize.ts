@@ -1,5 +1,10 @@
 import sanitizeHtml from 'sanitize-html'
 
+export function sanitizeCommentText(raw: string): string {
+  const stripped = sanitizeHtml(raw, { allowedTags: [], allowedAttributes: {} })
+  return stripped.replace(/\s+/g, ' ').trim()
+}
+
 export function sanitizeArticleBody(html: string): string {
   return sanitizeHtml(html, {
     allowedTags: [

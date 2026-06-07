@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { articles } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import Anthropic from '@anthropic-ai/sdk'
-
-const claude = new Anthropic()
 
 export async function GET(
   _: NextRequest,
@@ -25,14 +22,24 @@ export async function GET(
     return NextResponse.json(article.perspectives)
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: 'AI perspectives not configured' }, { status: 503 })
+  }
+
   const clean = article.body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 2000)
 
-  const message = await claude.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 1000,
-    messages: [{
-      role: 'user',
-      content: `You are an expert on Cameroonian politics. Given this news article, generate 3 short perspective summaries (2-3 sentences each) representing different viewpoints on this story.
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      max_tokens: 1000,
+      messages: [{
+        role: 'user',
+        content: `You are an expert on Cameroonian politics. Given this news article, generate 3 short perspective summaries (2-3 sentences each) representing different viewpoints on this story.
 
 Article title: ${article.title}
 Article excerpt: ${clean}
@@ -44,13 +51,21 @@ Return a JSON object with exactly these 3 keys:
 
 Keep each perspective factual, plausible, and distinct. No more than 3 sentences each.
 Return ONLY valid JSON. No markdown.`,
-    }],
+      }],
+    }),
   })
 
-  const raw = (message.content[0] as { text: string }).text.trim()
+  if (!response.ok) {
+    const errText = await response.text()
+    return NextResponse.json({ error: `OpenAI error: ${response.status}`, raw: errText }, { status: 500 })
+  }
+
+  const aiData = await response.json() as { choices?: { message?: { content?: string } }[] }
+  const raw = (aiData.choices?.[0]?.message?.content || '{}').trim()
+
   let perspectives: { regime: string; opposition: string; independent: string }
   try {
-    perspectives = JSON.parse(raw)
+    perspectives = JSON.parse(raw.replace(/\`\`\`json\n?/gi, '').replace(/\`\`\`\n?/gi, '').trim())
   } catch {
     return NextResponse.json({ error: 'Parse failed' }, { status: 500 })
   }

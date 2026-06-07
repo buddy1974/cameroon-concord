@@ -2,14 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { articles } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import Anthropic from '@anthropic-ai/sdk'
-
-const claude = new Anthropic()
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 export async function POST(
-  _: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
+
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: 'Article scoring is not configured' }, { status: 503 })
+  }
+
   const { id } = await params
   const articleId = parseInt(id)
 
@@ -23,12 +28,18 @@ export async function POST(
 
   const clean = article.body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 1500)
 
-  const message = await claude.messages.create({
-    model:      'claude-sonnet-4-6',
-    max_tokens: 200,
-    messages: [{
-      role:    'user',
-      content: `Score this news article on a scale of 1-10 for editorial quality.
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      max_tokens: 200,
+      messages: [{
+        role: 'user',
+        content: `Score this news article on a scale of 1-10 for editorial quality.
 
 Criteria:
 - Sources cited (named people, organisations, documents): 0-3 points
@@ -42,10 +53,18 @@ Article body: ${clean}
 
 Return ONLY a JSON object: {"score": N, "reason": "one sentence explanation"}
 No markdown, no explanation outside the JSON.`,
-    }],
+      }],
+    }),
   })
 
-  const raw = (message.content[0] as { text: string }).text.trim()
+  if (!response.ok) {
+    const errText = await response.text()
+    return NextResponse.json({ error: `OpenAI error: ${response.status}`, raw: errText }, { status: 500 })
+  }
+
+  const aiData = await response.json() as { choices?: { message?: { content?: string } }[] }
+  const raw = (aiData.choices?.[0]?.message?.content || '{}').trim()
+
   let parsed: { score: number; reason: string }
   try { parsed = JSON.parse(raw) }
   catch { return NextResponse.json({ error: 'Parse failed' }, { status: 500 }) }

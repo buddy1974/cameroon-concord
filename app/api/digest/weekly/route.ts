@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { articles, categories } from '@/lib/db/schema'
 import { eq, desc, gte, and } from 'drizzle-orm'
-import Anthropic from '@anthropic-ai/sdk'
-
-const claude = new Anthropic()
+import { requireAutomation } from '@/lib/auth/require-automation'
 
 export async function POST(req: NextRequest) {
-  const apiKey = req.headers.get('x-api-key')
-  if (apiKey !== process.env.NEXT_PUBLIC_AUTOMATION_API_KEY) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const auth = requireAutomation(req)
+  if (!auth.ok) return auth.response
+
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: 'OpenAI is not configured' }, { status: 503 })
   }
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -44,12 +44,18 @@ export async function POST(req: NextRequest) {
     `${i + 1}. [${a.category.slug}/${a.slug}] ${a.title} (${a.category.name})\n   ${a.excerpt ?? ''}`
   ).join('\n\n')
 
-  const message = await claude.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 2000,
-    messages: [{
-      role: 'user',
-      content: `You are the editor of Cameroon Concord, an independent English-language news platform covering Cameroon and Southern Cameroons with a critical editorial stance toward the Biya regime.
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: `You are the editor of Cameroon Concord, an independent English-language news platform covering Cameroon and Southern Cameroons with a critical editorial stance toward the Biya regime.
 
 Write a weekly digest article summarising the top stories from this week.
 
@@ -64,13 +70,21 @@ Return a JSON object with:
 - meta_desc: SEO description max 155 chars
 
 Return ONLY valid JSON. No markdown.`,
-    }],
+      }],
+    }),
   })
 
-  const raw = (message.content[0] as { text: string }).text.trim()
+  if (!response.ok) {
+    const errText = await response.text()
+    return NextResponse.json({ error: `OpenAI error: ${response.status}`, raw: errText }, { status: 500 })
+  }
+
+  const aiData = await response.json() as { choices?: { message?: { content?: string } }[] }
+  const raw = (aiData.choices?.[0]?.message?.content || '{}').trim()
+
   let parsed: { title: string; body: string; excerpt: string; meta_title: string; meta_desc: string }
   try {
-    parsed = JSON.parse(raw)
+    parsed = JSON.parse(raw.replace(/```json\n?/gi, '').replace(/```\n?/gi, '').trim())
   } catch {
     return NextResponse.json({ error: 'Parse failed', raw }, { status: 500 })
   }

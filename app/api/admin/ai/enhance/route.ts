@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
 import { db } from '@/lib/db/client'
 import { authors } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
-const claude = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
+
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: 'AI enhancement is not configured' }, { status: 503 })
+  }
+
   const { title, body, type } = await req.json() as {
     title: string; body: string; type: 'meta' | 'excerpt' | 'full' | 'quick'
   }
@@ -71,19 +78,36 @@ Given the article title and raw body below, return a JSON object with these ten 
 - whatsapp_message: A 3-sentence WhatsApp broadcast message. Sentence 1: the headline fact. Sentence 2: key detail. Sentence 3: 'Full story: [LINK]'. Bold key names using *asterisks*. Under 300 chars total.
 - facebook_post: A Facebook post in CC's voice. 2-3 sentences of context + emotional hook + a question to drive comments (e.g. 'What do you think?') + [LINK]. Under 400 chars.
 
-Title: ${title}
-Body: ${body}
+Title: \${title}
+Body: \${body}
 
 Return ONLY valid JSON. No markdown fences. No explanation.
 {"title":"...","meta_title":"...","meta_desc":"...","excerpt":"...","enhanced_body":"...","summary":["...","...","..."],"category_id":9,"tiktok_script":"HOOK: ... | FACTS: ... | CTA: ...","twitter_thread":["tweet1","tweet2","tweet3","tweet4","tweet5"],"whatsapp_message":"...","facebook_post":"..."}`
 
-  const message = await claude.messages.create({
-    model:      'claude-sonnet-4-6',
-    max_tokens: type === 'quick' ? 4000 : type === 'full' ? 4000 : 2000,
-    messages:   [{ role: 'user', content: prompt }],
+  const maxTokens = (type === 'full' || type === 'quick') ? 4000 : 2000
+  const model = (type === 'full' || type === 'quick') ? 'gpt-4o' : 'gpt-4o-mini'
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer \${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }],
+    }),
   })
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
+  if (!response.ok) {
+    const errText = await response.text()
+    return NextResponse.json({ error: `OpenAI error: \${response.status}`, raw: errText }, { status: 500 })
+  }
+
+  const aiData = await response.json() as { choices?: { message?: { content?: string } }[] }
+  const text = aiData.choices?.[0]?.message?.content || '{}'
+
   try {
     const clean = text.replace(/```json|```/g, '').trim()
     const parsed = JSON.parse(clean)

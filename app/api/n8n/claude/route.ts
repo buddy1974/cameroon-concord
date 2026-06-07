@@ -1,51 +1,71 @@
 export const maxDuration = 60
 
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { requireAutomation } from '@/lib/auth/require-automation';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+function isClaudeBody(value: unknown): value is { system: string; user: string } {
+  if (!value || typeof value !== 'object') return false;
+  const body = value as Record<string, unknown>;
+  return typeof body.system === 'string' && typeof body.user === 'string';
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = req.headers.get('x-api-key');
-    if (apiKey !== process.env.NEXT_PUBLIC_AUTOMATION_API_KEY) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = requireAutomation(req);
+    if (!auth.ok) return auth.response;
+
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: 'OpenAI is not configured' }, { status: 503 });
     }
 
     const rawText = await req.text();
-    let body: any;
+    let body: unknown;
     try {
       body = JSON.parse(rawText);
       if (typeof body === 'string') body = JSON.parse(body);
-    } catch(e: any) {
-      return NextResponse.json({ error: 'Body parse failed: ' + e.message, raw: rawText.substring(0, 200) }, { status: 400 });
-    }
-    const { system, user } = body;
-
-    if (!system || !user) {
-      return NextResponse.json({ error: 'Missing system or user field', received: Object.keys(body) }, { status: 400 });
+    } catch(e: unknown) {
+      const message = e instanceof Error ? e.message : 'Invalid JSON';
+      return NextResponse.json({ error: 'Body parse failed: ' + message, raw: rawText.substring(0, 200) }, { status: 400 });
     }
 
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
-      system,
-      messages: [{ role: 'user', content: user }]
+    if (!isClaudeBody(body)) {
+      const received = body && typeof body === 'object' ? Object.keys(body) : [];
+      return NextResponse.json({ error: 'Missing system or user field', received }, { status: 400 });
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        max_tokens: 2000,
+        messages: [
+          { role: 'system', content: body.system },
+          { role: 'user',   content: body.user },
+        ],
+      }),
     });
 
-    let text = message.content[0].type === 'text' ? message.content[0].text : '';
+    if (!response.ok) {
+      const errText = await response.text();
+      return NextResponse.json({ error: `OpenAI error: ${response.status}`, raw: errText }, { status: 500 });
+    }
+
+    const aiData = await response.json() as { choices?: { message?: { content?: string } }[] };
+    let text = aiData.choices?.[0]?.message?.content || '';
     text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-    console.log('RAW CLAUDE RESPONSE:', text.substring(0, 500));
 
     // Validate JSON before returning
     try {
       JSON.parse(text);
     } catch {
-      console.error('INVALID JSON FROM CLAUDE:', text.substring(0, 500));
+      console.error('INVALID JSON FROM OPENAI');
       return new NextResponse(JSON.stringify({
         publish: false,
-        error: 'INVALID_JSON_FROM_CLAUDE',
-        raw: text.substring(0, 500),
+        error: 'INVALID_JSON_FROM_OPENAI',
       }), {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
@@ -64,7 +84,8 @@ export async function POST(req: NextRequest) {
       }
     });
 
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

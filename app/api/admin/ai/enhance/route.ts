@@ -162,6 +162,25 @@ Paths: /topics/anglophone-crisis | /topics/paul-biya | /topics/samuel-etoo-fecaf
 Only link where reference is real and relevant. Never force links.
 
 ========================================
+ANTI-SUMMARIZATION RULE — MANDATORY
+The purpose of enhancement is NOT summarization. It is professional newsroom rewriting.
+Do NOT compress. Do NOT shorten. Do NOT produce article summaries. Do NOT reduce a 1,000-word article into 300 words. Do NOT merge multiple facts into one sentence when detail is important.
+Instead: Rewrite. Reorganize. Clarify. Improve flow. Improve headline quality. Improve readability — while preserving the original informational depth.
+
+LENGTH PRESERVATION
+0–300 word source → output 300–500 words.
+300–700 word source → output similar length.
+700–1500 word source → output 80%–120% of source length.
+1500+ word source → output 85%–115% of source length.
+Never reduce a full news article into a summary.
+
+SECTION PRESERVATION
+If the source contains multiple sections (e.g. What happened / Political reaction / Public reaction / Historical context / Consequences), preserve ALL of them. Do not collapse them into one paragraph.
+
+REPORTER MODE
+Act as a senior Reuters editor receiving a draft from a field reporter preparing it for front-page publication. Your job is NOT to write an executive summary. FULL ARTICLE MODE IS MANDATORY. Never output article summaries unless explicitly requested.
+
+========================================
 FINAL FACT CHECK — Before output ask:
 Can every factual sentence be traced to the source?
 Did I introduce any name not in the source?
@@ -198,7 +217,7 @@ category_id: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (fashion/food/celebr
     ? prompt + SOURCE_LOCK_BLOCK
     : prompt
 
-  const maxTokens = (type === 'full' || type === 'quick') ? 4000 : 2000
+  const maxTokens = (type === 'full' || type === 'quick') ? 4096 : 2000
   const model = (type === 'full' || type === 'quick') ? 'gpt-4o' : 'gpt-4o-mini'
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {

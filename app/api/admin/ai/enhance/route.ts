@@ -18,6 +18,10 @@ export async function POST(req: NextRequest) {
     title: string; body: string; type: 'meta' | 'excerpt' | 'full' | 'quick'; sourceLock?: boolean
   }
 
+  // Compute source word count for concrete length instruction
+  const sourceWordCount = body.trim().split(/\s+/).filter(Boolean).length
+  const minOutputWords = Math.max(300, Math.round(sourceWordCount * 0.85))
+
   const prompt = type === 'quick'
     ? `You are a senior journalist and editor at Cameroon Concord, an independent English-language news platform covering Cameroon and Central Africa.
 
@@ -202,7 +206,7 @@ OUTPUT — Return ONLY valid JSON. No markdown fences. No explanation.
   "meta_title": "SEO title, max 60 chars",
   "meta_desc": "SEO meta description, max 155 chars",
   "excerpt": "Compelling 1-2 sentence summary of facts only, max 200 chars. End with: Read the full report on Cameroon Concord.",
-  "enhanced_body": "Full article as publication-ready HTML. Tags: <p> <h2> <h3> <ul> <li> <a> only. No inline styles. Min 4 paragraphs. Start with dateline. Every sentence must trace to source.",
+  "enhanced_body": "Full article as publication-ready HTML. MANDATORY MINIMUM: ${minOutputWords} words (source is ${sourceWordCount} words — do not compress). Preserve every section, detail, and named fact from the source. Tags: <p> <h2> <h3> <ul> <li> <a> only. No inline styles. Min 4 paragraphs. Start with dateline. Every sentence must trace to source.",
   "summary": ["Key fact from source, max 15 words", "Key fact from source, max 15 words", "Key fact from source, max 15 words"],
   "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
   "tags": ["tag1", "tag2", "tag3", "tag4"],

@@ -76,6 +76,7 @@ export function ArticleEditor({ categories, article }: Props) {
   const [hashtags,       setHashtags]       = useState('')
   const [kwCopied,       setKwCopied]       = useState(false)
   const [htCopied,       setHtCopied]       = useState(false)
+  const [sourceLock,     setSourceLock]     = useState(true)
 
   // Pre-fill from Quick Publish "Review in Full Editor" flow
   useEffect(() => {
@@ -121,7 +122,7 @@ export function ArticleEditor({ categories, article }: Props) {
         method:  'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ title, body, type: 'full' }),
+        body:    JSON.stringify({ title, body, type: 'full', sourceLock }),
       })
       const data = await res.json() as {
         title?: string; meta_title?: string; meta_desc?: string; excerpt?: string
@@ -250,6 +251,21 @@ if (!body.trim())  { setMsg('Body is required'); return }
               {msg}
             </span>
           )}
+          <label title="Use only facts contained in the supplied article. Prevents AI from adding names, injuries, statistics, quotes, countries, players, historical events, or background information not present in the source material." style={{
+            display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem',
+            color: sourceLock ? '#F5A623' : '#888', cursor: 'pointer', userSelect: 'none',
+            border: `1px solid ${sourceLock ? '#F5A623' : '#2A2A2A'}`,
+            borderRadius: '6px', padding: '5px 8px', background: '#1A1A1A',
+            fontWeight: 700, whiteSpace: 'nowrap',
+          }}>
+            <input
+              type="checkbox"
+              checked={sourceLock}
+              onChange={e => setSourceLock(e.target.checked)}
+              style={{ accentColor: '#F5A623', width: '13px', height: '13px', cursor: 'pointer' }}
+            />
+            🔒 SOURCE-LOCK
+          </label>
           <button onClick={handleAiEnhance} disabled={aiLoading} style={{
             background: '#1A1A1A', border: '1px solid #2A2A2A', color: '#F5A623',
             padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem',

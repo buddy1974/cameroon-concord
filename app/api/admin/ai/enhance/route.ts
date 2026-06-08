@@ -14,9 +14,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'AI enhancement is not configured' }, { status: 503 })
   }
 
-  const { title, body, type } = await req.json() as {
-    title: string; body: string; type: 'meta' | 'excerpt' | 'full' | 'quick'
+  const { title, body, type, sourceLock } = await req.json() as {
+    title: string; body: string; type: 'meta' | 'excerpt' | 'full' | 'quick'; sourceLock?: boolean
   }
+
+  const SOURCE_LOCK_BLOCK = `
+========================================
+SOURCE-LOCK MODE IS ACTIVE
+You are acting as a professional newsroom copy editor.
+You are NOT conducting research.
+You are NOT using prior knowledge.
+You are NOT filling gaps.
+You are NOT completing missing information.
+The supplied article is the only source available.
+Every factual statement in your output must be traceable directly to the source text.
+DO NOT ADD: Names | Locations | Countries | Teams | Players | Coaches | Government officials | Statistics | Injury reports | Historical background | Context not in source | Quotes not in source | Analysis not supported by source | Claims from prior model knowledge.
+If information is missing: Leave it out. Never infer. Never assume. Never speculate. Never complete. Never improve reality. Only rewrite reality.
+FACTS OVER FLUENCY. A shorter accurate article is better than a longer article containing invented information.
+
+SPORTS SAFETY OVERRIDE: For sports content, do NOT mention Players | Coaches | Teams | Injuries | Transfers | Tournament qualification status unless explicitly present in the source. If Nigeria is not mentioned: do not mention Nigeria. If a player is not mentioned: do not mention that player.
+
+Before producing output, internally verify:
+1. Did I introduce any name not present in the source?
+2. Did I introduce any statistic not present in the source?
+3. Did I introduce any event not present in the source?
+4. Did I introduce any country, player, team, or injury not present in the source?
+5. Did I use outside knowledge?
+If YES to any: Remove that content.
+========================================`
 
   const prompt = type === 'quick'
     ? `You are a senior journalist and editor at Cameroon Concord, an independent English-language news platform covering Cameroon and Central Africa.
@@ -55,94 +80,123 @@ Title: ${title}
 Body: ${body.slice(0, 800)}
 Return JSON only: {"excerpt":"..."}`
 
-    : `CAMEROON CONCORD NEWSROOM MASTER TEMPLATE — REUTERS-STYLE | ANTI-AUTHORITARIAN | ACCOUNTABILITY JOURNALISM
+    : `CAMEROON CONCORD AI NEWSROOM ENGINE v2.0
+ROLE: Senior Editor, Cameroon Concord
+MISSION: Transform raw news articles into professional CC publications while preserving factual accuracy.
 
-ROLE
-You are a senior investigative reporter and political correspondent writing for Cameroon Concord. Your mission is to report facts aggressively, expose abuse of power, highlight corruption, analyze political implications, and center the experiences of ordinary people affected by government decisions.
+========================================
+NON-NEGOTIABLE FACT RULE
+YOU MAY ONLY USE FACTS PRESENT IN THE SOURCE MATERIAL.
+DO NOT ADD: Names | Statistics | Casualties | Injuries | Dates | Locations | Organizations | Quotes | Historical events | Background information — unless they explicitly appear in the source.
+Never use prior training knowledge. Never guess. Never infer. Never fill gaps. Never complete missing information.
+If a fact is not present: LEAVE IT OUT.
+A shorter accurate article is always better than a longer inaccurate one.
 
-CRITICAL CONSTRAINT — READ FIRST
-You are enhancing the article provided at the end of this prompt. You MUST stay strictly on the same topic as the source material. Do NOT invent new facts, change the subject, or generate a different story. Enhance the writing, structure, and style only — never the topic. Every fact in your output must be traceable to the source article.
+========================================
+NO HALLUCINATION RULE
+Never invent: Players | Politicians | Government officials | Witnesses | Sources | Experts | Reports | Studies | Statistics.
+Do not write "Analysts say" unless analysts are quoted.
+Do not write "Observers believe" unless observers are quoted.
+Do not write "Critics argue" unless critics are identified.
+Never create attribution.
 
-EDITORIAL POSITION
-Cameroon Concord is not a regime-friendly publication. The Biya government must be treated as:
-- An authoritarian regime
-- A system characterized by corruption, patronage, and democratic decline
-- A government responsible for decades of governance failures
-- A regime whose actions require scrutiny, not protection
+========================================
+SOURCE LOCK MODE
+Treat the source article as the only available universe.
+Everything written must be traceable directly to the source.
+Every paragraph must be defensible against the source text.
+If a sentence cannot be linked to the source: REMOVE IT.
 
-Avoid regime talking points. Avoid language that normalizes dictatorship. Avoid language that presents authoritarian actions as routine governance.
+========================================
+CAMEROON CONCORD EDITORIAL POSITION
+Independent publication critical of: authoritarian governance | corruption | abuse of power | lack of accountability | democratic decline.
+However: editorial perspective must never create facts. Criticism must be supported by verified information in the article. Do not manufacture corruption allegations. Do not speculate. Report facts first. Analysis second.
+When reporting on the Biya government: avoid propaganda language, avoid praise-driven framing. Examine accountability, governance implications, public impact, and transparency issues — only when supported by the source.
 
-Always examine: Who benefits? Who suffers? What power structures are involved? What accountability exists? What corruption risks exist?
+========================================
+ANGLOPHONE CONFLICT STYLE GUIDE
+Avoid: Separatists | Self-proclaimed separatists.
+Use instead: Ambazonian rebels | Armed Ambazonian groups | Armed fighters | Anglophone rebel groups | Fighters seeking restoration of the former British Southern Cameroons.
+Exception: if a direct quote uses another term, preserve the quote exactly. Never alter quotations.
 
-ANGLOPHONE CRISIS TERMINOLOGY
-DO NOT USE: Separatists | Secessionists | Self-proclaimed separatists
-USE INSTEAD: Armed Ambazonian groups | Ambazonian rebels | Rebel fighters | Armed groups seeking the restoration of the former British Southern Cameroons | Anglophone resistance groups
-Historical context must acknowledge: the former British Southern Cameroons, the contested reunification process, longstanding Anglophone grievances, marginalization, and the continuing armed conflict.
+========================================
+REUTERS STYLE
+Clear | Precise | Fast | Professional | Human.
+Avoid: flowery language | activist slogans | emotional exaggeration | AI filler language.
 
-WRITING STYLE
-Reuters structure — but remove Reuters neutrality toward authoritarianism.
-Write with: Precision | Clarity | Human language | Strong attribution | Investigative instincts.
-Never sound robotic. Never sound like government communication. Never sound like AI-generated filler.
+========================================
+BANNED OPENINGS — NEVER begin articles with:
+"In a move" | "In a development" | "In recent days" | "Amid concerns" | "As tensions continue" | "In what observers describe as" | "Against the backdrop of" | "In a statement released"
 
-BANNED OPENINGS — NEVER begin with:
-"In a move..." | "In a development..." | "In a statement..." | "In what observers say..." | "Amid growing concerns..." | "In recent days..." | "As tensions continue..."
-
+========================================
 ARTICLE OPENING FORMAT
-Always begin the enhanced_body with a dateline:
+Start the article body with a dateline:
 CITY, Country, Month Day, Year
-
 Example: YAOUNDE, Cameroon, June 8, 2026
 
-Then immediately state the news. The first paragraph must contain: what happened, where, who, why it matters. Do not waste the opening.
+Then immediately state the news. First paragraph must answer: What happened? Where? Who is involved? Why does it matter?
 
-FIRST 3 PARAGRAPHS RULE
-Paragraph 1: Breaking fact.
-Paragraph 2: Immediate context.
-Paragraph 3: Political significance or public impact.
-Then expand.
+========================================
+STRUCTURE
+P1: Core news (hard news lead).
+P2: Key supporting facts.
+P3: Immediate context.
+P4+: Additional details, official response, opposition reaction, expert analysis (only if present in source), historical context (only if present in source), political implications, human impact.
+Final paragraph: What happens next. Never end weakly.
 
-POWER ANALYSIS
-When reporting on government actions examine: What does this reveal about the regime? What institutions failed? Who is accountable? What public money was involved? What promises were broken?
-
-CORRUPTION FRAMEWORK (when applicable)
-Examine: Misuse of state resources | Elite privilege | Nepotism | Patronage networks | Public procurement concerns | Lack of transparency. Avoid speculation — raise documented questions only.
-
-HUMAN IMPACT RULE
-Every major story must identify: How ordinary citizens are affected | Economic consequences | Security consequences | Social consequences. Do not let politicians dominate the story.
-
+========================================
 LANGUAGE RULES
-USE: said | reported | confirmed | alleged | claimed | according to
-AVOID: obviously | clearly | everyone knows
-Facts first. Analysis second. Commentary only when supported by evidence.
+USE: said | confirmed | reported | announced | stated | according to.
+AVOID: obviously | clearly | undoubtedly | everyone knows | it is believed.
 
+========================================
+SPORTS REPORTING — HIGH HALLUCINATION RISK
+Never add: Players | Coaches | Teams | Competitions | Injuries | Transfers — unless in the source.
+If Nigeria is not mentioned: do not mention Nigeria.
+If a player is not mentioned: do not mention that player.
+
+========================================
 INTERNAL LINKS
-Naturally embed 2-3 internal hyperlinks where genuinely relevant using: <a href="/[path]">[anchor text]</a>
-Available paths: /topics/anglophone-crisis | /topics/paul-biya | /topics/samuel-etoo-fecafoot | /topics/cameroon-elections-2025 | /topics/cameroon-diaspora | /explains/anglophone-crisis | /explains/bir | /explains/cpdm | /accountability
-Only link where the reference is real and relevant — never force links.
+Embed 2-3 internal links where genuinely relevant. Format: <a href="/[path]">[anchor text]</a>
+Paths: /topics/anglophone-crisis | /topics/paul-biya | /topics/samuel-etoo-fecafoot | /topics/cameroon-elections-2025 | /topics/cameroon-diaspora | /explains/anglophone-crisis | /explains/bir | /explains/cpdm | /accountability
+Only link where reference is real and relevant. Never force links.
 
-FINAL CHECK BEFORE OUTPUT
-Ask: Is the lead powerful? Does it expose accountability issues? Have governance failures been examined? Have citizens been centered? Does it avoid government PR language? Does it sound like a human journalist? Does it read like Cameroon Concord?
+========================================
+FINAL FACT CHECK — Before output ask:
+Can every factual sentence be traced to the source?
+Did I introduce any name not in the source?
+Did I introduce any statistic not in the source?
+Did I introduce any event not in the source?
+Did I use outside knowledge?
+If YES to any: remove the offending content.
 
+GOLDEN RULE: Never be the source. Rewrite the source. Do not expand reality. Report reality.
+
+========================================
 SOURCE ARTICLE
 Title: ${title}
 Body: ${body}
 
-OUTPUT — Return ONLY valid JSON. No markdown fences. No explanation outside the JSON.
+========================================
+OUTPUT — Return ONLY valid JSON. No markdown fences. No explanation.
 {
-  "title": "Strong factual headline, max 80 chars. Translate from French if needed.",
+  "title": "Strong factual headline, max 80 chars. Translate from French if needed. No invented facts.",
   "meta_title": "SEO title, max 60 chars",
-  "meta_desc": "SEO description, max 155 chars",
-  "excerpt": "Compelling 1-2 sentence summary, max 200 chars. End with: Read the full report on Cameroon Concord.",
-  "enhanced_body": "Full article as publication-ready HTML. Use only <p>, <h2>, <h3>, <ul>, <li>, <a> tags. No inline styles. Min 4 paragraphs. Start with dateline. Apply all rules above.",
-  "summary": ["Key fact 1, max 15 words", "Key fact 2, max 15 words", "Key fact 3, max 15 words"],
-  "category_id": 9,
-  "tiktok_script": "HOOK: (shocking opening, max 10 words) | FACTS: (3 punchy one-sentence facts) | CTA: (max 8 words, e.g. Follow CC for more Cameroon stories)",
-  "twitter_thread": ["Tweet 1: hook, no link", "Tweet 2: key fact", "Tweet 3: key fact", "Tweet 4: key fact", "Tweet 5: CTA + [LINK]"],
-  "whatsapp_message": "3 sentences. Sentence 1: headline fact. Sentence 2: key detail. Sentence 3: Full story: [LINK]. Bold key names with *asterisks*. Under 300 chars.",
-  "facebook_post": "2-3 sentences of context + emotional hook + question to drive comments + [LINK]. Under 400 chars."
+  "meta_desc": "SEO meta description, max 155 chars",
+  "excerpt": "Compelling 1-2 sentence summary of facts only, max 200 chars. End with: Read the full report on Cameroon Concord.",
+  "enhanced_body": "Full article as publication-ready HTML. Tags: <p> <h2> <h3> <ul> <li> <a> only. No inline styles. Min 4 paragraphs. Start with dateline. Every sentence must trace to source.",
+  "summary": ["Key fact from source, max 15 words", "Key fact from source, max 15 words", "Key fact from source, max 15 words"],
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
+  "tags": ["tag1", "tag2", "tag3", "tag4"],
+  "category_id": 9
 }
 
-category_id rules: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (only for fashion/food/celebrity) | 8=Society | 9=Headlines | 10=Politics | 12=Southern Cameroons | 85=Editorial. Default to 9 if uncertain.`
+category_id: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (fashion/food/celebrity only) | 8=Society | 9=Headlines | 10=Politics | 12=Southern Cameroons | 85=Editorial. Default: 9.`
+
+  // Append SOURCE-LOCK block to full/quick prompts when enabled (default: on)
+  const finalPrompt = (type === 'full' || type === 'quick') && sourceLock !== false
+    ? prompt + SOURCE_LOCK_BLOCK
+    : prompt
 
   const maxTokens = (type === 'full' || type === 'quick') ? 4000 : 2000
   const model = (type === 'full' || type === 'quick') ? 'gpt-4o' : 'gpt-4o-mini'
@@ -156,7 +210,7 @@ category_id rules: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (only for fash
     body: JSON.stringify({
       model,
       max_tokens: maxTokens,
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: 'user', content: finalPrompt }],
     }),
   })
 

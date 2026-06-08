@@ -18,31 +18,6 @@ export async function POST(req: NextRequest) {
     title: string; body: string; type: 'meta' | 'excerpt' | 'full' | 'quick'; sourceLock?: boolean
   }
 
-  const SOURCE_LOCK_BLOCK = `
-========================================
-SOURCE-LOCK MODE IS ACTIVE
-You are acting as a professional newsroom copy editor.
-You are NOT conducting research.
-You are NOT using prior knowledge.
-You are NOT filling gaps.
-You are NOT completing missing information.
-The supplied article is the only source available.
-Every factual statement in your output must be traceable directly to the source text.
-DO NOT ADD: Names | Locations | Countries | Teams | Players | Coaches | Government officials | Statistics | Injury reports | Historical background | Context not in source | Quotes not in source | Analysis not supported by source | Claims from prior model knowledge.
-If information is missing: Leave it out. Never infer. Never assume. Never speculate. Never complete. Never improve reality. Only rewrite reality.
-FACTS OVER FLUENCY. A shorter accurate article is better than a longer article containing invented information.
-
-SPORTS SAFETY OVERRIDE: For sports content, do NOT mention Players | Coaches | Teams | Injuries | Transfers | Tournament qualification status unless explicitly present in the source. If Nigeria is not mentioned: do not mention Nigeria. If a player is not mentioned: do not mention that player.
-
-Before producing output, internally verify:
-1. Did I introduce any name not present in the source?
-2. Did I introduce any statistic not present in the source?
-3. Did I introduce any event not present in the source?
-4. Did I introduce any country, player, team, or injury not present in the source?
-5. Did I use outside knowledge?
-If YES to any: Remove that content.
-========================================`
-
   const prompt = type === 'quick'
     ? `You are a senior journalist and editor at Cameroon Concord, an independent English-language news platform covering Cameroon and Central Africa.
 
@@ -52,6 +27,8 @@ Rules:
 - Translate to English if needed
 - Rewrite in CC journalistic style (factual, authoritative, no sensationalism)
 - Assign the most relevant category from this list only: politics, society, sportsnews, southern-cameroons, business, health, headlines, inside-cpdm
+${sourceLock !== false ? `- SOURCE-LOCK: Use only facts present in the raw text. Do not add names, statistics, events, or context not explicitly stated.
+- If a fact is missing from the source: omit it. Never infer. Never fill gaps.` : ''}
 
 Return ONLY valid JSON. No markdown fences. No explanation.
 {
@@ -192,7 +169,29 @@ If YES to any: remove the offending content.
 GOLDEN RULE: Never be the source. Rewrite the source. Do not expand reality. Report reality.
 
 ========================================
-SOURCE ARTICLE
+${sourceLock !== false ? `SOURCE-LOCK MODE IS ACTIVE
+You are acting as a professional newsroom copy editor.
+You are NOT conducting research.
+You are NOT using prior knowledge.
+You are NOT filling gaps.
+You are NOT completing missing information.
+The supplied article is the only source available.
+Every factual statement in your output must be traceable directly to the source text.
+DO NOT ADD: Names | Locations | Countries | Teams | Players | Coaches | Government officials | Statistics | Injury reports | Historical background | Context not in source | Quotes not in source | Analysis not supported by source | Claims from prior model knowledge.
+If information is missing: Leave it out. Never infer. Never assume. Never speculate. Never complete. Never improve reality. Only rewrite reality.
+FACTS OVER FLUENCY. A shorter accurate article is better than a longer article containing invented information.
+
+SPORTS SAFETY OVERRIDE: For sports content, do NOT mention Players | Coaches | Teams | Injuries | Transfers | Tournament qualification status unless explicitly present in the source. If Nigeria is not mentioned: do not mention Nigeria. If a player is not mentioned: do not mention that player.
+
+Before producing output, internally verify:
+1. Did I introduce any name not present in the source?
+2. Did I introduce any statistic not present in the source?
+3. Did I introduce any event not present in the source?
+4. Did I introduce any country, player, team, or injury not present in the source?
+5. Did I use outside knowledge?
+If YES to any: Remove that content.
+========================================
+` : ''}SOURCE ARTICLE
 Title: ${title}
 Body: ${body}
 
@@ -212,12 +211,10 @@ OUTPUT — Return ONLY valid JSON. No markdown fences. No explanation.
 
 category_id: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (fashion/food/celebrity only) | 8=Society | 9=Headlines | 10=Politics | 12=Southern Cameroons | 85=Editorial. Default: 9.`
 
-  // Append SOURCE-LOCK block to full/quick prompts when enabled (default: on)
-  const finalPrompt = (type === 'full' || type === 'quick') && sourceLock !== false
-    ? prompt + SOURCE_LOCK_BLOCK
-    : prompt
+  // SOURCE-LOCK is embedded inline in both full and quick prompts via sourceLock conditional
+  const finalPrompt = prompt
 
-  const maxTokens = (type === 'full' || type === 'quick') ? 4096 : 2000
+  const maxTokens = (type === 'full' || type === 'quick') ? 8192 : 2000
   const model = (type === 'full' || type === 'quick') ? 'gpt-4o' : 'gpt-4o-mini'
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {

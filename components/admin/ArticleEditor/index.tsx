@@ -77,6 +77,7 @@ export function ArticleEditor({ categories, article }: Props) {
   const [kwCopied,       setKwCopied]       = useState(false)
   const [htCopied,       setHtCopied]       = useState(false)
   const [sourceLock,     setSourceLock]     = useState(true)
+  const [previewOpen,    setPreviewOpen]    = useState(false)
 
   // Pre-fill from Quick Publish "Review in Full Editor" flow
   useEffect(() => {
@@ -231,11 +232,11 @@ if (!body.trim())  { setMsg('Body is required'); return }
   }
 
   return (
-    <div style={{ maxWidth: '960px' }}>
+    <div className="cc-article-editor" style={{ maxWidth: '960px' }}>
 
       {/* Header bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
+      <div className="cc-article-editor-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
+        <div className="cc-article-editor-title">
           <h1 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#fff', margin: 0 }}>
             {isEdit ? 'Edit Article' : 'New Article'}
           </h1>
@@ -245,7 +246,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
             </div>
           )}
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div className="cc-article-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           {msg && (
             <span style={{ fontSize: '0.75rem', color: msg.startsWith('✓') ? '#007A3D' : '#C8102E' }}>
               {msg}
@@ -316,10 +317,10 @@ if (!body.trim())  { setMsg('Body is required'); return }
       </div>
 
       {/* Two-column editor layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
+      <div className="cc-article-editor-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
 
         {/* Left — main content */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="cc-article-editor-main" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
             <label style={labelStyle}>Title *</label>
             <input
@@ -350,19 +351,35 @@ if (!body.trim())  { setMsg('Body is required'); return }
             />
           </div>
           <div>
-            <label style={labelStyle}>Body (HTML) *</label>
+            <div className="cc-body-editor-label-row">
+              <label style={labelStyle}>Body (HTML) *</label>
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(open => !open)}
+                className="cc-preview-toggle"
+              >
+                {previewOpen ? 'Edit Body' : 'Preview Article'}
+              </button>
+            </div>
             <textarea
+              className="cc-body-editor-textarea"
               value={body}
               onChange={e => setBody(e.target.value)}
               placeholder="<p>Article content...</p>"
               rows={22}
               style={{ ...inputStyle, resize: 'vertical', fontFamily: 'monospace', fontSize: '0.82rem', lineHeight: 1.7 }}
             />
+            {previewOpen && (
+              <div
+                className="cc-body-preview article-body"
+                dangerouslySetInnerHTML={{ __html: body || '<p>No article body yet.</p>' }}
+              />
+            )}
           </div>
         </div>
 
         {/* Right — sidebar settings */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="cc-article-editor-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Category */}
           <div style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '12px', padding: '16px' }}>
@@ -407,7 +424,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
               placeholder="https://media.cameroon-concord.com/..."
               style={{ ...inputStyle, fontSize: '0.78rem', marginBottom: '8px' }}
             />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+            <div className="cc-image-upload-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
               <label style={{
                 background: '#1a1a1a', border: '1px dashed #333', borderRadius: '6px',
                 padding: '8px 14px', cursor: 'pointer', fontSize: '0.78rem', color: '#999',
@@ -639,6 +656,206 @@ if (!body.trim())  { setMsg('Body is required'); return }
 
         </div>
       </div>
+
+      <style>{`
+        .cc-article-editor,
+        .cc-article-editor *,
+        .cc-article-editor *::before,
+        .cc-article-editor *::after {
+          box-sizing: border-box;
+        }
+
+        .cc-article-editor {
+          width: 100%;
+          max-width: 960px;
+          min-width: 0;
+          overflow-x: hidden;
+        }
+
+        .cc-article-editor-header,
+        .cc-article-editor-grid,
+        .cc-article-editor-main,
+        .cc-article-editor-sidebar {
+          min-width: 0;
+          width: 100%;
+          max-width: 100%;
+        }
+
+        .cc-article-actions {
+          min-width: 0;
+          max-width: 100%;
+          flex-wrap: wrap;
+        }
+
+        .cc-article-actions button,
+        .cc-preview-toggle {
+          white-space: nowrap;
+          min-width: fit-content;
+          flex-shrink: 0;
+        }
+
+        .cc-body-editor-label-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 6px;
+        }
+
+        .cc-preview-toggle {
+          border: 1px solid #2A2A2A;
+          border-radius: 8px;
+          background: #1A1A1A;
+          color: #F5A623;
+          cursor: pointer;
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 8px 12px;
+        }
+
+        .cc-body-preview {
+          width: 100%;
+          max-width: 100%;
+          margin-top: 12px;
+          padding: 16px;
+          border: 1px solid #1A1A1A;
+          border-radius: 12px;
+          background: #0F0F0F;
+          color: #DDD;
+          font-size: 1rem;
+          line-height: 1.7;
+          overflow-x: hidden;
+          overflow-wrap: break-word;
+          word-break: normal;
+        }
+
+        .cc-body-preview p + p {
+          margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+          .cc-article-editor {
+            max-width: 100% !important;
+            padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+          }
+
+          .cc-article-editor-header {
+            align-items: flex-start !important;
+            flex-direction: column !important;
+            gap: 14px !important;
+          }
+
+          .cc-article-editor-title {
+            width: 100%;
+            min-width: 0;
+          }
+
+          .cc-article-actions {
+            position: sticky;
+            top: 49px;
+            z-index: 80;
+            display: flex !important;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            flex-wrap: nowrap !important;
+            gap: 8px !important;
+            padding: 10px 0 12px;
+            background: #050505;
+          }
+
+          .cc-article-actions button {
+            min-height: 44px;
+            padding: 10px 14px !important;
+            font-size: 16px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            min-width: fit-content !important;
+            flex-shrink: 0 !important;
+          }
+
+          .cc-article-actions label {
+            min-height: 44px;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+          }
+
+          .cc-article-editor-grid {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow-x: hidden !important;
+          }
+
+          .cc-article-editor-main,
+          .cc-article-editor-sidebar {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow-x: hidden !important;
+          }
+
+          .cc-article-editor input,
+          .cc-article-editor textarea,
+          .cc-article-editor select {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+            overflow-wrap: break-word;
+          }
+
+          .cc-article-editor select {
+            min-height: 44px !important;
+          }
+
+          .cc-body-editor-label-row {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .cc-preview-toggle {
+            width: 100%;
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .cc-body-editor-textarea {
+            min-height: 50vh !important;
+            white-space: pre-wrap !important;
+            overflow-wrap: break-word !important;
+            word-break: normal !important;
+          }
+
+          .cc-body-preview {
+            font-size: 16px;
+            line-height: 1.7;
+            padding: 14px;
+          }
+
+          .cc-image-upload-row {
+            align-items: stretch !important;
+            flex-direction: column !important;
+          }
+
+          .cc-image-upload-row label {
+            width: 100%;
+            min-height: 44px;
+            justify-content: center;
+          }
+
+          .cc-image-upload-row span {
+            white-space: normal;
+          }
+        }
+      `}</style>
     </div>
   )
 }

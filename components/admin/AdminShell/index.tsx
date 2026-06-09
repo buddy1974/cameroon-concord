@@ -278,7 +278,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           .cc-admin-sidebar { display: none !important; }
           .cc-admin-topbar  { display: flex !important; }
           .cc-bottom-nav    { display: flex !important; }
-          .cc-admin-main    { padding: 16px 14px 80px !important; }
+          .cc-admin-main    {
+            padding: 16px 14px calc(6rem + env(safe-area-inset-bottom)) !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow-x: hidden !important;
+          }
+          .cc-bottom-nav {
+            height: calc(62px + env(safe-area-inset-bottom)) !important;
+            padding-bottom: env(safe-area-inset-bottom) !important;
+          }
         }
       `}</style>
     </div>

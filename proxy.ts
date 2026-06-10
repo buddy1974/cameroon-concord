@@ -35,7 +35,6 @@ export async function proxy(req: NextRequest) {
     '/index.php',
     '/component/',
     '/itemlist/',
-    '/author/',
     '?format=feed',
     '?option=com_',
     '?start=',

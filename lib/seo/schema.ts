@@ -5,8 +5,14 @@ import {
 import type { ArticleWithRelations } from '@/lib/types'
 import { absoluteUrl } from '@/lib/utils'
 
+function canonicalArticleUrl(article: ArticleWithRelations): string {
+  const override = article.canonicalUrl?.trim()
+  if (!override) return absoluteUrl(`/${article.category.slug}/${article.slug}`)
+  return override.startsWith('http') ? override : absoluteUrl(override.startsWith('/') ? override : `/${override}`)
+}
+
 export function buildNewsArticleSchema(article: ArticleWithRelations): object {
-  const url = absoluteUrl(`/${article.category.slug}/${article.slug}`)
+  const url = canonicalArticleUrl(article)
 
   const image = article.featuredImage
     ? { '@type': 'ImageObject', 'url': article.featuredImage, 'width': 1200, 'height': 675 }

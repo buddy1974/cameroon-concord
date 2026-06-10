@@ -77,6 +77,8 @@ export async function POST(req: NextRequest) {
     categoryId: number; featuredImage?: string; status: string
     metaTitle?: string; metaDesc?: string; isBreaking?: boolean; isFeatured?: boolean
     authorId?: number | null; summary?: string[] | null
+    imageAlt?: string | null; imageCaption?: string | null; canonicalUrl?: string | null
+    countryTags?: string[] | null; isLive?: number | boolean | null
   }
 
   const validCats = await db.select({ id: categories.id }).from(categories)
@@ -108,13 +110,18 @@ export async function POST(req: NextRequest) {
       excerpt:       body.excerpt || null,
       categoryId:    body.categoryId,
       featuredImage: body.featuredImage || null,
+      imageAlt:      body.imageAlt || null,
+      imageCaption:  body.imageCaption || null,
       status:        body.status as 'draft' | 'published',
       isBreaking:    body.isBreaking || false,
       isFeatured:    body.isFeatured || false,
+      isLive:        body.isLive ? 1 : 0,
       metaTitle:     body.metaTitle || null,
       metaDesc:      body.metaDesc || null,
+      canonicalUrl:  body.canonicalUrl || null,
       authorId:      body.authorId || null,
       summary:       body.summary || null,
+      countryTags:   body.countryTags || null,
       publishedAt:   body.status === 'published' ? now : null,
       createdAt:     now,
       updatedAt:     now,

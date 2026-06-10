@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/constants'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -22,8 +23,8 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: [
-      'https://www.cameroon-concord.com/sitemap.xml',
-      'https://www.cameroon-concord.com/api/news-sitemap',
+      `${SITE_URL}/sitemap.xml`,
+      `${SITE_URL}/api/news-sitemap`,
     ],
   }
 }

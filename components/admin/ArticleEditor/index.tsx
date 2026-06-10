@@ -55,12 +55,16 @@ export function ArticleEditor({ categories, article }: Props) {
   const [excerpt,   setExcerpt]   = useState(article?.excerpt || '')
   const [catId,     setCatId]     = useState<number>(article?.categoryId || urlCategoryId || categories[0]?.id || 0)
   const [imgUrl,    setImgUrl]    = useState(article?.featuredImage || '')
+  const [imgAlt,    setImgAlt]    = useState(article?.imageAlt || '')
+  const [imgCaption,setImgCaption]= useState(article?.imageCaption || '')
   const [status,    setStatus]    = useState(article?.status || 'draft')
   const [breaking,  setBreaking]  = useState(article?.isBreaking || false)
   const [featured,  setFeatured]  = useState(article?.isFeatured || false)
   const [isLive,    setIsLive]    = useState(!!(article as Record<string, unknown>)?.isLive)
   const [metaT,     setMetaT]     = useState(article?.metaTitle || '')
   const [metaD,     setMetaD]     = useState(article?.metaDesc || '')
+  const [canonical, setCanonical] = useState(article?.canonicalUrl || '')
+  const [summaryText, setSummaryText] = useState(safeJsonArray<string>((article as Record<string, unknown>)?.summary).join('\n'))
   const [authorId,  setAuthorId]  = useState<number|null>(article?.authorId ?? null)
   const [authorName, setAuthorName] = useState<string>('')
   const [saving,    setSaving]    = useState(false)
@@ -130,6 +134,7 @@ export function ArticleEditor({ categories, article }: Props) {
         enhanced_body?: string; error?: string; author_id?: number; author_name?: string
         author_avatar?: string; tiktok_script?: string; twitter_thread?: string[]
         whatsapp_message?: string; facebook_post?: string; category_id?: number
+        summary?: string[]
       }
       if (data.title) {
         setTitle(data.title)
@@ -139,6 +144,7 @@ export function ArticleEditor({ categories, article }: Props) {
       if (data.meta_desc)        setMetaD(data.meta_desc)
       if (data.excerpt)          setExcerpt(data.excerpt)
       if (data.enhanced_body)    setBody(data.enhanced_body)
+      if (Array.isArray(data.summary)) setSummaryText(data.summary.join('\n'))
       if (data.author_id)        { setAuthorId(data.author_id); setAuthorName(data.author_name ?? '') }
       if (data.category_id && !isEdit) setCatId(Number(data.category_id))
       if (data.tiktok_script)    setTiktokScript(data.tiktok_script)
@@ -160,9 +166,14 @@ if (!body.trim())  { setMsg('Body is required'); return }
     setMsg('')
     const payload = {
       title, slug, body, excerpt, categoryId: (catId && catId > 0 && categories.some(c => c.id === catId)) ? catId : (article?.categoryId && categories.some(c => c.id === article.categoryId) ? article.categoryId : (categories[0]?.id || 1)),
-      featuredImage: imgUrl || null, status: publishStatus,
+      featuredImage: imgUrl || null,
+      imageAlt: imgAlt || null,
+      imageCaption: imgCaption || null,
+      canonicalUrl: canonical || null,
+      status: publishStatus,
       isBreaking: breaking, isFeatured: featured, isLive: isLive ? 1 : 0,
       countryTags: countryTags.length > 0 ? countryTags : null,
+      summary: summaryText.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 5),
       metaTitle: metaT || null, metaDesc: metaD || null,
       authorId: authorId || null,
     }
@@ -466,6 +477,21 @@ if (!body.trim())  { setMsg('Body is required'); return }
                 onError={e => { e.currentTarget.style.display = 'none' }}
               />
             )}
+            <label style={{ ...labelStyle, marginTop: '12px' }}>Image Alt Text</label>
+            <input
+              value={imgAlt}
+              onChange={e => setImgAlt(e.target.value)}
+              placeholder="Describe the image for readers and search"
+              style={{ ...inputStyle, fontSize: '0.78rem', marginBottom: '10px' }}
+            />
+            <label style={labelStyle}>Image Caption</label>
+            <textarea
+              value={imgCaption}
+              onChange={e => setImgCaption(e.target.value)}
+              placeholder="Optional caption or credit"
+              rows={2}
+              style={{ ...inputStyle, resize: 'vertical', fontSize: '0.78rem', lineHeight: 1.5 }}
+            />
           </div>
 
           {/* Flags */}
@@ -563,6 +589,24 @@ if (!body.trim())  { setMsg('Body is required'); return }
             <div style={{ fontSize: '0.62rem', color: metaD.length > 155 ? '#C8102E' : '#444', marginTop: '4px', marginBottom: '14px' }}>
               {metaD.length}/155
             </div>
+            <label style={labelStyle}>Canonical URL</label>
+            <input
+              value={canonical}
+              onChange={e => setCanonical(e.target.value)}
+              placeholder="Leave blank to use /category/slug"
+              style={{ ...inputStyle, marginBottom: '12px', fontSize: '0.78rem' }}
+            />
+            <div style={{ fontSize: '0.58rem', color: '#333', marginTop: '-8px', marginBottom: '14px' }}>
+              Use only for syndicated, migrated, or corrected canonical URLs.
+            </div>
+            <label style={labelStyle}>Quick Summary Bullets</label>
+            <textarea
+              value={summaryText}
+              onChange={e => setSummaryText(e.target.value)}
+              placeholder="One concise bullet per line"
+              rows={4}
+              style={{ ...inputStyle, resize: 'vertical', fontSize: '0.78rem', lineHeight: 1.5, marginBottom: '14px' }}
+            />
 
             {/* Meta Keywords — auto-generated from category + article context (read-only preview) */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>

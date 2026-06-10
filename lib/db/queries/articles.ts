@@ -29,6 +29,7 @@ async function _getArticleBySlug(
     .where(
       and(
         eq(articles.slug,   articleSlug.toLowerCase().trim()),
+        eq(categories.slug, categorySlug.toLowerCase().trim()),
         eq(articles.status, 'published'),
       )
     )

@@ -24,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .innerJoin(categories, eq(articles.categoryId, categories.id))
         .where(eq(articles.status, 'published'))
         .orderBy(desc(articles.publishedAt))
-        .limit(1000),
+        .limit(50000),
       getAllCategories(),
     ])
   } catch { /* DB unavailable at build time */ }
@@ -32,19 +32,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articleUrls: MetadataRoute.Sitemap = rows.map(r => ({
     url:             `${SITE_URL}/${r.catSlug}/${r.slug}`,
     lastModified:    r.updatedAt ? new Date(r.updatedAt) : new Date(r.publishedAt!),
-    changeFrequency: 'weekly',
-    priority:        0.7,
   }))
 
   const categoryUrls: MetadataRoute.Sitemap = cats.map(c => ({
     url:             `${SITE_URL}/${c.slug}`,
     lastModified:    new Date(),
-    changeFrequency: 'hourly',
-    priority:        0.8,
   }))
 
   return [
-    { url: SITE_URL, lastModified: new Date(), changeFrequency: 'always', priority: 1 },
+    { url: SITE_URL, lastModified: new Date() },
     ...categoryUrls,
     ...articleUrls,
   ]

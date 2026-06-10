@@ -1,11 +1,23 @@
 import { searchArticles } from '@/lib/db/queries'
 import { ArticleCard } from '@/components/article/ArticleCard'
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+import { SITE_URL } from '@/lib/constants'
 
 export const revalidate = 3600
 
 function toTitle(slug: string): string {
   return slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const heading = toTitle(slug)
+  return {
+    title: `${heading} News | Cameroon Concord`,
+    description: `Latest Cameroon Concord coverage tagged ${heading}.`,
+    alternates: { canonical: `${SITE_URL}/tag/${slug}` },
+  }
 }
 
 export default async function TagPage({ params }: { params: Promise<{ slug: string }> }) {

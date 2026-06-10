@@ -83,7 +83,6 @@ export default function ArticlesListPage() {
 
   // Dynamic heading
   const wcLabel   = 'World Cup Special'
-  const catLabel  = isWC ? wcLabel : (CATEGORY_FILTERS.find(c => c.slug === categoryFilter)?.label || '')
   const heading   = statusFilter === 'draft'
     ? (isWC ? `⚽ ${wcLabel} · Drafts` : '📝 Drafts')
     : (isWC ? `⚽ ${wcLabel}` : '📰 Articles')
@@ -249,9 +248,9 @@ export default function ArticlesListPage() {
                 <Link href="/admin/articles/new?category=world-cup" style={{ background: '#166534', color: '#fff', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none' }}>
                   ⚽ Create World Cup Article
                 </Link>
-                <a href="/admin/articles" style={{ background: '#111', color: '#555', border: '1px solid #1E1E1E', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none' }}>
+                <Link href="/admin/articles" style={{ background: '#111', color: '#555', border: '1px solid #1E1E1E', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none' }}>
                   View All Articles
-                </a>
+                </Link>
               </div>
             </>
           ) : (

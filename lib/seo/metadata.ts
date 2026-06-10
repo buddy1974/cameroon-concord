@@ -6,6 +6,12 @@ import {
 import type { ArticleWithRelations, Category } from '@/lib/types'
 import { absoluteUrl, truncate } from '@/lib/utils'
 
+function canonicalArticleUrl(article: ArticleWithRelations): string {
+  const override = article.canonicalUrl?.trim()
+  if (!override) return absoluteUrl(`/${article.category.slug}/${article.slug}`)
+  return override.startsWith('http') ? override : absoluteUrl(override.startsWith('/') ? override : `/${override}`)
+}
+
 export function buildSiteMetadata(): Metadata {
   return {
     metadataBase: new URL(SITE_URL),
@@ -65,7 +71,7 @@ export function buildArticleMetadata(article: ArticleWithRelations): Metadata {
   // Strip URL fragments (#...) — Facebook's scraper rejects fragment URLs as og:image
   const rawImage    = article.featuredImage?.split('#')[0].trim()
   const image       = rawImage || `${SITE_URL}/icons/og-default.jpg`
-  const url         = absoluteUrl(`/${article.category.slug}/${article.slug}`)
+  const url         = canonicalArticleUrl(article)
 
   return {
     title,

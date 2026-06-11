@@ -4,6 +4,8 @@ import { authors } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { cleanAiJsonText, generateAiText } from '@/lib/ai/providers'
+import { validateDateRegression } from '@/lib/ai/date-guard'
+import { getPromptDateContext } from '@/lib/ai/prompt-date-context'
 
 export const maxDuration = 60
 
@@ -18,6 +20,8 @@ export async function POST(req: NextRequest) {
   const { title, body, type, sourceLock } = await req.json() as {
     title: string; body: string; type: 'meta' | 'excerpt' | 'full' | 'quick'; sourceLock?: boolean
   }
+  const preserveSourceFacts = sourceLock === true
+  const dateContext = getPromptDateContext()
 
   // Compute source word count for concrete length instruction
   const sourceWordCount = body.trim().split(/\s+/).filter(Boolean).length
@@ -26,6 +30,8 @@ export async function POST(req: NextRequest) {
   const prompt = type === 'quick'
     ? `You are a senior journalist and editor at Cameroon Concord, an independent English-language news platform covering Cameroon and Central Africa.
 
+${dateContext.promptBlock}
+
 Given raw text (which may be in French or another language), produce a complete publication-ready article.
 
 Rules:
@@ -33,9 +39,11 @@ Rules:
 - Rewrite in CC journalistic style (factual, authoritative, no sensationalism)
 - Assign the most relevant category from this list only: politics, society, sportsnews, southern-cameroons, business, health, headlines, inside-cpdm
 - Preserve all dates exactly as supplied unless translating date format. Never backdate new articles to 2023.
-- WORLD CUP FACT GUARD: Never state that Cameroon qualified, advanced, won, lost, or changed tournament status unless the source explicitly says so.
-- Do not fabricate Cameroon qualification details, fixtures, scores, players, coaches, injuries, or opponents.
-${sourceLock !== false ? `- SOURCE-LOCK: Use only facts present in the raw text. Do not add names, statistics, events, or context not explicitly stated.
+- WORLD CUP FACT GUARD: Cameroon did not qualify for the 2026 World Cup finals. Do not claim Cameroon is participating.
+- Frame Cameroon World Cup coverage as absence, accountability, FECAFOOT, diaspora, or qualification/absence story unless the source explicitly says otherwise.
+- Do not invent African team counts. Do not call a team "qualified" unless the source confirms it.
+- If unsure, say "World Cup-related" or "qualification/absence story."
+${preserveSourceFacts ? `- PRESERVE SOURCE FACTS: Use only facts present in the raw text. Do not add names, statistics, events, or context not explicitly stated.
 - If a fact is missing from the source: omit it. Never infer. Never fill gaps.` : ''}
 
 Return ONLY valid JSON. No markdown fences. No explanation.
@@ -54,13 +62,19 @@ Raw text:
 ${body}`
 
     : type === 'meta'
-    ? `Generate SEO meta_title (max 60 chars) and meta_desc (max 155 chars) for this Cameroon news article.
+    ? `${dateContext.promptBlock}
+
+Generate SEO meta_title (max 60 chars) and meta_desc (max 155 chars) for this Cameroon news article.
+Preserve source dates. Never backdate to 2023 unless the source explicitly says 2023.
 Title: ${title}
 Body: ${body.slice(0, 500)}
 Return JSON only: {"meta_title":"...","meta_desc":"..."}`
 
     : type === 'excerpt'
-    ? `You are a senior news editor for Cameroon Concord, an independent, regime-critical Cameroonian news publication. Write a compelling 1-2 sentence excerpt, max 200 characters, that is sharp and direct in tone.
+    ? `${dateContext.promptBlock}
+
+You are a senior news editor for Cameroon Concord, an independent, regime-critical Cameroonian news publication. Write a compelling 1-2 sentence excerpt, max 200 characters, that is sharp and direct in tone.
+Preserve source dates. Never backdate to 2023 unless the source explicitly says 2023.
 Title: ${title}
 Body: ${body.slice(0, 800)}
 Return JSON only: {"excerpt":"..."}`
@@ -68,6 +82,8 @@ Return JSON only: {"excerpt":"..."}`
     : `CAMEROON CONCORD AI NEWSROOM ENGINE v2.0
 ROLE: Senior Editor, Cameroon Concord
 MISSION: Transform raw news articles into professional CC publications while preserving factual accuracy.
+
+${dateContext.promptBlock}
 
 ========================================
 NON-NEGOTIABLE FACT RULE
@@ -140,6 +156,11 @@ Never add: Players | Coaches | Teams | Competitions | Injuries | Transfers — u
 If Nigeria is not mentioned: do not mention Nigeria.
 If a player is not mentioned: do not mention that player.
 WORLD CUP FACT GUARD: Never state that Cameroon qualified, advanced, won, lost, or changed tournament status unless the source explicitly says so.
+Cameroon did not qualify for the 2026 World Cup finals. Do not claim Cameroon is participating.
+Cameroon coverage must be framed as absence, accountability, FECAFOOT, diaspora, or qualification/absence story unless a verified source says otherwise.
+Do not invent African team counts.
+Do not call a team "qualified" unless the source confirms it.
+If unsure, say "World Cup-related" or "qualification/absence story."
 Do not fabricate Cameroon qualification details, fixtures, scores, players, coaches, injuries, or opponents.
 
 ========================================
@@ -185,7 +206,7 @@ If YES to any: remove the offending content.
 GOLDEN RULE: Never be the source. Rewrite the source. Do not expand reality. Report reality.
 
 ========================================
-${sourceLock !== false ? `SOURCE-LOCK MODE IS ACTIVE
+${preserveSourceFacts ? `PRESERVE SOURCE FACTS MODE IS ACTIVE
 You are acting as a professional newsroom copy editor.
 You are NOT conducting research.
 You are NOT using prior knowledge.
@@ -227,7 +248,7 @@ OUTPUT — Return ONLY valid JSON. No markdown fences. No explanation.
 
 category_id: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (fashion/food/celebrity only) | 8=Society | 9=Headlines | 10=Politics | 12=Southern Cameroons | 85=Editorial. Default: 9.`
 
-  // SOURCE-LOCK is embedded inline in both full and quick prompts via sourceLock conditional
+  // Preserve-source-facts mode is embedded inline in both full and quick prompts.
   const finalPrompt = prompt
 
   const maxTokens = (type === 'full' || type === 'quick') ? 8192 : 2000
@@ -254,6 +275,15 @@ category_id: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (fashion/food/celebr
 
   try {
     const clean = cleanAiJsonText(text)
+    const dateGuard = validateDateRegression(`${title}\n${body}`, clean)
+    if (!dateGuard.ok) {
+      return NextResponse.json({
+        error: dateGuard.error,
+        error_type: 'date_regression',
+        provider: ai.provider,
+        retry_count: ai.retryCount,
+      }, { status: 422 })
+    }
     const parsed = JSON.parse(clean)
     const providerMeta = {
       ai_provider: ai.provider,

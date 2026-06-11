@@ -80,7 +80,7 @@ export function ArticleEditor({ categories, article }: Props) {
   const [hashtags,       setHashtags]       = useState('')
   const [kwCopied,       setKwCopied]       = useState(false)
   const [htCopied,       setHtCopied]       = useState(false)
-  const [sourceLock,     setSourceLock]     = useState(true)
+  const [sourceLock,     setSourceLock]     = useState(false)
   const [previewOpen,    setPreviewOpen]    = useState(false)
 
   // Pre-fill from Quick Publish "Review in Full Editor" flow
@@ -267,7 +267,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
               {msg}
             </span>
           )}
-          <label title="Use only facts contained in the supplied article. Prevents AI from adding names, injuries, statistics, quotes, countries, players, historical events, or background information not present in the source material." style={{
+          <label title="Keeps names, dates, locations, and key claims from the source. Does not verify facts online." style={{
             display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem',
             color: sourceLock ? '#F5A623' : '#888', cursor: 'pointer', userSelect: 'none',
             border: `1px solid ${sourceLock ? '#F5A623' : '#2A2A2A'}`,
@@ -280,7 +280,7 @@ if (!body.trim())  { setMsg('Body is required'); return }
               onChange={e => setSourceLock(e.target.checked)}
               style={{ accentColor: '#F5A623', width: '13px', height: '13px', cursor: 'pointer' }}
             />
-            🔒 SOURCE-LOCK
+            Preserve source facts
           </label>
           <button onClick={handleAiEnhance} disabled={aiLoading} style={{
             background: '#1A1A1A', border: '1px solid #2A2A2A', color: '#F5A623',

@@ -3,6 +3,8 @@ export const maxDuration = 60
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAutomation } from '@/lib/auth/require-automation';
 import { cleanAiJsonText, generateAiText } from '@/lib/ai/providers';
+import { validateDateRegression } from '@/lib/ai/date-guard';
+import { getPromptDateContext } from '@/lib/ai/prompt-date-context';
 
 function isClaudeBody(value: unknown): value is { system: string; user: string } {
   if (!value || typeof value !== 'object') return false;
@@ -33,9 +35,22 @@ export async function POST(req: NextRequest) {
       const received = body && typeof body === 'object' ? Object.keys(body) : [];
       return NextResponse.json({ error: 'Missing system or user field', received }, { status: 400 });
     }
+    const dateContext = getPromptDateContext();
+    const safetySystem = `${dateContext.promptBlock}
+
+WORLD CUP FACT GUARD
+Cameroon did not qualify for the 2026 World Cup finals.
+Do not claim Cameroon is participating.
+Cameroon coverage must be framed as absence/accountability/FECAFOOT/diaspora unless a verified source says otherwise.
+Do not invent African team counts.
+Do not call a team "qualified" unless the source confirms it.
+If unsure, say "World Cup-related" or "qualification/absence story."
+
+Automation output must be draft-safe only. Do not instruct direct publishing of incomplete or failed AI content.`;
 
     const ai = await generateAiText({
       messages: [
+        { role: 'system', content: safetySystem },
         { role: 'system', content: body.system },
         { role: 'user',   content: body.user },
       ],
@@ -57,6 +72,17 @@ export async function POST(req: NextRequest) {
     }
 
     const text = cleanAiJsonText(ai.text);
+    const dateGuard = validateDateRegression(body.user, text);
+    if (!dateGuard.ok) {
+      return NextResponse.json({
+        publish: false,
+        status: 'provider_error',
+        provider: ai.provider,
+        error_type: 'date_regression',
+        retry_count: ai.retryCount,
+        error: dateGuard.error,
+      });
+    }
 
     // Validate JSON before returning
     try {
@@ -80,7 +106,8 @@ export async function POST(req: NextRequest) {
 
     const payload = JSON.stringify({
       text,
-      status: 'ok',
+      publish: false,
+      status: 'draft_ready',
       provider: ai.provider,
       retry_count: ai.retryCount,
       fallback_used: ai.fallbackUsed,

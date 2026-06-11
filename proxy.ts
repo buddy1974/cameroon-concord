@@ -1,6 +1,48 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+const legacyRedirectCache = new Map<string, { destination: string; status: 301 | 308; expiresAt: number } | null>()
+const LEGACY_REDIRECT_CACHE_MS = 60 * 60 * 1000
+
+type LegacyRedirectResponse = {
+  redirect?: {
+    destination?: string
+    status?: number
+  } | null
+}
+
+async function lookupLegacyRedirect(req: NextRequest, pathname: string) {
+  const cached = legacyRedirectCache.get(pathname)
+  if (cached === null) return null
+  if (cached && Date.now() < cached.expiresAt) return cached
+
+  try {
+    const lookupUrl = new URL('/api/internal/legacy-redirect', req.url)
+    lookupUrl.searchParams.set('path', pathname)
+    const res = await fetch(lookupUrl, {
+      headers: { Accept: 'application/json' },
+    })
+    if (!res.ok) return null
+
+    const data = await res.json() as LegacyRedirectResponse
+    const destination = data.redirect?.destination
+    if (!destination || !(destination.startsWith('/') || destination.startsWith('http'))) {
+      legacyRedirectCache.set(pathname, null)
+      return null
+    }
+
+    const redirect = {
+      destination,
+      status: (data.redirect?.status === 308 ? 308 : 301) as 301 | 308,
+      expiresAt: Date.now() + LEGACY_REDIRECT_CACHE_MS,
+    }
+    legacyRedirectCache.set(pathname, redirect)
+    return redirect
+  } catch {
+    return null
+  }
+}
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
@@ -27,6 +69,14 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(
       new URL(pathname.replace(/^\/en/, ''), req.url),
       { status: 301 }
+    )
+  }
+
+  const legacyRedirect = await lookupLegacyRedirect(req, pathname)
+  if (legacyRedirect) {
+    return NextResponse.redirect(
+      new URL(legacyRedirect.destination, req.url),
+      { status: legacyRedirect.status }
     )
   }
 
@@ -59,13 +109,6 @@ export async function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/admin/:path*',
-    '/api/admin/:path*',
-    '/maintenance',
-    '/en/:path*',
-    '/(.*index\\.php.*)',
-    '/(.*component.*)',
-    '/(.*itemlist.*)',
-    '/(.*Itemid.*)',
+    '/((?!_next/static|_next/image|favicon\\.ico).*)',
   ],
 }

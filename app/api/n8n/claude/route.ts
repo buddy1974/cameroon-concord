@@ -2,6 +2,7 @@ export const maxDuration = 60
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAutomation } from '@/lib/auth/require-automation';
+import { cleanAiJsonText, generateAiText } from '@/lib/ai/providers';
 
 function isClaudeBody(value: unknown): value is { system: string; user: string } {
   if (!value || typeof value !== 'object') return false;
@@ -14,8 +15,8 @@ export async function POST(req: NextRequest) {
     const auth = requireAutomation(req);
     if (!auth.ok) return auth.response;
 
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json({ error: 'OpenAI is not configured' }, { status: 503 });
+    if (!process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json({ error: 'AI providers are not configured' }, { status: 503 });
     }
 
     const rawText = await req.text();
@@ -33,39 +34,42 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing system or user field', received }, { status: 400 });
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        max_tokens: 2000,
-        messages: [
-          { role: 'system', content: body.system },
-          { role: 'user',   content: body.user },
-        ],
-      }),
+    const ai = await generateAiText({
+      messages: [
+        { role: 'system', content: body.system },
+        { role: 'user',   content: body.user },
+      ],
+      openAiModel: 'gpt-4o',
+      maxTokens: 2000,
+      timeoutMs: 45_000,
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return NextResponse.json({ error: `OpenAI error: ${response.status}`, raw: errText }, { status: 500 });
+    if (!ai.ok) {
+      return NextResponse.json({
+        publish: false,
+        status: ai.errorType === 'rate_limit' || ai.errorType === 'quota_limit' ? 'retry_pending' : 'provider_error',
+        provider: 'failed',
+        error_type: ai.errorType,
+        retry_count: ai.retryCount,
+        fallback_attempted: ai.fallbackAttempted,
+        error: 'AI providers are currently unavailable. Draft was not published.',
+      });
     }
 
-    const aiData = await response.json() as { choices?: { message?: { content?: string } }[] };
-    let text = aiData.choices?.[0]?.message?.content || '';
-    text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+    const text = cleanAiJsonText(ai.text);
 
     // Validate JSON before returning
     try {
       JSON.parse(text);
     } catch {
-      console.error('INVALID JSON FROM OPENAI');
+      console.info('[ai-provider]', { provider: 'failed', errorType: 'malformed_response' });
       return new NextResponse(JSON.stringify({
         publish: false,
-        error: 'INVALID_JSON_FROM_OPENAI',
+        status: 'provider_error',
+        provider: 'failed',
+        error_type: 'malformed_response',
+        retry_count: ai.retryCount,
+        error: 'INVALID_JSON_FROM_AI_PROVIDER',
       }), {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
@@ -74,7 +78,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const payload = JSON.stringify({ text });
+    const payload = JSON.stringify({
+      text,
+      status: 'ok',
+      provider: ai.provider,
+      retry_count: ai.retryCount,
+      fallback_used: ai.fallbackUsed,
+      notice: ai.fallbackUsed ? 'OpenAI was rate-limited, but Claude fallback completed the enhancement.' : undefined,
+    });
     return new NextResponse(payload, {
       headers: {
         'Content-Type': 'application/json',

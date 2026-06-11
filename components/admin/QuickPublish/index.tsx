@@ -13,6 +13,7 @@ interface QuickResult {
   meta_desc:     string
   keywords:      string[]
   error?:        string
+  ai_notice?:    string
 }
 
 interface Props {
@@ -58,7 +59,7 @@ export function QuickPublish({ categories }: Props) {
   async function handleProcess() {
     if (!rawText.trim()) return
     setProcessing(true)
-    setMsg('')
+    setMsg('OpenAI is currently rate-limited. Retrying or switching to Claude fallback. Please wait.')
     setResult(null)
     try {
       const res  = await fetch('/api/admin/ai/enhance', {
@@ -67,7 +68,7 @@ export function QuickPublish({ categories }: Props) {
         body:    JSON.stringify({ title: rawText.substring(0, 100), body: rawText, type: 'quick' }),
       })
       const data = await res.json() as QuickResult
-      if (data.error) { setMsg('✗ AI error: ' + data.error); setProcessing(false); return }
+      if (data.error) { setMsg(data.error); setProcessing(false); return }
 
       setResult(data)
       setTitle(data.title || '')
@@ -79,9 +80,9 @@ export function QuickPublish({ categories }: Props) {
 
       const match = filteredCats.find(c => c.slug === data.category_slug)
       setCatId(match?.id ?? filteredCats[0]?.id ?? 0)
-      setMsg('✓ AI processed')
+      setMsg(data.ai_notice || '✓ AI processed')
     } catch {
-      setMsg('✗ Processing failed')
+      setMsg('AI providers are currently unavailable. Your draft is unchanged. Try again later.')
     }
     setProcessing(false)
   }

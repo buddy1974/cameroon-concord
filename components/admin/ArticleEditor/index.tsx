@@ -121,7 +121,7 @@ export function ArticleEditor({ categories, article }: Props) {
   async function handleAiEnhance() {
     if (!title || !body) { setMsg('Add title and body first'); return }
     setAiLoading(true)
-    setMsg('')
+    setMsg('OpenAI is currently rate-limited. Retrying or switching to Claude fallback. Please wait.')
     try {
       const res  = await fetch('/api/admin/ai/enhance', {
         method:  'POST',
@@ -134,7 +134,11 @@ export function ArticleEditor({ categories, article }: Props) {
         enhanced_body?: string; error?: string; author_id?: number; author_name?: string
         author_avatar?: string; tiktok_script?: string; twitter_thread?: string[]
         whatsapp_message?: string; facebook_post?: string; category_id?: number
-        summary?: string[]
+        summary?: string[]; ai_notice?: string
+      }
+      if (data.error) {
+        setMsg(data.error)
+        return
       }
       if (data.title) {
         setTitle(data.title)
@@ -151,9 +155,9 @@ export function ArticleEditor({ categories, article }: Props) {
       if (data.twitter_thread)   setTwitterThread(Array.isArray(data.twitter_thread) ? data.twitter_thread : [])
       if (data.whatsapp_message) setWhatsappMsg(data.whatsapp_message)
       if (data.facebook_post)    setFbPost(data.facebook_post)
-      setMsg(data.error ? '✗ AI error' : '✓ AI enhanced')
+      setMsg(data.ai_notice || '✓ AI enhanced')
     } catch {
-      setMsg('✗ AI request failed')
+      setMsg('AI providers are currently unavailable. Your draft is unchanged. Try again later.')
     }
     setAiLoading(false)
   }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { generateAiText } from '@/lib/ai/providers'
 
 export const maxDuration = 60
 
@@ -13,28 +14,34 @@ export async function POST(req: NextRequest) {
   const promptText = prompt ?? user ?? ''
   if (!promptText) return NextResponse.json({ error: 'prompt or user field required' }, { status: 400 })
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      max_tokens: 4000,
-      messages: [
-        ...(system ? [{ role: 'system', content: system }] : []),
-        { role: 'user', content: promptText },
-      ],
-    }),
+  const ai = await generateAiText({
+    messages: [
+      ...(system ? [{ role: 'system' as const, content: system }] : []),
+      { role: 'user', content: promptText },
+    ],
+    openAiModel: 'gpt-4o-mini',
+    maxTokens: 4000,
+    timeoutMs: 45_000,
   })
 
-  if (!response.ok) {
-    const error = await response.text()
-    return NextResponse.json({ error }, { status: response.status })
+  if (!ai.ok) {
+    return NextResponse.json({
+      publish: false,
+      status: ai.errorType === 'rate_limit' || ai.errorType === 'quota_limit' ? 'retry_pending' : 'provider_error',
+      provider: 'failed',
+      error_type: ai.errorType,
+      retry_count: ai.retryCount,
+      fallback_attempted: ai.fallbackAttempted,
+      error: 'AI providers are currently unavailable. Draft was not published.',
+    })
   }
 
-  const data = await response.json() as { choices?: { message?: { content?: string } }[] }
-  const text = data.choices?.[0]?.message?.content || ''
-  return NextResponse.json({ content: [{ type: 'text', text }] })
+  return NextResponse.json({
+    status: 'ok',
+    provider: ai.provider,
+    retry_count: ai.retryCount,
+    fallback_used: ai.fallbackUsed,
+    notice: ai.fallbackUsed ? 'OpenAI was rate-limited, but Claude fallback completed the enhancement.' : undefined,
+    content: [{ type: 'text', text: ai.text }],
+  })
 }

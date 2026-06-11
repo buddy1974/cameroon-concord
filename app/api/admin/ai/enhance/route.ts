@@ -3,6 +3,7 @@ import { db } from '@/lib/db/client'
 import { authors } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/auth/require-admin'
+import { cleanAiJsonText, generateAiText } from '@/lib/ai/providers'
 
 export const maxDuration = 60
 
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest) {
   const auth = await requireAdmin()
   if (!auth.ok) return auth.response
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: 'AI enhancement is not configured' }, { status: 503 })
   }
 
@@ -31,6 +32,9 @@ Rules:
 - Translate to English if needed
 - Rewrite in CC journalistic style (factual, authoritative, no sensationalism)
 - Assign the most relevant category from this list only: politics, society, sportsnews, southern-cameroons, business, health, headlines, inside-cpdm
+- Preserve all dates exactly as supplied unless translating date format. Never backdate new articles to 2023.
+- WORLD CUP FACT GUARD: Never state that Cameroon qualified, advanced, won, lost, or changed tournament status unless the source explicitly says so.
+- Do not fabricate Cameroon qualification details, fixtures, scores, players, coaches, injuries, or opponents.
 ${sourceLock !== false ? `- SOURCE-LOCK: Use only facts present in the raw text. Do not add names, statistics, events, or context not explicitly stated.
 - If a fact is missing from the source: omit it. Never infer. Never fill gaps.` : ''}
 
@@ -135,6 +139,14 @@ SPORTS REPORTING — HIGH HALLUCINATION RISK
 Never add: Players | Coaches | Teams | Competitions | Injuries | Transfers — unless in the source.
 If Nigeria is not mentioned: do not mention Nigeria.
 If a player is not mentioned: do not mention that player.
+WORLD CUP FACT GUARD: Never state that Cameroon qualified, advanced, won, lost, or changed tournament status unless the source explicitly says so.
+Do not fabricate Cameroon qualification details, fixtures, scores, players, coaches, injuries, or opponents.
+
+========================================
+DATE PRESERVATION
+Preserve dates from the source exactly unless translating date format for English readability.
+Do not invent publication dates, event dates, timelines, or historical anchors.
+Never backdate current or migrated copy to 2023 unless the supplied source explicitly states 2023.
 
 ========================================
 INTERNAL LINKS
@@ -221,41 +233,52 @@ category_id: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (fashion/food/celebr
   const maxTokens = (type === 'full' || type === 'quick') ? 8192 : 2000
   const model = (type === 'full' || type === 'quick') ? 'gpt-4o' : 'gpt-4o-mini'
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content: finalPrompt }],
-    }),
+  const ai = await generateAiText({
+    messages: [{ role: 'user', content: finalPrompt }],
+    openAiModel: model,
+    maxTokens,
+    timeoutMs: 45_000,
   })
 
-  if (!response.ok) {
-    const errText = await response.text()
-    return NextResponse.json({ error: `OpenAI error: ${response.status}`, raw: errText }, { status: 500 })
+  if (!ai.ok) {
+    return NextResponse.json({
+      error: 'AI providers are currently unavailable. Your draft is unchanged. Try again later.',
+      error_type: ai.errorType,
+      provider: ai.provider,
+      retry_count: ai.retryCount,
+      fallback_attempted: ai.fallbackAttempted,
+    }, { status: 503 })
   }
 
-  const aiData = await response.json() as { choices?: { message?: { content?: string } }[] }
-  const text = aiData.choices?.[0]?.message?.content || '{}'
+  const text = ai.text
 
   try {
-    const clean = text.replace(/```json|```/g, '').trim()
+    const clean = cleanAiJsonText(text)
     const parsed = JSON.parse(clean)
+    const providerMeta = {
+      ai_provider: ai.provider,
+      ai_fallback_used: ai.fallbackUsed,
+      ai_retry_count: ai.retryCount,
+      ai_notice: ai.fallbackUsed
+        ? 'OpenAI was rate-limited, but Claude fallback completed the enhancement.'
+        : undefined,
+    }
 
     if (type === 'full') {
       const authorSlugs = ['nkemdirim-tabi','ebot-ayuk','cynthia-mbah','fidelis-ngong','solange-achu','emeka-tambe','bridget-forjindam','ndong-eyong']
       const randomSlug = authorSlugs[Math.floor(Math.random() * authorSlugs.length)]
       const [author] = await db.select({ id: authors.id, name: authors.name, slug: authors.slug, avatarUrl: authors.avatarUrl })
         .from(authors).where(eq(authors.slug, randomSlug)).limit(1)
-      return NextResponse.json({ ...parsed, author_id: author?.id, author_name: author?.name, author_avatar: author?.avatarUrl })
+      return NextResponse.json({ ...parsed, ...providerMeta, author_id: author?.id, author_name: author?.name, author_avatar: author?.avatarUrl })
     }
 
-    return NextResponse.json(parsed)
+    return NextResponse.json({ ...parsed, ...providerMeta })
   } catch {
-    return NextResponse.json({ error: 'Parse failed', raw: text }, { status: 500 })
+    console.info('[ai-provider]', { provider: 'failed', errorType: 'malformed_response' })
+    return NextResponse.json({
+      error: 'AI providers are currently unavailable. Your draft is unchanged. Try again later.',
+      error_type: 'malformed_response',
+      provider: 'failed',
+    }, { status: 502 })
   }
 }

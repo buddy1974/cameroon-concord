@@ -263,7 +263,9 @@ category_id: 2=Business | 5=Health | 6=Sports | 7=Lifestyle (fashion/food/celebr
 
   if (!ai.ok) {
     return NextResponse.json({
-      error: 'AI providers are currently unavailable. Your draft is unchanged. Try again later.',
+      error: ai.fallbackAttempted
+        ? 'OpenAI is rate-limited and Claude fallback also failed. Your draft is unchanged.'
+        : 'AI providers are currently unavailable. Your draft is unchanged. Try again later.',
       error_type: ai.errorType,
       provider: ai.provider,
       retry_count: ai.retryCount,

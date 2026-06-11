@@ -67,7 +67,9 @@ Automation output must be draft-safe only. Do not instruct direct publishing of 
         error_type: ai.errorType,
         retry_count: ai.retryCount,
         fallback_attempted: ai.fallbackAttempted,
-        error: 'AI providers are currently unavailable. Draft was not published.',
+        error: ai.fallbackAttempted
+          ? 'OpenAI is rate-limited and Claude fallback also failed. Your draft is unchanged.'
+          : 'AI providers are currently unavailable. Draft was not published.',
       });
     }
 

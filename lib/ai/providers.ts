@@ -60,7 +60,7 @@ function sleep(ms: number) {
 }
 
 function configuredPrimary(): AiProvider | null {
-  const requested = process.env.AI_PRIMARY_PROVIDER?.toLowerCase()
+  const requested = (process.env.AI_PRIMARY_PROVIDER || 'openai').toLowerCase()
   if (requested === 'anthropic' && process.env.ANTHROPIC_API_KEY) return 'anthropic'
   if (requested === 'openai' && process.env.OPENAI_API_KEY) return 'openai'
   if (process.env.OPENAI_API_KEY) return 'openai'
@@ -69,7 +69,7 @@ function configuredPrimary(): AiProvider | null {
 }
 
 function configuredFallback(primary: AiProvider | null): AiProvider | null {
-  const requested = process.env.AI_FALLBACK_PROVIDER?.toLowerCase()
+  const requested = (process.env.AI_FALLBACK_PROVIDER || 'anthropic').toLowerCase()
   if (requested === 'anthropic' && primary !== 'anthropic' && process.env.ANTHROPIC_API_KEY) return 'anthropic'
   if (requested === 'openai' && primary !== 'openai' && process.env.OPENAI_API_KEY) return 'openai'
   if (primary !== 'anthropic' && process.env.ANTHROPIC_API_KEY) return 'anthropic'
@@ -85,6 +85,24 @@ function classifyOpenAiFailure(status: number, raw: string): AiErrorType {
   }
   if (status === 408 || status === 409 || status >= 500) return 'temporary_provider_error'
   return 'provider_error'
+}
+
+function isOpenAiFallbackable(error: AiProviderError): boolean {
+  const message = error.message.toLowerCase()
+  return (
+    error.provider === 'openai' &&
+    error.errorType !== 'not_configured' &&
+    (
+      error.status === 429 ||
+      (typeof error.status === 'number' && error.status >= 500) ||
+      error.errorType === 'rate_limit' ||
+      error.errorType === 'quota_limit' ||
+      error.errorType === 'temporary_provider_error' ||
+      error.errorType === 'timeout' ||
+      message.includes('rate limit') ||
+      message.includes('quota')
+    )
+  )
 }
 
 function classifyAnthropicFailure(status: number, raw: string): AiErrorType {
@@ -119,18 +137,24 @@ async function callOpenAi(input: GenerateAiTextInput) {
     throw new AiProviderError('openai', 'not_configured', 'OpenAI is not configured')
   }
 
-  const response = await fetchWithTimeout('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: input.openAiModel || process.env.OPENAI_MODEL || 'gpt-4o-mini',
-      max_tokens: input.maxTokens,
-      messages: input.messages,
-    }),
-  }, input.timeoutMs ?? DEFAULT_TIMEOUT_MS, 'openai')
+  let response: Response
+  try {
+    response = await fetchWithTimeout('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: input.openAiModel || process.env.OPENAI_MODEL || 'gpt-4o-mini',
+        max_tokens: input.maxTokens,
+        messages: input.messages,
+      }),
+    }, input.timeoutMs ?? DEFAULT_TIMEOUT_MS, 'openai')
+  } catch (err) {
+    if (err instanceof AiProviderError) throw err
+    throw new AiProviderError('openai', 'temporary_provider_error', 'OpenAI network error')
+  }
 
   if (!response.ok) {
     const raw = await response.text()
@@ -186,6 +210,26 @@ function logAi(provider: AiProviderLog, errorType?: AiErrorType, retryCount = 0)
   console.info('[ai-provider]', { provider, errorType: loggedErrorType, retryCount })
 }
 
+function logProviderFlow(fields: {
+  primaryProvider: AiProvider | null
+  fallbackProvider: AiProvider | null
+  openaiErrorType?: AiErrorType
+  fallbackAttempted: boolean
+  fallbackSuccess: boolean
+  finalProvider: AiProviderLog
+  retryCount: number
+}) {
+  console.info('[ai-provider-flow]', {
+    primaryProvider: fields.primaryProvider,
+    fallbackProvider: fields.fallbackProvider,
+    openaiErrorType: fields.openaiErrorType === 'quota_limit' ? 'quota' : fields.openaiErrorType,
+    fallbackAttempted: fields.fallbackAttempted,
+    fallbackSuccess: fields.fallbackSuccess,
+    finalProvider: fields.finalProvider,
+    retryCount: fields.retryCount,
+  })
+}
+
 export async function generateAiText(input: GenerateAiTextInput): Promise<GenerateAiTextResult> {
   const primary = configuredPrimary()
   const fallback = input.allowFallback === false ? null : configuredFallback(primary)
@@ -211,11 +255,19 @@ export async function generateAiText(input: GenerateAiTextInput): Promise<Genera
         try {
           const text = await callOpenAi(input)
           logAi('openai', undefined, retryCount)
+          logProviderFlow({
+            primaryProvider: primary,
+            fallbackProvider: fallback,
+            fallbackAttempted: false,
+            fallbackSuccess: false,
+            finalProvider: 'openai',
+            retryCount,
+          })
           return { ok: true, text, provider: 'openai', fallbackUsed: false, retryCount }
         } catch (err) {
           if (!(err instanceof AiProviderError)) throw err
           openAiErrorType = err.errorType
-          const shouldRetry = err.status === 429 && canRetryOpenAi && attempt < OPENAI_RETRY_DELAYS.length
+          const shouldRetry = isOpenAiFallbackable(err) && canRetryOpenAi && attempt < OPENAI_RETRY_DELAYS.length
           if (!shouldRetry) throw err
           await sleep(OPENAI_RETRY_DELAYS[attempt])
           retryCount++
@@ -225,21 +277,47 @@ export async function generateAiText(input: GenerateAiTextInput): Promise<Genera
 
     const text = await callAnthropic(input)
     logAi('anthropic_fallback', undefined, retryCount)
+    logProviderFlow({
+      primaryProvider: primary,
+      fallbackProvider: fallback,
+      fallbackAttempted: false,
+      fallbackSuccess: false,
+      finalProvider: 'anthropic_fallback',
+      retryCount,
+    })
     return { ok: true, text, provider: 'anthropic_fallback', fallbackUsed: false, retryCount }
   } catch (err) {
     const primaryError = err instanceof AiProviderError ? err : new AiProviderError(primary, 'provider_error', 'AI provider failed')
     openAiErrorType = primary === 'openai' ? primaryError.errorType : openAiErrorType
 
-    if (primary === 'openai' && primaryError.status === 429 && fallback === 'anthropic') {
+    if (primary === 'openai' && isOpenAiFallbackable(primaryError) && fallback === 'anthropic') {
       try {
         const text = await callAnthropic(input)
         logAi('anthropic_fallback', openAiErrorType, retryCount)
+        logProviderFlow({
+          primaryProvider: primary,
+          fallbackProvider: fallback,
+          openaiErrorType: openAiErrorType,
+          fallbackAttempted: true,
+          fallbackSuccess: true,
+          finalProvider: 'anthropic_fallback',
+          retryCount,
+        })
         return { ok: true, text, provider: 'anthropic_fallback', fallbackUsed: true, retryCount, openAiErrorType }
       } catch (fallbackErr) {
         const fallbackError = fallbackErr instanceof AiProviderError
           ? fallbackErr
           : new AiProviderError('anthropic', 'provider_error', 'Anthropic fallback failed')
         logAi('failed', fallbackError.errorType, retryCount)
+        logProviderFlow({
+          primaryProvider: primary,
+          fallbackProvider: fallback,
+          openaiErrorType: openAiErrorType,
+          fallbackAttempted: true,
+          fallbackSuccess: false,
+          finalProvider: 'failed',
+          retryCount,
+        })
         return {
           ok: false,
           provider: 'failed',
@@ -252,6 +330,15 @@ export async function generateAiText(input: GenerateAiTextInput): Promise<Genera
     }
 
     logAi('failed', primaryError.errorType, retryCount)
+    logProviderFlow({
+      primaryProvider: primary,
+      fallbackProvider: fallback,
+      openaiErrorType: openAiErrorType,
+      fallbackAttempted: false,
+      fallbackSuccess: false,
+      finalProvider: 'failed',
+      retryCount,
+    })
     return {
       ok: false,
       provider: 'failed',

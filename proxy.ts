@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const legacyRedirectCache = new Map<string, { destination: string; status: 301 | 308; expiresAt: number } | null>()
+const legacyRedirectCache = new Map<string, { destination: string; status: 301 | 308; expiresAt: number }>()
 const LEGACY_REDIRECT_CACHE_MS = 60 * 60 * 1000
 
 type LegacyRedirectResponse = {
@@ -13,8 +13,8 @@ type LegacyRedirectResponse = {
 
 async function lookupLegacyRedirect(req: NextRequest, pathname: string) {
   const cached = legacyRedirectCache.get(pathname)
-  if (cached === null) return null
   if (cached && Date.now() < cached.expiresAt) return cached
+  if (cached) legacyRedirectCache.delete(pathname)
 
   try {
     const lookupUrl = new URL('/api/internal/legacy-redirect', req.url)
@@ -27,7 +27,6 @@ async function lookupLegacyRedirect(req: NextRequest, pathname: string) {
     const data = await res.json() as LegacyRedirectResponse
     const destination = data.redirect?.destination
     if (!destination || !(destination.startsWith('/') || destination.startsWith('http'))) {
-      legacyRedirectCache.set(pathname, null)
       return null
     }
 

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db/client'
 import { articles, authors, categories, articleHits } from '@/lib/db/schema'
@@ -6,6 +7,8 @@ import { eq, desc, and } from 'drizzle-orm'
 import { ArticleCard } from '@/components/article/ArticleCard'
 import { SITE_URL } from '@/lib/constants'
 import type { ArticleWithRelations } from '@/lib/types'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { buildAuthorSchema, buildProfilePageSchema } from '@/lib/seo/schema'
 
 export const revalidate = 3600
 
@@ -83,11 +86,13 @@ export default async function AuthorPage({ params }: Props) {
 
   return (
     <div style={{ paddingTop: '48px', paddingBottom: '64px' }}>
+      <JsonLd data={buildAuthorSchema(author, authorArticles.length)} />
+      <JsonLd data={buildProfilePageSchema(author)} />
 
       {/* Author profile header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', marginBottom: '48px', paddingBottom: '40px', borderBottom: '1px solid #1E1E1E' }}>
         {author.avatarUrl ? (
-          <img
+          <Image
             src={author.avatarUrl}
             alt={author.name}
             width={80}

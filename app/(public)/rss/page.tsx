@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: `Subscribe to ${SITE_NAME}'s RSS feed to get the latest Cameroon news delivered to your RSS reader.`,
 }
 
-const FEED_URL = `${SITE_URL}/api/rss`
+const FEED_URL = `${SITE_URL}/rss.xml`
 
 export default function RssPage() {
   return (
@@ -34,7 +34,7 @@ export default function RssPage() {
 
       <div className="flex flex-wrap gap-3">
         <a
-          href="/api/rss"
+          href="/rss.xml"
           target="_blank"
           rel="noopener noreferrer"
           style={{ background: '#C8102E', color: '#fff', padding: '10px 20px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}

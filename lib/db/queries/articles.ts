@@ -49,7 +49,7 @@ async function _getArticleBySlug(
 export const getArticleBySlug = unstable_cache(
   _getArticleBySlug,
   ['article-by-slug'],
-  { revalidate: 3600, tags: ['articles'] }
+  { revalidate: 60, tags: ['articles'] }
 )
 
 export async function getArticlesByCategory(

@@ -1,64 +1,54 @@
 'use client'
-import { useState } from 'react'
+import { Fragment } from 'react'
 
 interface Props {
   html: string
 }
 
 export function ProgressiveBody({ html }: Props) {
-  const [expanded, setExpanded] = useState(false)
+  const parts = splitParagraphs(html)
 
-  const parts   = html.split('</p>').filter(s => s.trim().length > 0)
-  const preview = parts.slice(0, 3).map(p => p + '</p>').join('\n')
-  const rest    = parts.slice(3).map(p => p + '</p>').join('\n')
-  const hasMore = rest.trim().length > 0
+  if (parts.length <= 1) {
+    return (
+      <div className="article-body">
+        <div dangerouslySetInnerHTML={{ __html: html }} />
+      </div>
+    )
+  }
 
   return (
     <div className="article-body">
-      <div dangerouslySetInnerHTML={{ __html: preview }} />
+      {parts.map((part, index) => (
+        <Fragment key={`${index}-${part.length}`}>
+          <div dangerouslySetInnerHTML={{ __html: part }} />
+          {index === 2 && <InlineAd slot="5471720771" />}
+          {index === 7 && <InlineAd slot="6360192811" />}
+        </Fragment>
+      ))}
+    </div>
+  )
+}
 
-      {/* Mid-article ad — always visible after para 3 */}
-      <div style={{ margin: '24px 0' }}>
-        <ins className="adsbygoogle"
-          style={{ display: 'block', textAlign: 'center' }}
-          data-ad-client="ca-pub-0554291063972402"
-          data-ad-slot="5471720771"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
-        <script dangerouslySetInnerHTML={{ __html: '(adsbygoogle = window.adsbygoogle || []).push({})' }} />
-      </div>
+function splitParagraphs(html: string): string[] {
+  if (!html.includes('</p>')) return [html]
+  return html
+    .split(/<\/p>/i)
+    .map(part => part.trim())
+    .filter(Boolean)
+    .map(part => `${part}</p>`)
+}
 
-      {hasMore && !expanded && (
-        <div style={{ position: 'relative', marginTop: '-60px' }}>
-          <div style={{ height: '80px', background: 'linear-gradient(to bottom, transparent, var(--bg-base))', pointerEvents: 'none' }} />
-          <div style={{ textAlign: 'center', paddingTop: '8px', paddingBottom: '16px', background: 'var(--bg-base)' }}>
-            <button
-              onClick={() => setExpanded(true)}
-              style={{ padding: '10px 28px', background: '#C8102E', color: '#fff', border: 'none', borderRadius: '24px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.03em' }}
-            >
-              Continue Reading ↓
-            </button>
-          </div>
-        </div>
-      )}
-
-      {hasMore && expanded && (
-        <>
-          <div dangerouslySetInnerHTML={{ __html: rest }} />
-          {/* Mid-article ad — after rest content */}
-          <div style={{ margin: '24px 0' }}>
-            <ins className="adsbygoogle"
-              style={{ display: 'block', textAlign: 'center' }}
-              data-ad-client="ca-pub-0554291063972402"
-              data-ad-slot="6360192811"
-              data-ad-format="auto"
-              data-full-width-responsive="true"
-            />
-            <script dangerouslySetInnerHTML={{ __html: '(adsbygoogle = window.adsbygoogle || []).push({})' }} />
-          </div>
-        </>
-      )}
+function InlineAd({ slot }: { slot: string }) {
+  return (
+    <div style={{ margin: '24px 0' }}>
+      <ins className="adsbygoogle"
+        style={{ display: 'block', textAlign: 'center' }}
+        data-ad-client="ca-pub-0554291063972402"
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+      <script dangerouslySetInnerHTML={{ __html: '(adsbygoogle = window.adsbygoogle || []).push({})' }} />
     </div>
   )
 }

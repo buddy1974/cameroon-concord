@@ -5,8 +5,19 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { postArticleToSocial } from '@/server/lib/social'
 import { sanitizeArticleBody } from '@/lib/sanitize'
+import { SITE_URL } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
+
+function revalidatePublicArticle(categorySlug: string, articleSlug: string) {
+  revalidateTag('articles', {})
+  revalidatePath('/')
+  revalidatePath(`/${categorySlug}`)
+  revalidatePath(`/${categorySlug}/${articleSlug}`)
+  revalidatePath('/sitemap.xml')
+  revalidatePath('/news-sitemap.xml')
+  revalidatePath('/rss.xml')
+}
 
 export async function GET(
   _: NextRequest,
@@ -31,17 +42,17 @@ export async function PUT(
     body.categoryId = validCatIds[0] || 7;
   }
 
-  const updateData = { ...body, updatedAt: new Date() };
-  if (updateData.body) updateData.body = sanitizeArticleBody(updateData.body)
-  if (body.status === 'published') {
-    updateData.publishedAt = updateData.publishedAt || new Date();
-  }
   const [existing] = await db
-    .select({ status: articles.status })
+    .select({ status: articles.status, slug: articles.slug, categoryId: articles.categoryId })
     .from(articles)
     .where(eq(articles.id, articleId))
     .limit(1)
   const wasAlreadyPublished = existing?.status === 'published'
+  const updateData = { ...body, updatedAt: new Date() };
+  if (updateData.body) updateData.body = sanitizeArticleBody(updateData.body)
+  if (body.status === 'published' && !wasAlreadyPublished) {
+    updateData.publishedAt = updateData.publishedAt || new Date();
+  }
 
   await db.update(articles)
     .set(updateData)
@@ -63,7 +74,7 @@ export async function PUT(
         category:      cat[0],
       }).catch(console.error)
 
-      const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${cat[0].slug}/${body.slug}`
+      const articleUrl = `${SITE_URL}/${cat[0].slug}/${body.slug}`
       fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=aa09538f68b64fe688308d20511485f0`, {
         method: 'GET',
       }).catch(() => {})
@@ -74,27 +85,30 @@ export async function PUT(
   revalidatePath('/[category]', 'layout')
   revalidatePath('/[category]/[slug]', 'page')
 
-  // Ping Facebook to re-scrape og:image
-  if (body.status === 'published' && body.slug && body.categoryId) {
+  const finalSlug = body.slug ?? existing?.slug
+  const finalCategoryId = Number(body.categoryId ?? existing?.categoryId)
+  const finalStatus = body.status ?? existing?.status
+
+  // Ping Facebook to re-scrape og:image and refresh public caches.
+  if (finalStatus === 'published' && finalSlug && Number.isFinite(finalCategoryId)) {
     const catRes = await db.select({ slug: categories.slug })
-      .from(categories).where(eq(categories.id, body.categoryId)).limit(1);
+      .from(categories).where(eq(categories.id, finalCategoryId)).limit(1);
     if (catRes[0]) {
-      const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${catRes[0].slug}/${body.slug}`;
+      const articleUrl = `${SITE_URL}/${catRes[0].slug}/${finalSlug}`;
       fetch(`https://graph.facebook.com/?id=${encodeURIComponent(articleUrl)}&scrape=true`, {
         method: 'POST'
       }).catch(() => {});
-      revalidatePath(`/${catRes[0].slug}/${body.slug}`)
-      revalidatePath(`/${catRes[0].slug}`)
+      revalidatePublicArticle(catRes[0].slug, finalSlug)
 
       if (!wasAlreadyPublished) {
-        fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/articles/score/${articleId}`, {
+        fetch(`${SITE_URL}/api/admin/articles/score/${articleId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
         }).catch(() => {})
       }
 
       if (body.isBreaking) {
-        fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/push/send`, {
+        fetch(`${SITE_URL}/api/push/send`, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.NEXT_PUBLIC_AUTOMATION_API_KEY! },
           body: JSON.stringify({

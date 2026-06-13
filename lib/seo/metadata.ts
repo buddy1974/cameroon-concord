@@ -12,6 +12,12 @@ function canonicalArticleUrl(article: ArticleWithRelations): string {
   return override.startsWith('http') ? override : absoluteUrl(override.startsWith('/') ? override : `/${override}`)
 }
 
+function isoDate(date: Date | string | null | undefined): string | undefined {
+  if (!date) return undefined
+  const parsed = typeof date === 'string' ? new Date(date) : date
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString()
+}
+
 export function buildSiteMetadata(): Metadata {
   return {
     metadataBase: new URL(SITE_URL),
@@ -53,7 +59,7 @@ export function buildSiteMetadata(): Metadata {
     alternates: {
       canonical: SITE_URL,
       types: {
-        'application/rss+xml': `${SITE_URL}/api/rss`,
+        'application/rss+xml': `${SITE_URL}/rss.xml`,
       },
     },
     verification: {
@@ -76,6 +82,10 @@ export function buildArticleMetadata(article: ArticleWithRelations): Metadata {
   return {
     title,
     description,
+    authors: article.author
+      ? [{ name: article.author.name, url: `${SITE_URL}/author/${article.author.slug}` }]
+      : [{ name: SITE_NAME, url: SITE_URL }],
+    publisher: SITE_NAME,
     keywords: [
       article.category.name,
       'Cameroon',
@@ -90,8 +100,8 @@ export function buildArticleMetadata(article: ArticleWithRelations): Metadata {
       description,
       siteName:      SITE_NAME,
       locale:        'en_US',
-      publishedTime: article.publishedAt?.toString(),
-      modifiedTime:  article.updatedAt?.toString(),
+      publishedTime: isoDate(article.publishedAt),
+      modifiedTime:  isoDate(article.updatedAt || article.publishedAt),
       section:       article.category.name,
       images: [{
         url:    image,
@@ -109,6 +119,17 @@ export function buildArticleMetadata(article: ArticleWithRelations): Metadata {
     },
     alternates: {
       canonical: url,
+    },
+    robots: {
+      index:  true,
+      follow: true,
+      googleBot: {
+        index:               true,
+        follow:              true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet':       -1,
+      },
     },
   }
 }

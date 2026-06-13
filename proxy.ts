@@ -57,19 +57,13 @@ export async function proxy(req: NextRequest) {
     pathname === '/maintenance' ||
     pathname === '/favicon.ico' ||
     pathname === '/sitemap.xml' ||
+    pathname === '/news-sitemap.xml' ||
+    pathname === '/rss.xml' ||
     pathname === '/api/news-sitemap' ||
     pathname === '/robots.txt' ||
-    pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|mp4|pdf)$/) !== null
+    pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|mp4|pdf|xml)$/) !== null
   ) {
     return NextResponse.next()
-  }
-
-  // Old Joomla /en/ redirect
-  if (pathname.startsWith('/en/')) {
-    return NextResponse.redirect(
-      new URL(pathname.replace(/^\/en/, ''), req.url),
-      { status: 301 }
-    )
   }
 
   const legacyRedirect = await lookupLegacyRedirect(req, pathname)
@@ -77,6 +71,14 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(
       new URL(legacyRedirect.destination, req.url),
       { status: legacyRedirect.status }
+    )
+  }
+
+  // Old Joomla /en/ cleanup after DB-backed article redirects get first chance.
+  if (pathname.startsWith('/en/')) {
+    return NextResponse.redirect(
+      new URL(pathname.replace(/^\/en/, ''), req.url),
+      { status: 301 }
     )
   }
 

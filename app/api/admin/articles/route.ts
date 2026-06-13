@@ -4,11 +4,22 @@ import { articles, categories, authors, articleHits } from '@/lib/db/schema'
 import { desc, eq, like, sql, and } from 'drizzle-orm'
 import { postArticleToSocial } from '@/server/lib/social'
 import { sanitizeArticleBody } from '@/lib/sanitize'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { requireAutomation } from '@/lib/auth/require-automation'
+import { SITE_URL } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
+
+function revalidatePublicArticle(categorySlug: string, articleSlug: string) {
+  revalidateTag('articles', {})
+  revalidatePath('/')
+  revalidatePath(`/${categorySlug}`)
+  revalidatePath(`/${categorySlug}/${articleSlug}`)
+  revalidatePath('/sitemap.xml')
+  revalidatePath('/news-sitemap.xml')
+  revalidatePath('/rss.xml')
+}
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin()
@@ -143,6 +154,8 @@ export async function POST(req: NextRequest) {
     const cat = await db.select({ slug: categories.slug, name: categories.name })
       .from(categories).where(eq(categories.id, body.categoryId)).limit(1)
     if (cat[0]) {
+      revalidatePublicArticle(cat[0].slug, body.slug)
+
       postArticleToSocial({
         id:            newId,
         title:         body.title,
@@ -151,6 +164,15 @@ export async function POST(req: NextRequest) {
         featuredImage: body.featuredImage,
         category:      cat[0],
       }).catch(console.error)
+
+      const articleUrl = `${SITE_URL}/${cat[0].slug}/${body.slug}`
+      fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=aa09538f68b64fe688308d20511485f0`, {
+        method: 'GET',
+      }).catch(() => {})
+
+      fetch(`https://graph.facebook.com/?id=${encodeURIComponent(articleUrl)}&scrape=true`, {
+        method: 'POST',
+      }).catch(() => {})
     }
   }
 

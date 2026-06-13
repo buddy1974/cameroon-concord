@@ -6,6 +6,8 @@ Disallow: /maintenance
 
 User-agent: Googlebot-News
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
 Sitemap: https://www.cameroon-concord.com/sitemap.xml
-Sitemap: https://www.cameroon-concord.com/api/news-sitemap
+Sitemap: https://www.cameroon-concord.com/news-sitemap.xml

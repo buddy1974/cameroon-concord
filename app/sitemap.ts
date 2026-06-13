@@ -1,4 +1,4 @@
-export const revalidate = 3600
+export const revalidate = 300
 
 import { MetadataRoute } from 'next'
 import { db } from '@/lib/db/client'

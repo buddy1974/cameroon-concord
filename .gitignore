@@ -42,3 +42,8 @@ next-env.d.ts
 
 # n8n workflow exports (may contain embedded credentials)
 social-automation/workflows/
+
+# Stage 0 security: credentials and runtime artifacts must never be committed
+server/workers/telegram-session*.txt
+*.session
+server/**/*.log

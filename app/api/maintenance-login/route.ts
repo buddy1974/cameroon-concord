@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { safeEqual } from '@/lib/auth/safe-compare'
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json() as { password: string }
-  const correct = process.env.MAINTENANCE_PASSWORD || 'concord2026'
+  const { password } = await req.json().catch(() => ({})) as { password?: string }
+  // No fallback password: bypass is impossible until MAINTENANCE_PASSWORD is configured.
+  const correct = process.env.MAINTENANCE_PASSWORD
+  if (!correct) {
+    return NextResponse.json({ error: 'Maintenance bypass is not configured' }, { status: 503 })
+  }
 
-  if (password !== correct) {
+  if (!safeEqual(password, correct)) {
     return NextResponse.json({ error: 'Wrong password' }, { status: 401 })
   }
 

@@ -1,8 +1,15 @@
 import { SignJWT, jwtVerify } from 'jose'
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-dev-secret-change-in-production'
-)
+// JWT_SECRET is required. There is deliberately no fallback literal: a missing
+// secret (or the old publicly-known fallback value) makes signing throw and
+// verification deny (fail closed).
+const RETIRED_FALLBACK_SECRET = 'fallback-dev-secret-change-in-production'
+
+function getSecret(): Uint8Array | null {
+  const raw = process.env.JWT_SECRET
+  if (!raw || raw === RETIRED_FALLBACK_SECRET) return null
+  return new TextEncoder().encode(raw)
+}
 
 export interface AdminPayload {
   sub:   string
@@ -13,6 +20,8 @@ export interface AdminPayload {
 }
 
 export async function signToken(payload: Omit<AdminPayload, 'iat' | 'exp'>): Promise<string> {
+  const secret = getSecret()
+  if (!secret) throw new Error('JWT_SECRET is not configured')
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -21,8 +30,10 @@ export async function signToken(payload: Omit<AdminPayload, 'iat' | 'exp'>): Pro
 }
 
 export async function verifyToken(token: string): Promise<AdminPayload | null> {
+  const secret = getSecret()
+  if (!secret || !token) return null
   try {
-    const { payload } = await jwtVerify(token, secret)
+    const { payload } = await jwtVerify(token, secret, { algorithms: ['HS256'] })
     return payload as unknown as AdminPayload
   } catch {
     return null

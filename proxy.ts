@@ -100,7 +100,9 @@ export async function proxy(req: NextRequest) {
   // Maintenance mode — public pages only
   if (process.env.MAINTENANCE_MODE === 'true') {
     const bypass = req.cookies.get('maintenance_bypass')?.value
-    if (bypass !== process.env.MAINTENANCE_PASSWORD) {
+    const expected = process.env.MAINTENANCE_PASSWORD
+    // An unset password must never match an absent cookie (undefined === undefined).
+    if (!expected || bypass !== expected) {
       return NextResponse.redirect(new URL('/maintenance', req.url))
     }
   }

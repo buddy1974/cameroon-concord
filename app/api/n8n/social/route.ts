@@ -5,12 +5,11 @@ import { db } from '@/lib/db/client'
 import { articles, categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { postToTwitter } from '@/server/lib/social'
+import { requireAutomation } from '@/lib/auth/require-automation'
 
 export async function POST(req: NextRequest) {
-  const apiKey = req.headers.get('x-api-key')
-  if (apiKey !== process.env.NEXT_PUBLIC_AUTOMATION_API_KEY) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const automation = requireAutomation(req)
+  if (!automation.ok) return automation.response
 
   try {
     const body = await req.json() as { articleId?: number; platform?: string }

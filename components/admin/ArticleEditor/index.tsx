@@ -142,7 +142,8 @@ export function ArticleEditor({ categories, article }: Props) {
       }
       if (data.title) {
         setTitle(data.title)
-        setSlug(slugify(data.title))
+        // Never auto-change the slug of an existing article — it would break its public URL.
+        if (!isEdit) setSlug(slugify(data.title))
       }
       if (data.meta_title)       setMetaT(data.meta_title)
       if (data.meta_desc)        setMetaD(data.meta_desc)

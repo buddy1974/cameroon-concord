@@ -4,8 +4,9 @@ import { articles, categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { postArticleToSocial } from '@/server/lib/social'
-import { sanitizeArticleBody } from '@/lib/sanitize'
 import { SITE_URL } from '@/lib/constants'
+import { requireAdmin } from '@/lib/auth/require-admin'
+import { pickArticleUpdate } from '@/lib/articles/update-fields'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,9 +21,12 @@ function revalidatePublicArticle(categorySlug: string, articleSlug: string) {
 }
 
 export async function GET(
-  _: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
+
   const { id } = await params
   const rows = await db.select().from(articles).where(eq(articles.id, parseInt(id))).limit(1)
   if (!rows.length) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -33,9 +37,17 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
+
   const { id }  = await params
   const articleId = parseInt(id)
-  const body = await req.json() as Partial<typeof articles.$inferInsert>
+  if (!Number.isFinite(articleId)) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+
+  // Only allowlisted editorial fields may be written (body is sanitised there).
+  const picked = pickArticleUpdate(await req.json().catch(() => null))
+  if (!picked.ok) return NextResponse.json({ error: picked.error }, { status: 400 })
+  const body = picked.update
   const validCats = await db.select({ id: categories.id }).from(categories);
   const validCatIds = validCats.map(c => c.id);
   if (body.categoryId && !validCatIds.includes(Number(body.categoryId))) {
@@ -48,10 +60,9 @@ export async function PUT(
     .where(eq(articles.id, articleId))
     .limit(1)
   const wasAlreadyPublished = existing?.status === 'published'
-  const updateData = { ...body, updatedAt: new Date() };
-  if (updateData.body) updateData.body = sanitizeArticleBody(updateData.body)
+  const updateData: typeof body & { updatedAt: Date; publishedAt?: Date } = { ...body, updatedAt: new Date() };
   if (body.status === 'published' && !wasAlreadyPublished) {
-    updateData.publishedAt = updateData.publishedAt || new Date();
+    updateData.publishedAt = new Date();
   }
 
   await db.update(articles)
@@ -110,7 +121,7 @@ export async function PUT(
       if (body.isBreaking) {
         fetch(`${SITE_URL}/api/push/send`, {
           method:  'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.NEXT_PUBLIC_AUTOMATION_API_KEY! },
+          headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.AUTOMATION_API_KEY ?? '' },
           body: JSON.stringify({
             title: `🚨 BREAKING: ${body.title}`,
             body:  body.excerpt || '',
@@ -125,9 +136,12 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
+
   const { id } = await params
   await db.delete(articles).where(eq(articles.id, parseInt(id)))
   return NextResponse.json({ ok: true })

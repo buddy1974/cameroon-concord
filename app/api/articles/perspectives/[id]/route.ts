@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { articles } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 export async function GET(
   _: NextRequest,
@@ -9,11 +9,12 @@ export async function GET(
 ) {
   const { id } = await params
   const articleId = parseInt(id)
+  if (!Number.isFinite(articleId)) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const [article] = await db
     .select({ title: articles.title, body: articles.body, perspectives: articles.perspectives })
     .from(articles)
-    .where(eq(articles.id, articleId))
+    .where(and(eq(articles.id, articleId), eq(articles.status, 'published')))
     .limit(1)
 
   if (!article) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -56,8 +57,8 @@ Return ONLY valid JSON. No markdown.`,
   })
 
   if (!response.ok) {
-    const errText = await response.text()
-    return NextResponse.json({ error: `OpenAI error: ${response.status}`, raw: errText }, { status: 500 })
+    console.error('[perspectives] OpenAI error', response.status)
+    return NextResponse.json({ error: 'Failed to generate perspectives' }, { status: 502 })
   }
 
   const aiData = await response.json() as { choices?: { message?: { content?: string } }[] }

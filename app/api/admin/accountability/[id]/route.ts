@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import { accountabilityPromises } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,6 +10,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
+
   const { id } = await params
   const { status } = await req.json() as { status: string }
   const valid = ['pending', 'kept', 'broken', 'partial']
@@ -23,9 +27,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
+
   const { id } = await params
   await db.delete(accountabilityPromises).where(eq(accountabilityPromises.id, parseInt(id)))
   return NextResponse.json({ ok: true })

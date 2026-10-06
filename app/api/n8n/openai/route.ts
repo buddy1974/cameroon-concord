@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { generateAiText } from '@/lib/ai/providers'
 import { validateDateRegression } from '@/lib/ai/date-guard'
 import { getPromptDateContext } from '@/lib/ai/prompt-date-context'
+import { requireAutomation } from '@/lib/auth/require-automation'
 
 export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
-  const apiKey = req.headers.get('x-api-key')
-  if (apiKey !== process.env.NEXT_PUBLIC_AUTOMATION_API_KEY) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const automation = requireAutomation(req)
+  if (!automation.ok) return automation.response
 
   const body = await req.json()
   const { system, prompt, user } = body as { system?: string; prompt?: string; user?: string }

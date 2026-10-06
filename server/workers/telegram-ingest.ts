@@ -8,10 +8,16 @@ import * as readline from 'readline'
 config({ path: '.env.local' })
 
 const LOG_FILE = 'server/workers/telegram-ingest.log'
+// Session file is a live account credential: git-ignored, local only.
 const SESSION_FILE = 'server/workers/telegram-session.txt'
 
-const API_ID = 32158158
-const API_HASH = '23610d8a2d6c430e364389f08a179beb'
+// Telegram API credentials come from the environment only (never commit them).
+const API_ID = Number(process.env.TELEGRAM_API_ID)
+const API_HASH = process.env.TELEGRAM_API_HASH ?? ''
+if (!Number.isInteger(API_ID) || API_ID <= 0 || !API_HASH) {
+  console.error('TELEGRAM_API_ID and TELEGRAM_API_HASH must be set in .env.local')
+  process.exit(1)
+}
 
 const CHANNELS = [
   '@NZUIMANTO1',

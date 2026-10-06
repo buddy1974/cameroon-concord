@@ -141,3 +141,19 @@ Inspected, **not merged**. Its route guards are a subset of Stage 0 and were wri
 - Before deploy, owner reviews the diff on `stage-0/security-remediation`.
 - After deploy, smoke test: admin login → edit/save draft → unpublish/republish a **test** article → QuickPublish preview; confirm n8n "Concord — Content Publishing" run succeeds (it uses `/api/admin/articles` + `/api/n8n/claude` with `AUTOMATION_API_KEY`, unchanged).
 - Rollback: Vercel instant rollback to the previous deployment; no database changes were made.
+
+## 7. Preview verification (2026-10-06)
+
+Preview was tested through the owner's browser session (Vercel Deployment Protection stays on; no bypass secret was created). **Preview shares the production database and R2 bucket**, so all article testing was draft-only and nothing was published.
+
+| Area | Result |
+|---|---|
+| Preview env var names | Required names present (ADMIN_PASSWORD, ADMIN_USERNAME, JWT_SECRET, AUTOMATION_API_KEY, DB_*, R2_*). MAINTENANCE_PASSWORD absent (maintenance mode is off). |
+| Public site | Homepage, article, category, RSS, sitemap → 200; R2 and external images load; layout unchanged. |
+| Admin | Invalid login → 401 (no cookie); owner login works; dashboard, article list, editor and admin APIs → 200. |
+| Authorization | All anonymous / junk-cookie / forged-JWT / invalid-key probes → 401 (logged server-side as 401). |
+| Draft workflow | Test draft `[STAGE-0 PREVIEW TEST — DELETE ME]` created, reopened (API + editor), edited: slug unchanged, forced system fields ignored, invalid status → 400; deleted → 404. No test record remains. |
+| Logs | No error/warning-level entries, no AI calls, no social posting, no n8n traffic other than rejected probes. |
+| Not verifiable on Preview | Valid automation key acceptance (would expose the key in a request) and n8n execution history (n8n API behind Cloudflare Access) — confirm with an n8n run at the production gate after key rotation. |
+| Env finding | **`NEXT_PUBLIC_AUTOMATION_API_KEY` is set in Vercel (all environments).** `main`'s QuickPublish referenced it in client code, so its value has been in the public production JS bundle → delete it and treat the value as exposed before production. OPENAI_API_KEY is not set in Vercel (pre-existing; AI routes fall back to Anthropic or return 503). |
+| Preview URL | concord2026-g14ki22m3-buddy1974s-projects.vercel.app (commit 6b38ba7) |

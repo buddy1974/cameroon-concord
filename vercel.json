@@ -1,0 +1,5 @@
+{
+  "crons": [
+    { "path": "/api/newsroom/v1/cron/publish-scheduled", "schedule": "0 5 * * *" }
+  ]
+}

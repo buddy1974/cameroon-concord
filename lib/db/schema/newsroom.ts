@@ -12,7 +12,7 @@ import { sql } from 'drizzle-orm'
 export const NEWSROOM_ROLES = ['viewer', 'contributor', 'editor', 'publisher'] as const
 
 export const newsroomGrants = mysqlTable('newsroom_grants', {
-  telegramUserId: bigint('telegram_user_id', { mode: 'string', unsigned: true }).primaryKey(),
+  telegramUserId: bigint('telegram_user_id', { mode: 'bigint', unsigned: true }).primaryKey(),
   role:           mysqlEnum('role', NEWSROOM_ROLES).notNull(),
   active:         boolean('active').notNull().default(true),
   displayName:    varchar('display_name', { length: 120 }),
@@ -60,6 +60,6 @@ export const newsroomAudit = mysqlTable('newsroom_audit', {
 
 export const newsroomArticleOrigins = mysqlTable('newsroom_article_origins', {
   articleId:      int('article_id', { unsigned: true }).primaryKey(),
-  telegramUserId: bigint('telegram_user_id', { mode: 'string', unsigned: true }).notNull(),
+  telegramUserId: bigint('telegram_user_id', { mode: 'bigint', unsigned: true }).notNull(),
   createdAt:      datetime('created_at').default(sql`CURRENT_TIMESTAMP`),
 })

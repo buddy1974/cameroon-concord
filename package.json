@@ -10,11 +10,14 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"tests/**/*.test.ts\"",
     "social:post": "npx tsx server/workers/social-post.ts",
-    "telegram:ingest": "npx tsx server/workers/telegram-ingest.ts"
+    "telegram:ingest": "npx tsx server/workers/telegram-ingest.ts",
+    "newsroom:migrate": "node scripts/newsroom-migrate.mjs",
+    "newsroom:grant": "node scripts/newsroom-grant.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1022.0",
     "@aws-sdk/lib-storage": "^3.1022.0",
+    "@aws-sdk/s3-request-presigner": "^3.1066.0",
     "@hono/node-server": "^1.19.12",
     "@tiptap/extension-image": "^3.22.0",
     "@tiptap/extension-link": "^3.22.0",

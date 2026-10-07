@@ -45,11 +45,38 @@ export function sha256Hex(data: string | Uint8Array): string {
   return createHash('sha256').update(data).digest('hex')
 }
 
+/** RFC 3986 strict percent-encoding (encodeURIComponent leaves !'()* unescaped). */
+function strictEncode(s: string): string {
+  return encodeURIComponent(s).replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase())
+}
+
+function formDecode(s: string): string {
+  try { return decodeURIComponent(s.replace(/\+/g, ' ')) } catch { return s }
+}
+
+/**
+ * Canonical path + query (contract §2). The query is parsed as application/x-www-form-urlencoded
+ * ('+' and '%20' are both a space), pairs are sorted by name then value, and re-encoded with
+ * strict RFC 3986 encoding. Proxies that re-encode equivalent query bytes (e.g. %20 → '+')
+ * therefore cannot break verification, while every name and value stays signed.
+ */
+export function canonicalPathWithQuery(pathWithQuery: string): string {
+  const i = pathWithQuery.indexOf('?')
+  if (i === -1) return pathWithQuery
+  const path = pathWithQuery.slice(0, i)
+  const pairs = pathWithQuery.slice(i + 1).split('&').filter(Boolean).map((part) => {
+    const eq = part.indexOf('=')
+    return eq === -1 ? [formDecode(part), ''] : [formDecode(part.slice(0, eq)), formDecode(part.slice(eq + 1))]
+  })
+  pairs.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0))
+  return pairs.length ? `${path}?${pairs.map(([k, v]) => `${strictEncode(k)}=${strictEncode(v)}`).join('&')}` : path
+}
+
 export function canonicalString(input: SignatureInput): string {
   return [
     SIGNATURE_VERSION,
     input.method.toUpperCase(),
-    input.pathWithQuery,
+    canonicalPathWithQuery(input.pathWithQuery),
     sha256Hex(input.body),
     String(input.timestamp),
     input.nonce,
